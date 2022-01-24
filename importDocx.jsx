@@ -142,15 +142,19 @@ function __runSequence(_doScriptParameterArray) {
 		return false; 
 	}
 	
-
-	/* Open docx file */
-	var _docxFile = __getDocxFile(_setupObj);
+	/* Get docx file */
+	var _docxFile = __getDocxFile();
 	if(!_docxFile) {
 		return false;
 	}
 	
+	/* Unpack docx file to temp folder  */
+	var _unpackResultObj = __unpackFile(_docxFile);
+	if(!_unpackResultObj) {
+		return false;
+	}
 	
-	
+
 	
 	
 	return true;
@@ -158,11 +162,13 @@ function __runSequence(_doScriptParameterArray) {
 
 
 
-
-function __getDocxFile(_setupObj) {
+/**
+ * Get docx file
+ * @returns File
+ */
+function __getDocxFile() {
 	
 	if(!_global) { return false; }
-	if(!_setupObj || !(_setupObj instanceof Object)) { return false; }
 	
 	const _fileExtRegExp = new RegExp("\\.docx$","i");
 
@@ -179,6 +185,53 @@ function __getDocxFile(_setupObj) {
 	
 	return _wordFile; 
 } /* END function __getDocxFile */
+
+
+/**
+ * Unpack file
+ * @param {File} _file
+ * @returns Object
+ */
+function __unpackFile(_file) {
+	
+	if(!_global) { return false; }
+	if(!_file || !(_file instanceof File) || !_file.exists) { return false; }
+	
+	const _fileExtRegExp = new RegExp("\\..{3,4}$","i");
+
+	var _destFolderPath = "";
+	var _destFolder;
+	
+	try {
+		_destFolderPath = Folder.temp.fullName + "/" + _file.name.replace(_fileExtRegExp,"");
+		_destFolder = Folder(_destFolderPath);
+		app.unpackageUCF(_file, _destFolder);
+	} catch(_error) {
+		_global["log"].push(_error.message);
+		return null;
+	}
+	
+	if(!_destFolder || !_destFolder.exists) {
+		_global["log"].push(localize(_global.unpackDestinationFolderErrorMessage, _destFolderPath));
+		return null;
+	}
+
+	var _xmlDocument = File(_destFolder.fullName + "/word/document.xml");
+	if(!_xmlDocument.exists) {
+		_global["log"].push(localize(_global.unpackFileErrorMessage, _file.fullName));
+		return null;
+	}
+
+	return { 
+		"folder":_destFolder,
+		"document":_xmlDocument
+	}; 
+} /* END function __unpackFile */
+
+
+
+
+
 
 
 
@@ -350,8 +403,14 @@ function __defLocalizeStrings() {
 		de: "Import ist nur für Word-Dokumente (docx) möglich." 
 	};
 	
+	_global.unpackDestinationFolderErrorMessage = { 
+		en: "Destination folder for the unzipped file could not be created: %1",
+		de: "Ziel-Ordner für die entpackte Datei konnte nicht erstellt werden: %1" 
+	};
 	
-	
-	
+	_global.unpackFileErrorMessage = { 
+		en: "File could not be extracted: %1",
+		de: "Datei konnte nicht entpackt werden: %1" 
+	};
 	
 } /* END function __defLocalizeStrings */
