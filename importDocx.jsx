@@ -128,8 +128,8 @@ _global = null;
 /* +++++++++++++++++++++ */
 function __runSequence(_doScriptParameterArray) {
 	
-	if(!_global || !_global.hasOwnProperty("setups")) { 
-		throw new Error("Global object [_global] not defined or has no property [_setups]."); 
+	if(!_global.hasOwnProperty("setups")) { 
+		throw new Error("Global object has no property [_setups]."); 
 	}
 	if(!_doScriptParameterArray || !(_doScriptParameterArray instanceof Array) || _doScriptParameterArray.length === 0) { 
 		throw new Error("Array with length > 1 as parameter required."); 
@@ -158,14 +158,15 @@ function __runSequence(_doScriptParameterArray) {
 	}
 	
 	/* Import XML from unpacked docx file */
-	var _rootXMLElement = __importXML(_doc, _unpackResultObj, _setupObj);
-	if(!_rootXMLElement) {
+	var _docxXMLElement = __importXML(_doc, _unpackResultObj, _setupObj);
+	if(!_docxXMLElement) {
 		return false;
 	}
 
 
 
-	
+	/* ... */
+
 	return true;
 } /* END function __runSequence */
 
@@ -176,8 +177,6 @@ function __runSequence(_doScriptParameterArray) {
  * @returns File
  */
 function __getDocxFile() {
-	
-	if(!_global) { return false; }
 	
 	const _fileExtRegExp = new RegExp("\\.docx$","i");
 
@@ -203,12 +202,11 @@ function __getDocxFile() {
  */
 function __unpackFile(_file) {
 	
-	if(!_global) { return false; }
 	if(!_file || !(_file instanceof File) || !_file.exists) { 
-		throw new Error("File as parameter required."); 
+		throw new Error("Existing file as parameter required."); 
 	}
 	
-	const _fileExtRegExp = new RegExp("\\..{3,4}$","i");
+	const _fileExtRegExp = new RegExp("\\..+$","i");
 
 	var _destFolderPath = "";
 	var _destFolder;
