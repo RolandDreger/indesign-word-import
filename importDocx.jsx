@@ -143,15 +143,12 @@ function __runSequence(_doScriptParameterArray) {
 	}
 	
 
-	/* CODE */
-	/* Sequence functions */
-	
-	/* Funktionsname */
-	var _returnValue = __functionName(_doc, _setupObj);
-	if(!_returnValue) {
-		_global["log"].push("Jetzt fehlen nur noch die Funktionen");
+	/* Open docx file */
+	var _docxFile = __getDocxFile(_setupObj);
+	if(!_docxFile) {
 		return false;
 	}
+	
 	
 	
 	
@@ -161,9 +158,32 @@ function __runSequence(_doScriptParameterArray) {
 
 
 
-/* +++++++++++++++++ */
-/* + Funktionsname + */
-/* +++++++++++++++++ */
+
+function __getDocxFile(_setupObj) {
+	
+	if(!_global) { return false; }
+	if(!_setupObj || !(_setupObj instanceof Object)) { return false; }
+	
+	const _fileExtRegExp = new RegExp("\\.docx$","i");
+
+	var _wordFile = File.openDialog(localize(_global.selectWordFile), null, false);
+	if(!_wordFile || !_wordFile.exists) { 
+		return null; 
+	}
+
+	var _wordFileName = _wordFile.name;
+	if(!_fileExtRegExp.test(_wordFileName)) {
+		_global["log"].push(localize(_global.fileExtensionValidationMessage));
+		return null;
+	}
+	
+	return _wordFile; 
+} /* END function __getDocxFile */
+
+
+
+
+
 function __functionName(_doc, _setupObj) {
 	
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return false; }
@@ -173,9 +193,6 @@ function __functionName(_doc, _setupObj) {
 	
 	return false; 
 } /* END function __functionName */
-
-
-
 
 
 
@@ -323,9 +340,15 @@ function __defLocalizeStrings() {
 		de: "OK" 
 	};
 	
+	_global.selectWordFile = { 
+		en: "Please select the word document ...",
+		de: "Bitte das gew\u00FCnschte Word-Dokument ausw\u00E4hlen ..." 
+	};
 	
-	
-	
+	_global.fileExtensionValidationMessage = { 
+		en: "Import is available only for Word documents (docx).",
+		de: "Import ist nur für Word-Dokumente (docx) möglich." 
+	};
 	
 	
 	
