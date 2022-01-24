@@ -35,7 +35,7 @@ _global["setups"] = {
 /* Check: Developer or User? */
 var _user = $.getenv("USER");
 if(_user === "rolanddreger") {
-	// _global["debug"] = true;
+	_global["debug"] = true;
 }
 
 
@@ -46,35 +46,33 @@ __start();
 
 function __start() {
 	
-	if(!_global) { return false; }
-	
+	if(!_global) { 
+		throw new Error("Global object [_global] not defined.");
+	}
 	
 	/* Deutsch-Englische Dialogtexte definieren */
 	__defLocalizeStrings();
 	
 	/* Progressbar definieren */
 	_global["progressbar"] = __createProgressbar();
+	if(!_global["progressbar"]) {
+		throw new Error(localize(_global.createProgessbarErrorMessage));
+	}
 	
-	var _userEnableRedraw;
-	var _userInteractionLevel;
-	
-	/* ++++++++++++++++++++++++++++++++ */
-	/* +++ Process current document +++ */
-	try {
+	/* Active document */
+	var _doc = app.documents.firstItem();
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) {
+		alert(localize(_global.noDocOpenAlert));
+		return false; 
+	}
 
-		var _doc = app.documents.firstItem();
-		if(!_doc || !(_doc instanceof Document) || !_doc.isValid) {
-			alert(localize(_global.noDocOpenAlert));
-			return false; 
-		}
-		
-		/* Script Presets */
-		_userEnableRedraw = app.scriptPreferences.enableRedraw;
-		app.scriptPreferences.enableRedraw = false;
-		_userInteractionLevel = app.scriptPreferences.userInteractionLevel;
-		app.scriptPreferences.userInteractionLevel = UserInteractionLevels.NEVER_INTERACT;
-		
-		/* Run script sequence */
+	/* Script Presets */
+	var _userEnableRedraw = app.scriptPreferences.enableRedraw;
+	app.scriptPreferences.enableRedraw = false;
+	var _userInteractionLevel = app.scriptPreferences.userInteractionLevel;
+	app.scriptPreferences.userInteractionLevel = UserInteractionLevels.NEVER_INTERACT;
+	
+	try {
 		if(app.scriptPreferences.version >= 6 && !_global["debug"]) {
 			app.doScript(
 				__runSequence, 
@@ -87,21 +85,22 @@ function __start() {
 			__runSequence([_doc]);
 		}
 	} catch(_error) {
-		alert(
-			localize(_global.processingErrorAlert) + "\r" +
-			localize(_global.errorMessageLabel) + " " + _error.message + ";\r" +
-			localize(_global.lineLabel) + " " + _error.line + ";",
-			"Error", true
-		);
+		if(_error instanceof Error) {
+			alert(
+				_error.name + " | " + _error.number + "\n" +
+				localize(_global.errorMessageLabel) + " " + _error.message + ";\n" +
+				localize(_global.lineLabel) + " " + _error.line + ";",
+				"Error", true
+			);
+		} else {
+			alert(localize(_global.processingErrorAlert) + "\n" + _error, "Error", true);
+		}
 	} finally {
 		app.scriptPreferences.enableRedraw = _userEnableRedraw;
 		app.scriptPreferences.userInteractionLevel = _userInteractionLevel;
 	}
-	/* +++ Process current document +++ */
-	/* ++++++++++++++++++++++++++++++++ */
 	
-
-	/* Fehlerausgabe */
+	/* Check: Log messages? */
 	if(_global["log"].length > 0) {
 		__showLog(_global["log"]);
 		return false;
@@ -129,17 +128,21 @@ _global = null;
 /* +++++++++++++++++++++ */
 function __runSequence(_doScriptParameterArray) {
 	
-	if(!_global || !_global.hasOwnProperty("setups")) { return false; }
-	if(!_doScriptParameterArray || !(_doScriptParameterArray instanceof Array) || _doScriptParameterArray.length === 0) { return false; }
+	if(!_global || !_global.hasOwnProperty("setups")) { 
+		throw new Error("Global object [_global] not defined or has no property [_setups]."); 
+	}
+	if(!_doScriptParameterArray || !(_doScriptParameterArray instanceof Array) || _doScriptParameterArray.length === 0) { 
+		throw new Error("Array with length > 1 as parameter required."); 
+	}
 	
 	var _setupObj = _global["setups"];
 	if(!_setupObj || !(_setupObj instanceof Object)) { 
-		return false; 
+		throw new Error("Object as parameter required."); 
 	}
 	
 	var _doc = _doScriptParameterArray[0];
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
-		return false; 
+		throw new Error("Document as parameter required."); 
 	}
 	
 	/* Get docx file */
@@ -154,8 +157,14 @@ function __runSequence(_doScriptParameterArray) {
 		return false;
 	}
 	
+	/* Import XML from unpacked docx file */
+	var _rootXMLElement = __importXML(_doc, _unpackResultObj, _setupObj);
+	if(!_rootXMLElement) {
+		return false;
+	}
 
-	
+
+
 	
 	return true;
 } /* END function __runSequence */
@@ -195,7 +204,9 @@ function __getDocxFile() {
 function __unpackFile(_file) {
 	
 	if(!_global) { return false; }
-	if(!_file || !(_file instanceof File) || !_file.exists) { return false; }
+	if(!_file || !(_file instanceof File) || !_file.exists) { 
+		throw new Error("File as parameter required."); 
+	}
 	
 	const _fileExtRegExp = new RegExp("\\..{3,4}$","i");
 
@@ -229,23 +240,30 @@ function __unpackFile(_file) {
 } /* END function __unpackFile */
 
 
+function __importXML(_doc, _unpackResultObj, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");  
+	}
+	if(!_unpackResultObj || !(_unpackResultObj instanceof Object)) { 
+		throw new Error("Object as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	var _docxXMLElement;
+
+
+
+	return _docxXMLElement;
+} /* END function __importXML */
 
 
 
 
 
 
-
-
-function __functionName(_doc, _setupObj) {
-	
-	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return false; }
-	if(!_setupObj || !(_setupObj instanceof Object)) { return false; }
-	
-	
-	
-	return false; 
-} /* END function __functionName */
 
 
 
@@ -304,8 +322,12 @@ function __createProgressbar() {
 function __showLog(_logMessageArray) {
 	
 	if(!_global) { return false; }
-	if(!_logMessageArray || !(_logMessageArray instanceof Array)|| _logMessageArray.length === 0) { return false; }
+	if(!_logMessageArray || !(_logMessageArray instanceof Array)) { return false; }
 	
+	if(_logMessageArray.length === 0) { 
+		return true; 
+	}
+
 	var _logMessageEdittext;
 	var _okButton;
 
@@ -383,6 +405,11 @@ function __defLocalizeStrings() {
 		de:"Zeile:" 
 	};
 	
+	_global.createProgessbarErrorMessage = { 
+		en:"Progress bar could not be created.",
+		de:"Fortschrittsbalken konnte nicht erstellt werden." 
+	};
+
 	_global.logDialogTitle = { 
 		en: "Messages",
 		de: "Meldungen" 
