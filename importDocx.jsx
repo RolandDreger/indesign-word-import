@@ -29,7 +29,9 @@ var _global = {
 
 /* Document Settings */
 _global["setups"] = {
-	
+	"xslt":{
+		"name":"docx2Indesign.xsl"
+	}
 };
 
 /* Check: Developer or User? */
@@ -146,17 +148,25 @@ function __runSequence(_doScriptParameterArray) {
 	}
 	
 	/* Get docx file */
-	var _docxFile = __getDocxFile();
-	if(!_docxFile) {
-		return false;
-	}
+	// var _docxFile = __getDocxFile();
+	// if(!_docxFile) {
+	// 	return false;
+	// }
 	
 	/* Unpack docx file to temp folder  */
-	var _unpackResultObj = __unpackFile(_docxFile);
-	if(!_unpackResultObj) {
-		return false;
-	}
+	// var _unpackResultObj = __unpackFile(_docxFile);
+	// if(!_unpackResultObj) {
+	// 	return false;
+	// }
 	
+	var _unpackResultObj = {
+		"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import"),
+		"word":{
+			"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import" + "/word/document.xml")
+		}
+	}
+
+
 	/* Import XML from unpacked docx file */
 	var _docxXMLElement = __importXML(_doc, _unpackResultObj, _setupObj);
 	if(!_docxXMLElement) {
@@ -197,47 +207,58 @@ function __getDocxFile() {
 
 /**
  * Unpack file
- * @param {File} _file
+ * @param {File} _packageFile
  * @returns Object
  */
-function __unpackFile(_file) {
+function __unpackFile(_packageFile) {
 	
-	if(!_file || !(_file instanceof File) || !_file.exists) { 
+	if(!_packageFile || !(_packageFile instanceof File) || !_packageFile.exists) { 
 		throw new Error("Existing file as parameter required."); 
 	}
 	
 	const _fileExtRegExp = new RegExp("\\..+$","i");
 
+	var _packageFileName = _packageFile.name;
+	var _packageFilePath = _packageFile.fullName;
 	var _destFolderPath = "";
 	var _destFolder;
 	
 	try {
-		_destFolderPath = Folder.temp.fullName + "/" + _file.name.replace(_fileExtRegExp,"");
+		_destFolderPath = Folder.temp.fullName + "/" + _packageFileName.replace(_fileExtRegExp,"");
 		_destFolder = Folder(_destFolderPath);
-		app.unpackageUCF(_file, _destFolder);
+		app.unpackageUCF(_packageFile, _destFolder);
 	} catch(_error) {
 		_global["log"].push(_error.message);
 		return null;
 	}
 	
 	if(!_destFolder || !_destFolder.exists) {
-		_global["log"].push(localize(_global.unpackDestinationFolderErrorMessage, _destFolderPath));
+		_global["log"].push(localize(_global.unpackageFolderErrorMessage, _destFolderPath));
 		return null;
 	}
 
-	var _xmlDocument = File(_destFolder.fullName + "/word/document.xml");
-	if(!_xmlDocument.exists) {
-		_global["log"].push(localize(_global.unpackFileErrorMessage, _file.fullName));
+	var _xmlDocFile = File(_destFolder.fullName + "/word/document.xml");
+	if(!_xmlDocFile.exists) {
+		_global["log"].push(localize(_global.unpackageDocumentFileErrorMessage, _packageFilePath));
 		return null;
 	}
 
 	return { 
 		"folder":_destFolder,
-		"document":_xmlDocument
+		"word": {
+			"document":_xmlDocFile
+		}
 	}; 
 } /* END function __unpackFile */
 
 
+/**
+ * Import Word document xml file
+ * @param {Document} _doc InDesign document
+ * @param {Objekt} _unpackResultObj Result of unpacking Word document file
+ * @param {Objekt} _setupObj 
+ * @returns XMLElement
+ */
 function __importXML(_doc, _unpackResultObj, _setupObj) {
 
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
@@ -250,32 +271,131 @@ function __importXML(_doc, _unpackResultObj, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	var _docxXMLElement;
+	var _xsltFileName = _setupObj["xslt"]["name"];
+	var _xsltFile = __getXSLTFile(_xsltFileName);
+	if(!_xsltFile) { 
+		return null; 
+	}
 
+	var _unpackFolder = _unpackResultObj["folder"];
+	if(!_unpackFolder || !(_unpackFolder instanceof Folder) || !_unpackFolder.exists) {
+		_global["log"].push(localize(_global.unpackageFolderErrorMessage, _unpackFolder));
+		return null;
+	}
 
+	var _unpackFolderPath = _unpackFolder.fullName;
 
-	return _docxXMLElement;
+	var _wordXMLFile = _unpackResultObj["word"]["document"];
+	if(!_wordXMLFile || !_wordXMLFile.exists) {
+		_global["log"].push(localize(_global.unpackageDocumentFileErrorMessage, _wordXMLFile));
+		return null;
+	}
+	
+	var _rootXMLElement = _doc.xmlElements.firstItem();
+	var _lastXMLElement = _rootXMLElement.xmlElements.lastItem();
+	if(_lastXMLElement.isValid) {
+		_lastXMLElement = resolve(_lastXMLElement.toSpecifier());
+	} else {
+		_lastXMLElement = null;
+	}
+
+	var _userXMLImportPreferences = _doc.xmlImportPreferences.properties;
+
+	try {
+
+		_doc.xmlImportPreferences.properties = {
+			importStyle:XMLImportStyles.APPEND_IMPORT,
+			allowTransform:true,
+			transformFilename:_xsltFile,
+			transformParameters:[["base-uri", _unpackFolderPath]],
+			repeatTextElements:false,
+			ignoreWhitespace:false,
+			createLinkToXML:false,
+			ignoreUnmatchedIncoming:false,
+			importCALSTables:false,
+			importTextIntoTables:false,
+			importToSelected:false,
+			removeUnmatchedExisting:false
+		};
+
+		_rootXMLElement.importXML(_wordXMLFile);
+
+	} catch(_error) {
+		_global["log"].push(localize(_global.xmlFileImportXMLErrorMessage) + " " + _error.message);
+		return false;
+	} finally {
+		_doc.xmlImportPreferences.properties = _userXMLImportPreferences;
+	}
+
+	var _wordXMLElement = _rootXMLElement.xmlElements.lastItem();
+	if(!_wordXMLElement.isValid) {
+		_global["log"].push(localize(_global.xmlDataImportErrorMessage));
+		return false; 
+	}
+
+	_wordXMLElement = resolve(_wordXMLElement.toSpecifier());
+	if(_wordXMLElement === _lastXMLElement) {
+		_global["log"].push(localize(_global.xmlDataImportErrorMessage));
+		return false; 
+	}
+
+	return _wordXMLElement;
 } /* END function __importXML */
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-/* +++++++++++++++++++++++++++++ */
-/* +++ Allgemeine Funktionen +++ */
-/* +++++++++++++++++++++++++++++ */
 /**
- * Fortschrittsanzeige
- * @returns {SUIWindow}
+ * Get XSL transformation file
+ * @param {String} _xsltFileName 
+ * @returns File
+ */
+function __getXSLTFile(_xsltFileName) {
+		 
+	if(!_xsltFileName || _xsltFileName.constructor !== String) { 
+		throw new Error("Object as string required.");
+	}
+
+	const _xslFileExtRegExp = new RegExp("\\.xsl$", "i");
+
+	var _xsltFolder = __getScriptFolder();
+	if(!_xsltFolder || !_xsltFolder.exists) { 
+		_global["log"].push(localize(_global.scriptFolderErrorMessage));
+		return false; 
+	}
+
+	var _xsltFile = _xsltFolder.getFiles(_xsltFileName)[0];
+	if(!_xsltFile || !_xsltFile.exists) {
+		_xsltFile = File.openDialog(localize(_global.selectXSLFile, _xsltFileName), null, false);
+		if(!_xsltFile) {
+			return null;
+		}
+		
+	}
+
+	if(!_xsltFile.exists || !_xslFileExtRegExp.test(_xsltFile.name)) {
+		_global["log"].push(localize(_global.noXSLFileErrorMessage));
+		return null;
+	}
+
+	return _xsltFile;
+} /* END function __getXSLTFile */
+
+
+
+
+
+
+
+
+
+
+
+
+/* +++++++++++++++++++++++++ */
+/* +++ General functions +++ */
+/* +++++++++++++++++++++++++ */
+/**
+ * Progress bar
+ * @returns SUIWindow
  */
 function __createProgressbar() {
 	
@@ -316,7 +436,11 @@ function __createProgressbar() {
 } /* END function __createProgressbar */
 
 
-/* Anzeige der Log-Meldungen */
+/**
+ * Show log messages
+ * @param {Array} _logMessageArray 
+ * @returns Boolean
+ */
 function __showLog(_logMessageArray) {
 	
 	if(!_global) { return false; }
@@ -375,7 +499,35 @@ function __showLog(_logMessageArray) {
 } /* END function __showLog */
 
 
-/* Deutsch-Englische Dialogtexte definieren */
+/**
+ * Get path for current script
+ * @returns String
+ */
+function __getScriptFolder() {
+	
+	var _skriptFolder;
+	
+	try {
+		_skriptFolder  = app.activeScript.parent;
+	} catch (_error) { 
+		_skriptFolder = File(_error.fileName).parent;
+	}
+	
+	if(!_skriptFolder || !_skriptFolder.exists) { 
+		return null; 
+	}
+
+	return _skriptFolder;
+} /* END function __getScriptFolder */
+
+
+
+
+
+
+/**
+ * Define localize strings
+ */
 function __defLocalizeStrings() {
 	
 	_global.noDocOpenAlert = { 
@@ -428,14 +580,39 @@ function __defLocalizeStrings() {
 		de: "Import ist nur für Word-Dokumente (docx) möglich." 
 	};
 	
-	_global.unpackDestinationFolderErrorMessage = { 
+	_global.unpackageFolderErrorMessage = { 
 		en: "Destination folder for the unzipped file could not be created: %1",
 		de: "Ziel-Ordner für die entpackte Datei konnte nicht erstellt werden: %1" 
 	};
 	
-	_global.unpackFileErrorMessage = { 
+	_global.unpackageDocumentFileErrorMessage = { 
 		en: "File could not be extracted: %1",
 		de: "Datei konnte nicht entpackt werden: %1" 
 	};
 	
+	_global.scriptFolderErrorMessage = { 
+		en: "Script folder could not be determined.",
+		de: "Skriptordner konnte nicht ermittelt werden." 
+	};
+
+	_global.selectXSLFile = { 
+		en:"Please select the XSL transformation file [%1] ...", 
+		de:"Bitte die XSL-Transformationsdatei [%1] ausw\u00E4hlen ..."
+	};
+
+	_global.noXSLFileErrorMessage = { 
+		en:"The XSL transformation file (.xsl) could not be found. The import will be canceled.",
+		de:"Die XSL-Transformationsdatei (.xsl) konnte nicht gefunden werden. Der Import wird abgebrochen." 
+	};
+
+	_global.xmlDataImportErrorMessage = { 
+		en:"No XML data imported",
+		de:"Keine XML-Daten importiert" 
+	};
+
+	_global.xmlFileImportXMLErrorMessage = { 
+		en:"Unable to import selected XML file.", 
+		de:"Die ausgew\u00E4hlte XML-Datei konnte nicht importiert werden." 
+	}
+
 } /* END function __defLocalizeStrings */
