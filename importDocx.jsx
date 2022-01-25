@@ -16,7 +16,7 @@
 
 		+ Hints
 		
-			 
+		  Temp folder e.g. /private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import
 			
 */
 
@@ -153,8 +153,8 @@ function __runSequence(_doScriptParameterArray) {
 	// 	return false;
 	// }
 	
-	/* Unpack docx file to temp folder  */
-	// var _unpackResultObj = __unpackFile(_docxFile);
+	/* Get package data */
+	// var _unpackResultObj = __getPackageData(_docxFile);
 	// if(!_unpackResultObj) {
 	// 	return false;
 	// }
@@ -188,7 +188,7 @@ function __runSequence(_doScriptParameterArray) {
  */
 function __getDocxFile() {
 	
-	const _fileExtRegExp = new RegExp("\\.docx$","i");
+	const _wordExtRegExp = new RegExp("(\\.docx$|\\.xml$)","i");
 
 	var _wordFile = File.openDialog(localize(_global.selectWordFile), null, false);
 	if(!_wordFile || !_wordFile.exists) { 
@@ -196,7 +196,7 @@ function __getDocxFile() {
 	}
 
 	var _wordFileName = _wordFile.name;
-	if(!_fileExtRegExp.test(_wordFileName)) {
+	if(!_wordExtRegExp.test(_wordFileName)) {
 		_global["log"].push(localize(_global.fileExtensionValidationMessage));
 		return null;
 	}
@@ -206,25 +206,45 @@ function __getDocxFile() {
 
 
 /**
- * Unpack file
+ * Get package data
+ * (Unpack file to temp folder if docx)
  * @param {File} _packageFile
  * @returns Object
  */
-function __unpackFile(_packageFile) {
+function __getPackageData(_packageFile) {
 	
 	if(!_packageFile || !(_packageFile instanceof File) || !_packageFile.exists) { 
 		throw new Error("Existing file as parameter required."); 
 	}
 	
-	const _fileExtRegExp = new RegExp("\\..+$","i");
+	const _xmlExtRegExp = new RegExp("\\.xml$","i");
+	const _docxExtRegExp = new RegExp("\\.docx$","i");
+	const _fileExtRegExp = new RegExp("\\..+$","");
 
 	var _packageFileName = _packageFile.name;
 	var _packageFilePath = _packageFile.fullName;
+	
+	/* Check: Word-XML-Document (.xml)? */
+	if(_xmlExtRegExp.test(_packageFileName)) {
+		return { 
+			"folder":null,
+			"word": {
+				"document":_packageFile
+			}
+		};
+	}
+
+	/* Check: Word Document (.docx)? */
+	if(!_docxExtRegExp.test(_packageFileName)) {
+		return null;
+	}
+
 	var _destFolderPath = "";
 	var _destFolder;
 	
+	/* Unpack Word Document */
 	try {
-		_destFolderPath = Folder.temp.fullName + "/" + _packageFileName.replace(_fileExtRegExp,"");
+		_destFolderPath = Folder.temp.fullName + "/" + _packageFileName.replace(_fileExtRegExp, "");
 		_destFolder = Folder(_destFolderPath);
 		app.unpackageUCF(_packageFile, _destFolder);
 	} catch(_error) {
@@ -249,7 +269,7 @@ function __unpackFile(_packageFile) {
 			"document":_xmlDocFile
 		}
 	}; 
-} /* END function __unpackFile */
+} /* END function __getPackageData */
 
 
 /**
@@ -277,17 +297,15 @@ function __importXML(_doc, _unpackResultObj, _setupObj) {
 		return null; 
 	}
 
+	var _unpackFolderPath = "";
 	var _unpackFolder = _unpackResultObj["folder"];
-	if(!_unpackFolder || !(_unpackFolder instanceof Folder) || !_unpackFolder.exists) {
-		_global["log"].push(localize(_global.unpackageFolderErrorMessage, _unpackFolder));
-		return null;
+	if(_unpackFolder && _unpackFolder instanceof Folder && _unpackFolder.exists) {
+		_unpackFolderPath = _unpackFolder.fullName;
 	}
-
-	var _unpackFolderPath = _unpackFolder.fullName;
 
 	var _wordXMLFile = _unpackResultObj["word"]["document"];
 	if(!_wordXMLFile || !_wordXMLFile.exists) {
-		_global["log"].push(localize(_global.unpackageDocumentFileErrorMessage, _wordXMLFile));
+		_global["log"].push(localize(_global.wordDocumentFileErrorMessage, _wordXMLFile));
 		return null;
 	}
 	
@@ -571,13 +589,13 @@ function __defLocalizeStrings() {
 	};
 	
 	_global.selectWordFile = { 
-		en: "Please select the word document ...",
-		de: "Bitte das gew\u00FCnschte Word-Dokument ausw\u00E4hlen ..." 
+		en: "Please select Word (.docx) or Word XML Document (.xml) ...",
+		de: "Bitte Word-Dokument (.docx) oder Word-XML-Dokument (.xml) ausw\u00E4hlen ..." 
 	};
 	
 	_global.fileExtensionValidationMessage = { 
-		en: "Import is available only for Word documents (docx).",
-		de: "Import ist nur für Word-Dokumente (docx) möglich." 
+		en: "Import is available only for Word (.docx) or Word XML Document (.xml).",
+		de: "Import ist nur für Word-Dokumente (.docx) oder Word-XML-Dokument (.xml) möglich." 
 	};
 	
 	_global.unpackageFolderErrorMessage = { 
@@ -615,4 +633,8 @@ function __defLocalizeStrings() {
 		de:"Die ausgew\u00E4hlte XML-Datei konnte nicht importiert werden." 
 	}
 
+	_global.wordDocumentFileErrorMessage = { 
+		en: "File for import could not be found: %1",
+		de: "Datei für Import konnte nicht gefunden werden: %1" 
+	};
 } /* END function __defLocalizeStrings */
