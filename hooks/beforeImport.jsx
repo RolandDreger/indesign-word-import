@@ -18,7 +18,7 @@ function __beforeImport(_doc, _unpackObj, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	$.writeln("beforeImport");
+	// $.writeln("beforeImport");
 
 	return {};
 } /* END function __beforeImport */

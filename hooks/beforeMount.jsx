@@ -22,7 +22,7 @@ function __beforeMount(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	$.writeln("beforeMount");
+	// $.writeln("beforeMount");
 
 	return {};
 } /* END function __beforeMount */

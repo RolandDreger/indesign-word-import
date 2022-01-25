@@ -22,7 +22,7 @@ function __beforePlace(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	$.writeln("beforePlace");
+	// $.writeln("beforePlace");
 
 	return {};
 } /* END function __beforePlace */
