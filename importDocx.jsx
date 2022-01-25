@@ -38,6 +38,9 @@ var _global = {
 _global["setups"] = {
 	"xslt":{
 		"name":"docx2Indesign.xsl"
+	},
+	"place":{
+		"isAutoflowing": true /* If true, autoflows placed text. */
 	}
 };
 
@@ -202,7 +205,15 @@ function __runSequence(_doScriptParameterArray) {
 		return false;
 	}
 
+	/* Place imported XML */
+	var _wordStory = __placeXML(_doc, _wordXMLElement, _setupObj);
+	if(!_wordStory) {
+		return false;
+	}
+
+
 	/* ... */
+
 
 	/* Hook: afterPlace */
 	var _afterPlaceResultObj = __afterPlace(_doc, _unpackObj, _wordXMLElement, _setupObj);
@@ -438,12 +449,76 @@ function __getXSLTFile(_xsltFileName) {
 
 
 
+
+
 /* ++++++++++ */
 /* +  Mount + */
 /* ++++++++++ */
 
 
 
+
+
+/* +++++++++ */
+/* + Place + */
+/* +++++++++ */
+
+/**
+ * Place imported XML  
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement
+ * @param {Object} _setupObj
+ * @returns Object
+ */
+function __placeXML(_doc, _wordXMLElement, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");  
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const IS_AUTOFLOWING = _setupObj["place"]["isAutoflowing"];
+
+	var _page = _doc.pages.lastItem();
+	if(_page.allPageItems.length !== 0) {
+		_page = _doc.pages.add(LocationOptions.AFTER, _page);
+	}
+
+	var _userZeroPoint = _doc.zeroPoint;
+	_doc.zeroPoint = [0,0];
+
+	var _placePointTop = _page.marginPreferences.top;
+	var _placePointLeft = _page.marginPreferences.left;
+
+	var _wordTextFrame;
+
+	try {
+		_wordTextFrame = _page.placeXML(_wordXMLElement, [_placePointTop, _placePointLeft], IS_AUTOFLOWING);
+	} catch(_error) {
+		_global["log"].push(_error.message);
+		return null;
+	} finally {
+		_doc.zeroPoint = _userZeroPoint;
+	}
+	
+	if(!_wordTextFrame || !_wordTextFrame.isValid) {
+		_global["log"].push(localize(_global.wordTextFrameValidationErrorMessage));
+		return null;
+	}
+
+	var _wordStory = _wordTextFrame.parentStory;
+	if(!_wordStory || !_wordStory.isValid) {
+		_global["log"].push(localize(_global.wordStoryValidationErrorMessage));
+		return null;
+	}
+
+	return _wordStory;
+} /* END function __placeXML */
 
 
 
@@ -684,4 +759,16 @@ function __defLocalizeStrings() {
 		en: "File for import could not be found: %1",
 		de: "Datei für Import konnte nicht gefunden werden: %1" 
 	};
+
+	_global.wordTextFrameValidationErrorMessage = { 
+		en: "Textframe with placed content not valid.",
+		de: "Textrahmen mit platziertem Inhalt nicht valide." 
+	};
+
+	_global.wordStoryValidationErrorMessage = { 
+		en: "Story with placed content not valid.",
+		de: "Textabschnitt mit platziertem Inhalt nicht valide." 
+	};
+
+
 } /* END function __defLocalizeStrings */
