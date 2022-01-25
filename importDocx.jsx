@@ -312,7 +312,7 @@ function __importXML(_doc, _unpackResultObj, _setupObj) {
 	var _rootXMLElement = _doc.xmlElements.firstItem();
 	var _lastXMLElement = _rootXMLElement.xmlElements.lastItem();
 	if(_lastXMLElement.isValid) {
-		_lastXMLElement = resolve(_lastXMLElement.toSpecifier());
+		_lastXMLElement = _lastXMLElement.getElements()[0];
 	} else {
 		_lastXMLElement = null;
 	}
@@ -345,13 +345,13 @@ function __importXML(_doc, _unpackResultObj, _setupObj) {
 		_doc.xmlImportPreferences.properties = _userXMLImportPreferences;
 	}
 
+	/* Check: XML import successful? */
 	var _wordXMLElement = _rootXMLElement.xmlElements.lastItem();
 	if(!_wordXMLElement.isValid) {
 		_global["log"].push(localize(_global.xmlDataImportErrorMessage));
 		return false; 
 	}
-
-	_wordXMLElement = resolve(_wordXMLElement.toSpecifier());
+	_wordXMLElement = _wordXMLElement.getElements()[0];
 	if(_wordXMLElement === _lastXMLElement) {
 		_global["log"].push(localize(_global.xmlDataImportErrorMessage));
 		return false; 
