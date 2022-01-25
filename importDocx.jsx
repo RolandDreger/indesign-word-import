@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: 24. January 2022
 		
-		+ Last modified: 24. January 2022
+		+ Last modified: 25. January 2022
 		
 		
 		+ Descriptions
@@ -19,6 +19,13 @@
 		  Temp folder e.g. /private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import
 			
 */
+
+/* Hooks */
+//@include "hooks/beforeImport.jsx"
+//@include "hooks/afterImport.jsx"
+//@include "hooks/beforeMount.jsx"
+//@include "hooks/afterMount.jsx"
+
 
 var _global = {
 	"projectName":"Import_Word",
@@ -37,7 +44,7 @@ _global["setups"] = {
 /* Check: Developer or User? */
 var _user = $.getenv("USER");
 if(_user === "rolanddreger") {
-	_global["debug"] = true;
+	// _global["debug"] = true;
 }
 
 
@@ -91,7 +98,8 @@ function __start() {
 			alert(
 				_error.name + " | " + _error.number + "\n" +
 				localize(_global.errorMessageLabel) + " " + _error.message + ";\n" +
-				localize(_global.lineLabel) + " " + _error.line + ";",
+				localize(_global.lineLabel) + " " + _error.line + "\n" + 
+				localize(_global.fileNameLabel) + " " + _error.fileName,
 				"Error", true
 			);
 		} else {
@@ -166,21 +174,55 @@ function __runSequence(_doScriptParameterArray) {
 		}
 	}
 
+	/* Hook: beforeImport */
+	var _beforeImportResultObj = __beforeImport(_doc, _setupObj);
+	if(!_beforeImportResultObj) {
+		return false;
+	}
 
 	/* Import XML from unpacked docx file */
-	var _docxXMLElement = __importXML(_doc, _unpackResultObj, _setupObj);
-	if(!_docxXMLElement) {
+	var _wordXMLElement = __importXML(_doc, _unpackResultObj, _setupObj);
+	if(!_wordXMLElement) {
+		return false;
+	}
+
+	/* Hook: afterImport */
+	var _afterImportResultObj = __afterImport(_doc, _wordXMLElement, _setupObj);
+	if(!_afterImportResultObj) {
+		return false;
+	}
+
+	/* Hook: beforeMount */
+	var _beforeMountResultObj = __beforeMount(_doc, _wordXMLElement, _setupObj);
+	if(!_beforeMountResultObj) {
 		return false;
 	}
 
 
 
+
+
 	/* ... */
+
+
+
+
+
+	/* Hook: afterMount */
+	var _afterMountResultObj = __afterMount(_doc, _wordXMLElement, _setupObj);
+	if(!_afterMountResultObj) {
+		return false;
+	}
 
 	return true;
 } /* END function __runSequence */
 
 
+
+
+/* +++++++++++ */
+/* +  Import + */
+/* +++++++++++ */
 
 /**
  * Get docx file
@@ -400,6 +442,9 @@ function __getXSLTFile(_xsltFileName) {
 
 
 
+/* ++++++++++ */
+/* +  Mount + */
+/* ++++++++++ */
 
 
 
@@ -408,9 +453,10 @@ function __getXSLTFile(_xsltFileName) {
 
 
 
-/* +++++++++++++++++++++++++ */
-/* +++ General functions +++ */
-/* +++++++++++++++++++++++++ */
+
+/* +++++++++++++++++++++++ */
+/* + General functions + */
+/* +++++++++++++++++++++++ */
 /**
  * Progress bar
  * @returns SUIWindow
@@ -559,8 +605,8 @@ function __defLocalizeStrings() {
 	};
 	
 	_global.processingErrorAlert = { 
-		en:"Error processing the document!",
-		de:"Fehler bei der Verarbeitung des Dokuments!" 
+		en:"Skript Error",
+		de:"Skriptfehler" 
 	};
 
 	_global.errorMessageLabel = { 
@@ -573,6 +619,11 @@ function __defLocalizeStrings() {
 		de:"Zeile:" 
 	};
 	
+	_global.fileNameLabel = { 
+		en:"File:",
+		de:"Datei:" 
+	};
+
 	_global.createProgessbarErrorMessage = { 
 		en:"Progress bar could not be created.",
 		de:"Fortschrittsbalken konnte nicht erstellt werden." 
