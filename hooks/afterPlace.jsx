@@ -1,15 +1,19 @@
 /**
- * Hook: afterMount 
- * Handler runs after mounting InDesign objects e.g. footnotes, index, ... 
+ * Hook: afterPlace 
+ * Handler runs after placing XML 
  * @param {Document} _doc 
+ * @param {Object} _unpackObj
  * @param {XMLElement} _wordXMLElement
  * @param {Object} _setupObj
  * @returns Object
  */
-function __afterMount(_doc, _wordXMLElement, _setupObj) {
+function __afterPlace(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
 		throw new Error("Document as parameter required.");
+	}
+	if(!_unpackObj || !(_unpackObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
 	}
 	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
 		throw new Error("XMLElement as parameter required."); 
@@ -18,7 +22,7 @@ function __afterMount(_doc, _wordXMLElement, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	// $.writeln("afterMount");
+	$.writeln("afterPlace");
 
 	return {};
-} /* END function __afterMount */
+} /* END function __afterPlace */

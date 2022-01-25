@@ -22,9 +22,9 @@
 
 /* Hooks */
 //@include "hooks/beforeImport.jsx"
-//@include "hooks/afterImport.jsx"
 //@include "hooks/beforeMount.jsx"
-//@include "hooks/afterMount.jsx"
+//@include "hooks/beforePlace.jsx"
+//@include "hooks/afterPlace.jsx"
 
 
 var _global = {
@@ -162,12 +162,12 @@ function __runSequence(_doScriptParameterArray) {
 	// }
 	
 	/* Get package data */
-	// var _unpackResultObj = __getPackageData(_docxFile);
-	// if(!_unpackResultObj) {
+	// var _unpackObj = __getPackageData(_docxFile);
+	// if(!_unpackObj) {
 	// 	return false;
 	// }
 	
-	var _unpackResultObj = {
+	var _unpackObj = {
 		"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import"),
 		"word":{
 			"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import" + "/word/document.xml")
@@ -175,42 +175,38 @@ function __runSequence(_doScriptParameterArray) {
 	}
 
 	/* Hook: beforeImport */
-	var _beforeImportResultObj = __beforeImport(_doc, _setupObj);
+	var _beforeImportResultObj = __beforeImport(_doc, _unpackObj, _setupObj);
 	if(!_beforeImportResultObj) {
 		return false;
 	}
 
 	/* Import XML from unpacked docx file */
-	var _wordXMLElement = __importXML(_doc, _unpackResultObj, _setupObj);
+	var _wordXMLElement = __importXML(_doc, _unpackObj, _setupObj);
 	if(!_wordXMLElement) {
 		return false;
 	}
 
-	/* Hook: afterImport */
-	var _afterImportResultObj = __afterImport(_doc, _wordXMLElement, _setupObj);
-	if(!_afterImportResultObj) {
-		return false;
-	}
-
 	/* Hook: beforeMount */
-	var _beforeMountResultObj = __beforeMount(_doc, _wordXMLElement, _setupObj);
+	var _beforeMountResultObj = __beforeMount(_doc, _unpackObj, _wordXMLElement, _setupObj);
 	if(!_beforeMountResultObj) {
 		return false;
 	}
 
 
-
-
-
 	/* ... */
 
 
+	/* Hook: beforePlace */
+	var _beforePlaceResultObj = __beforePlace(_doc, _unpackObj, _wordXMLElement, _setupObj);
+	if(!_beforePlaceResultObj) {
+		return false;
+	}
 
+	/* ... */
 
-
-	/* Hook: afterMount */
-	var _afterMountResultObj = __afterMount(_doc, _wordXMLElement, _setupObj);
-	if(!_afterMountResultObj) {
+	/* Hook: afterPlace */
+	var _afterPlaceResultObj = __afterPlace(_doc, _unpackObj, _wordXMLElement, _setupObj);
+	if(!_afterPlaceResultObj) {
 		return false;
 	}
 
@@ -317,16 +313,16 @@ function __getPackageData(_packageFile) {
 /**
  * Import Word document xml file
  * @param {Document} _doc InDesign document
- * @param {Objekt} _unpackResultObj Result of unpacking Word document file
+ * @param {Objekt} _unpackObj Result of unpacking Word document file
  * @param {Objekt} _setupObj 
  * @returns XMLElement
  */
-function __importXML(_doc, _unpackResultObj, _setupObj) {
+function __importXML(_doc, _unpackObj, _setupObj) {
 
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
 		throw new Error("Document as parameter required.");  
 	}
-	if(!_unpackResultObj || !(_unpackResultObj instanceof Object)) { 
+	if(!_unpackObj || !(_unpackObj instanceof Object)) { 
 		throw new Error("Object as parameter required."); 
 	}
 	if(!_setupObj || !(_setupObj instanceof Object)) { 
@@ -340,12 +336,12 @@ function __importXML(_doc, _unpackResultObj, _setupObj) {
 	}
 
 	var _unpackFolderPath = "";
-	var _unpackFolder = _unpackResultObj["folder"];
+	var _unpackFolder = _unpackObj["folder"];
 	if(_unpackFolder && _unpackFolder instanceof Folder && _unpackFolder.exists) {
 		_unpackFolderPath = _unpackFolder.fullName;
 	}
 
-	var _wordXMLFile = _unpackResultObj["word"]["document"];
+	var _wordXMLFile = _unpackObj["word"]["document"];
 	if(!_wordXMLFile || !_wordXMLFile.exists) {
 		_global["log"].push(localize(_global.wordDocumentFileErrorMessage, _wordXMLFile));
 		return null;
@@ -378,7 +374,7 @@ function __importXML(_doc, _unpackResultObj, _setupObj) {
 			removeUnmatchedExisting:false
 		};
 
-		_rootXMLElement.importXML(_wordXMLFile);
+		_doc.importXML(_wordXMLFile);
 
 	} catch(_error) {
 		_global["log"].push(localize(_global.xmlFileImportXMLErrorMessage) + " " + _error.message);
@@ -682,7 +678,7 @@ function __defLocalizeStrings() {
 	_global.xmlFileImportXMLErrorMessage = { 
 		en:"Unable to import selected XML file.", 
 		de:"Die ausgew\u00E4hlte XML-Datei konnte nicht importiert werden." 
-	}
+	};
 
 	_global.wordDocumentFileErrorMessage = { 
 		en: "File for import could not be found: %1",
