@@ -22,6 +22,7 @@
 
 /* Hooks */
 //@include "lib/dialogs.jsx"
+//@include "lib/helpers.jsx"
 //@include "hooks/beforeImport.jsx"
 //@include "hooks/beforeMount.jsx"
 //@include "hooks/beforePlace.jsx"
@@ -179,9 +180,9 @@ function __runSequence(_doScriptParameterArray) {
 	// }
 	
 	var _unpackObj = {
-		"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import"),
+		"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220027_184755318"),
 		"word":{
-			"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import" + "/word/document.xml")
+			"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220027_184755318" + "/word/document.xml")
 		}
 	};
 
@@ -273,10 +274,11 @@ function __getPackageData(_packageFile) {
 	if(!_packageFile || !(_packageFile instanceof File) || !_packageFile.exists) { 
 		throw new Error("Existing file as parameter required."); 
 	}
-	
+
+	const TEMP_FOLDER_NAME = "InDesign_Word_Import";
+
 	const _xmlExtRegExp = new RegExp("\\.xml$","i");
 	const _docxExtRegExp = new RegExp("\\.docx$","i");
-	const _fileExtRegExp = new RegExp("\\..+$","");
 
 	var _packageFileName = _packageFile.name;
 	var _packageFilePath = _packageFile.fullName;
@@ -296,32 +298,57 @@ function __getPackageData(_packageFile) {
 		return null;
 	}
 
-	var _destFolderPath = "";
-	var _destFolder;
-	
+	var _tempFolderPath = "";
+	var _tempFolder;
+	var _packageFolderPath = "";
+	var _packageFolder;
+
+	var _timestamp = __getTimestamp();
+
+	/* Create temporary package folder */
+	try {
+		_tempFolderPath = Folder.temp.fullName + "/" + TEMP_FOLDER_NAME;
+		_tempFolder = Folder(_tempFolderPath);
+		if(!_tempFolder.exists) {
+			_tempFolder.create();
+		}
+		_packageFolderPath = _tempFolder.fullName + "/package_" + _timestamp;
+		_packageFolder = Folder(_packageFolderPath);
+	} catch(_error) {
+		_global["log"].push(_error.message);
+		return null;
+	}
+
+	if(!_tempFolder || !(_tempFolder instanceof Folder) || !_tempFolder.exists) {
+		_global["log"].push(localize(_global.createFolderErrorMessage, _tempFolderPath));
+		return null;
+	}
+	if(!_packageFolder || !(_packageFolder instanceof Folder)) {
+		_global["log"].push(localize(_global.createFolderErrorMessage, _packageFolderPath));
+		return null;
+	}
+
 	/* Unpack Word Document */
 	try {
-		_destFolderPath = Folder.temp.fullName + "/" + _packageFileName.replace(_fileExtRegExp, "");
-		_destFolder = Folder(_destFolderPath);
-		app.unpackageUCF(_packageFile, _destFolder);
+		app.unpackageUCF(_packageFile, _packageFolder);
 	} catch(_error) {
 		_global["log"].push(_error.message);
 		return null;
 	}
 	
-	if(!_destFolder || !_destFolder.exists) {
-		_global["log"].push(localize(_global.unpackageFolderErrorMessage, _destFolderPath));
+	if(!_packageFolder.exists) {
+		_global["log"].push(localize(_global.unpackageFolderErrorMessage, _packageFolderPath));
 		return null;
 	}
 
-	var _xmlDocFile = File(_destFolder.fullName + "/word/document.xml");
+	var _xmlDocFile = File(_packageFolder.fullName + "/word/document.xml");
 	if(!_xmlDocFile.exists) {
 		_global["log"].push(localize(_global.unpackageDocumentFileErrorMessage, _packageFilePath));
 		return null;
 	}
 
 	return { 
-		"folder":_destFolder,
+		"folder":_packageFolder,
 		"word": {
 			"document":_xmlDocFile
 		}
@@ -631,6 +658,11 @@ function __defLocalizeStrings() {
 		de: "Import ist nur für Word-Dokumente (.docx) oder Word-XML-Dokument (.xml) möglich." 
 	};
 	
+	_global.createFolderErrorMessage = { 
+		en: "Order could not be created: %1",
+		de: "Order konnte nicht erstellt werden: %1" 
+	};
+
 	_global.unpackageFolderErrorMessage = { 
 		en: "Destination folder for the unzipped file could not be created: %1",
 		de: "Ziel-Ordner für die entpackte Datei konnte nicht erstellt werden: %1" 
