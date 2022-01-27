@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: 24. January 2022
 		
-		+ Last modified: 25. January 2022
+		+ Last modified: 27. January 2022
 		
 		
 		+ Descriptions
@@ -28,7 +28,7 @@
 
 
 var _global = {
-	"projectName":"Import_Word",
+	"projectName":"Import_Docx",
 	"version":"1.0",
 	"debug":false,
 	"log":[]
@@ -36,17 +36,20 @@ var _global = {
 
 /* Document Settings */
 _global["setups"] = {
+	"user":$.getenv("USER"),
 	"xslt":{
 		"name":"docx2Indesign.xsl"
 	},
+	"tags":{
+		"image":"Bild"
+	},
 	"place":{
-		"isAutoflowing": true /* If true, autoflows placed text. */
+		"isAutoflowing": false /* If true, autoflows placed text. */
 	}
 };
 
 /* Check: Developer or User? */
-var _user = $.getenv("USER");
-if(_user === "rolanddreger") {
+if(_global["setups"]["user"] === "rolanddreger") {
 	// _global["debug"] = true;
 }
 
@@ -136,9 +139,14 @@ _global = null;
 
 
 
-/* +++++++++++++++++++++ */
-/* +++ Main Sequence +++ */
-/* +++++++++++++++++++++ */
+/* +++++++++++++++++ */
+/* + Main Sequence + */
+/* +++++++++++++++++ */
+/**
+ * 
+ * @param {Array} _doScriptParameterArray 
+ * @returns Boolean
+ */
 function __runSequence(_doScriptParameterArray) {
 	
 	if(!_global.hasOwnProperty("setups")) { 
