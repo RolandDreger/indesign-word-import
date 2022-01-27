@@ -21,6 +21,7 @@
 */
 
 /* Hooks */
+//@include "lib/dialogs.jsx"
 //@include "hooks/beforeImport.jsx"
 //@include "hooks/beforeMount.jsx"
 //@include "hooks/beforePlace.jsx"
@@ -69,7 +70,7 @@ function __start() {
 	__defLocalizeStrings();
 	
 	/* Progressbar definieren */
-	_global["progressbar"] = __createProgressbar();
+	_global["progressbar"] = new ProgressBar();
 	if(!_global["progressbar"]) {
 		throw new Error(localize(_global.createProgessbarErrorMessage));
 	}
@@ -128,8 +129,7 @@ function __start() {
 
 if(
 	_global !== null && _global !== undefined && 
-	_global.hasOwnProperty("progressbar") && 
-	_global["progressbar"].hasOwnProperty("close")
+	_global.hasOwnProperty("progressbar")
 ) {
 	_global["progressbar"].close();
 }
@@ -165,7 +165,7 @@ function __runSequence(_doScriptParameterArray) {
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
 		throw new Error("Document as parameter required."); 
 	}
-	
+
 	/* Get docx file */
 	// var _docxFile = __getDocxFile();
 	// if(!_docxFile) {
@@ -183,7 +183,7 @@ function __runSequence(_doScriptParameterArray) {
 		"word":{
 			"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import" + "/word/document.xml")
 		}
-	}
+	};
 
 	/* Hook: beforeImport */
 	var _beforeImportResultObj = __beforeImport(_doc, _unpackObj, _setupObj);
@@ -205,7 +205,7 @@ function __runSequence(_doScriptParameterArray) {
 
 
 	/* ... */
-
+	
 
 	/* Hook: beforePlace */
 	var _beforePlaceResultObj = __beforePlace(_doc, _unpackObj, _wordXMLElement, _setupObj);
@@ -348,6 +348,8 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
+	_global["progressbar"].init(0, 1, "", localize(_global.importProgressLabel));
+
 	var _xsltFileName = _setupObj["xslt"]["name"];
 	var _xsltFile = __getXSLTFile(_xsltFileName);
 	if(!_xsltFile) { 
@@ -455,7 +457,26 @@ function __getXSLTFile(_xsltFileName) {
 } /* END function __getXSLTFile */
 
 
+/**
+ * Get path for current script
+ * @returns String
+ */
+ function __getScriptFolder() {
+	
+	var _skriptFolder;
+	
+	try {
+		_skriptFolder  = app.activeScript.parent;
+	} catch (_error) { 
+		_skriptFolder = File(_error.fileName).parent;
+	}
+	
+	if(!_skriptFolder || !_skriptFolder.exists) { 
+		return null; 
+	}
 
+	return _skriptFolder;
+} /* END function __getScriptFolder */
 
 
 
@@ -492,6 +513,8 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 
 	const IS_AUTOFLOWING = _setupObj["place"]["isAutoflowing"];
 
+	_global["progressbar"].init(0, 1, "", localize(_global.placeProgressLabel));
+
 	var _page = _doc.pages.lastItem();
 	if(_page.allPageItems.length !== 0) {
 		_page = _doc.pages.add(LocationOptions.AFTER, _page);
@@ -527,141 +550,6 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 
 	return _wordStory;
 } /* END function __placeXML */
-
-
-
-
-
-
-/* +++++++++++++++++++++++ */
-/* + General functions + */
-/* +++++++++++++++++++++++ */
-/**
- * Progress bar
- * @returns SUIWindow
- */
-function __createProgressbar() {
-	
-	var _progressbar;
-	var _labelText;
-	var _progressWindow = new Window ("palette", undefined, undefined, { borderless:true });
-	with(_progressWindow) {	
-		spacing = 10;
-		margins = [20,10,20,20];
-		alignChildren = ["fill","center"];
-		_labelText = add("statictext");
-		with(_labelText) {
-			characters = 30; /* Breitenvorgabe des Fensters */
-			justify = "center";
-		} /* END _labelText */
-		_progressbar = add("progressbar", undefined, 0, 0);
-		with(_progressbar) {
-			minimumSize.width = 340;
-			maximumSize.height = 6;
-		}
-	} /* END _progressWindow */
-
-	_progressWindow.initialize = function(_title, _start, _stop, _visible) {
-		_progressWindow.text = (_title && _title.toString()) || "";
-		_progressbar.value = (_start && !isNaN(_start) && Number(_start)) || 0;
-		_progressbar.maxvalue = (_stop && !isNaN(_stop) && Number(_stop)) || 0;
-		_progressbar.visible = !!_visible;
-		this.show();
-	}; /* END function initialize */
-
-	_progressWindow.push = function(_label, _step) {
-		_labelText.text = (_label && _label.toString()) || "";
-		_progressbar.value = (_step && !isNaN(_step) && Number(_step)) || _progressbar.value + 1;
-		this.update();
-	}; /* END function push */
-	
-	return _progressWindow;
-} /* END function __createProgressbar */
-
-
-/**
- * Show log messages
- * @param {Array} _logMessageArray 
- * @returns Boolean
- */
-function __showLog(_logMessageArray) {
-	
-	if(!_global) { return false; }
-	if(!_logMessageArray || !(_logMessageArray instanceof Array)) { return false; }
-	
-	if(_logMessageArray.length === 0) { 
-		return true; 
-	}
-
-	var _logMessageEdittext;
-	var _okButton;
-
-	var _logDialog = new Window("dialog", localize(_global.logDialogTitle), undefined, { closeButton: true });
-	with(_logDialog) {
-		alignChildren = ["fill","fill"];
-		spacing = 15;
-		var _logMessageGroup = add("group");
-		with(_logMessageGroup) {
-			alignChildren = ["fill","fill"];
-			margins = [0,0,0,0];
-			_logMessageEdittext = add("edittext", undefined, "", { multiline:true });
-			with(_logMessageEdittext) {
-				minimumSize = [500,60];
-				maximumSize = [500,400];
-			} /* END _logMessageEdittext */
-		} /* END _logMessageGroup */
-		/* Action Buttons */
-		var _buttonGroup = add("group");
-		with(_buttonGroup) {
-			alignChildren = ["fill","fill"];
-			margins = [0,0,20,0];
-			spacing = 8;
-			_okButton = add("button", undefined, localize(_global.okButtonLabel), { name:"OK" });
-			with(_okButton) {
-				alignment = ["right","top"];
-			} /* END _okButton */
-		} /* END _buttonGroup */
-	} /* END _logDialog */
-	
-	/* Callbacks */
-	_okButton.onClick = function() {
-		_logDialog.hide();
-		_logDialog.close(1);
-	};
-	/* END Callbacks */
-	
-	/* Dialog initialisieren */
-	var _logMessages = _logMessageArray.join("\r\r");
-	_logMessageEdittext.text = _logMessages;
-	/* END Dialog initialisieren */
-
-	/* Dialog aufrufen */
-	_logDialog.show();
-	
-	return true;
-} /* END function __showLog */
-
-
-/**
- * Get path for current script
- * @returns String
- */
-function __getScriptFolder() {
-	
-	var _skriptFolder;
-	
-	try {
-		_skriptFolder  = app.activeScript.parent;
-	} catch (_error) { 
-		_skriptFolder = File(_error.fileName).parent;
-	}
-	
-	if(!_skriptFolder || !_skriptFolder.exists) { 
-		return null; 
-	}
-
-	return _skriptFolder;
-} /* END function __getScriptFolder */
 
 
 
@@ -718,6 +606,21 @@ function __defLocalizeStrings() {
 		de: "OK" 
 	};
 	
+	_global.importProgressLabel = { 
+		en: "Import Word Document ...",
+		de: "Word-Document importieren ..." 
+	};
+
+	_global.mountProgressLabel = { 
+		en: "Create items ...",
+		de: "Objekte erstellen ..." 
+	};
+
+	_global.placeProgressLabel = { 
+		en: "Place content ...",
+		de: "Inhalt platzieren ..." 
+	};
+
 	_global.selectWordFile = { 
 		en: "Please select Word (.docx) or Word XML Document (.xml) ...",
 		de: "Bitte Word-Dokument (.docx) oder Word-XML-Dokument (.xml) ausw\u00E4hlen ..." 
