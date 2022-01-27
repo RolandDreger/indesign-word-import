@@ -47,6 +47,9 @@ _global["setups"] = {
 	},
 	"place":{
 		"isAutoflowing": false /* Value: Boolean; Description: If true, autoflows placed text. */
+	},
+	"structure":{
+		"isShown":true
 	}
 };
 
@@ -83,12 +86,16 @@ function __start() {
 		return false; 
 	}
 
-	/* Script Presets */
+	/* Script Preferences */
 	var _userEnableRedraw = app.scriptPreferences.enableRedraw;
 	app.scriptPreferences.enableRedraw = false;
 	var _userInteractionLevel = app.scriptPreferences.userInteractionLevel;
 	app.scriptPreferences.userInteractionLevel = UserInteractionLevels.NEVER_INTERACT;
 	
+	/* Document Preferences */
+	var _userShowStructure = _doc.xmlViewPreferences.showStructure;
+	_doc.xmlViewPreferences.showStructure = false;
+
 	try {
 		if(app.scriptPreferences.version >= 6 && !_global["debug"]) {
 			app.doScript(
@@ -114,10 +121,13 @@ function __start() {
 			alert(localize(_global.processingErrorAlert) + "\n" + _error, "Error", true);
 		}
 	} finally {
+		if(_doc && _doc.isValid) {
+			_doc.xmlViewPreferences.showStructure = _userShowStructure;
+		}
 		app.scriptPreferences.enableRedraw = _userEnableRedraw;
 		app.scriptPreferences.userInteractionLevel = _userInteractionLevel;
 	}
-	
+
 	/* Check: Log messages? */
 	if(_global["log"].length > 0) {
 		__showLog(_global["log"]);
