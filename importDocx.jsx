@@ -44,7 +44,7 @@ _global["setups"] = {
 		"image":"Bild"
 	},
 	"place":{
-		"isAutoflowing": false /* If true, autoflows placed text. */
+		"isAutoflowing": false /* Value: Boolean; Description: If true, autoflows placed text. */
 	}
 };
 
