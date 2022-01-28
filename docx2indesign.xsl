@@ -6,7 +6,7 @@
     (InDesign Module)
     
     30. September 2021
-    22. Dezember 2021
+    28. January 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -115,62 +115,201 @@
     <!-- + Settings + -->
     <!-- ++++++++++++ -->
     
+    <xsl:param name="ns" select="''"/> <!-- Document Namespace -->
+    <xsl:param name="is-empty-paragraph-to-remove" select="false()"/>
+    <xsl:param name="is-inline-style-to-remove-on-empty-text" select="false()"/>
+    <xsl:param name="is-local-override-without-tag-to-apply" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
+    <xsl:param name="is-comment-to-be-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
+    <xsl:param name="is-tab-to-be-preserved" select="true()"/>  <!-- Tab Character --> 
     <xsl:param name="is-special-local-override-to-apply" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
+    <xsl:param name="max-bookmark-length" select="500"/>
+    <xsl:param name="language" select="'en'"/>
+    <xsl:param name="directory-separator" select="'/'"/>
     
     
+    <!-- Heading Style Map -->
     <!-- 
+        Default:  
         
-        für docx (zip-Datei) dann eigene Transformation 
-        mit 
-            <xsl:import href="docx2indesign.xsl"/>
-        und 
-            <xsl:variable name="footnotes" select="document(concat($base-uri, $directory-separator, $footnotes-file-path))/w:footnotes"/>
-        ...
+         docx Name           HTML Element
+        =======================================
+         H1 or h1            h1
+         Warning-Heading-1   h1 class="warning"
+        
+        The following parameters define paragraph names that are transformed into H1, H2, ... elements.
+        Multiple entries: Names must be enclosed by »«. 
     -->
+    <xsl:param name="h1-paragraph-style-names" select="''"/> <!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' -->
+    <xsl:param name="h2-paragraph-style-names" select="''"/> <!-- e.g. 'Custom_Name_2' -->
+    <xsl:param name="h3-paragraph-style-names" select="''"/> 
+    <xsl:param name="h4-paragraph-style-names" select="''"/> 
+    <xsl:param name="h5-paragraph-style-names" select="''"/> 
+    <xsl:param name="h6-paragraph-style-names" select="''"/> 
     
-
+    <xsl:variable name="heading-marker" select="'-Heading-'"/>
+    
+    
+    <!-- Case conversion -->
+    <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿžšœ'" />
+    <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸŽŠŒ'" />
+    
+    
+    <!-- +++++++++ -->
+    <!-- + INPUT + -->
+    <!-- +++++++++ -->
+    
+    <!-- Folder and File Paths -->
+    <xsl:param name="base-uri" select="''"/> <!-- an empty string is passed if input is a Word-XML-Document. -->
+    <xsl:param name="image-folder-path" select="''"/> <!-- If image folder path is defined, all images get the path according to this pattern: $image-folder-path + '/' + $image-name  -->
+    <xsl:param name="core-props-file-path" select="''"/> <!-- docProps/core.xml -->
+    <xsl:param name="styles-file-path" select="''"/> <!-- word/styles.xml --> 
+    <xsl:param name="numbering-file-path" select="''"/> <!-- word/numbering.xml -->
+    <xsl:param name="footnotes-file-path" select="''"/> <!-- word/footnotes.xml --> 
+    <xsl:param name="endnotes-file-path" select="''"/> <!-- word/endnotes.xml --> 
+    <xsl:param name="comments-file-path" select="''"/> <!-- word/comments.xml --> 
+    <xsl:param name="document-relationships-file-path" select="''"/> <!-- word/_rels/document.xml.rels --> 
+    <xsl:param name="footnotes-relationships-file-path" select="''"/> <!-- word/_rels/footnotes.xml.rels --> 
+    <xsl:param name="endnotes-relationships-file-path" select="''"/> <!-- word/_rels/endnotes.xml.rels --> 
+    
+    
     <!-- Core Properties (Metadata) -->
-    <xsl:variable name="core-props" select="/pkg:package/pkg:part[@pkg:name = '/docProps/core.xml']/pkg:xmlData/cp:coreProperties"/>
-
+    <xsl:variable name="core-props">
+        <xsl:choose>
+            <xsl:when test="boolean($base-uri) and boolean($core-props-file-path)">
+                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $core-props-file-path))/cp:coreProperties/*" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/docProps/core.xml']/pkg:xmlData/cp:coreProperties/*"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    
     <!-- Styles -->
-    <xsl:variable name="styles" select="/pkg:package/pkg:part[@pkg:name = '/word/styles.xml']/pkg:xmlData/w:styles"/>
-
+    <xsl:variable name="styles">
+        <xsl:choose>
+            <xsl:when test="boolean($base-uri) and boolean($styles-file-path)">
+                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $styles-file-path))/w:styles/w:style" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/styles.xml']/pkg:xmlData/w:styles/w:style"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    
     <!-- Numbering -->
-    <xsl:variable name="numbering" select="/pkg:package/pkg:part[@pkg:name = '/word/numbering.xml']/pkg:xmlData/w:numbering"/>
-
+    <xsl:variable name="numbering">
+        <xsl:choose>
+            <xsl:when test="boolean($base-uri) and boolean($numbering-file-path)">
+                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $numbering-file-path))/w:numbering/*" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/numbering.xml']/pkg:xmlData/w:numbering/*"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    
     <!-- Document Relationships (e.g. Hyperlinks) -->
-    <xsl:variable name="document-relationships" select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/document.xml.rels']/pkg:xmlData/rel:Relationships"/>
-
+    <xsl:variable name="document-relationships">
+        <xsl:choose>
+            <xsl:when test="boolean($base-uri) and boolean($document-relationships-file-path)">
+                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $document-relationships-file-path))/rel:Relationships/rel:Relationship"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/document.xml.rels']/pkg:xmlData/rel:Relationships/rel:Relationship"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    
     <!-- Footnotes -->
-    <xsl:variable name="footnotes" select="/pkg:package/pkg:part[@pkg:name = '/word/footnotes.xml']/pkg:xmlData/w:footnotes"/>
-
-    <!-- Footnote Relationships (e.g. Hyperlinks) -->
-    <xsl:variable name="footnotes-relationships" select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/footnotes.xml.rels']/pkg:xmlData/rel:Relationships"/>
-
+    <xsl:variable name="footnotes">
+        <xsl:choose>
+            <xsl:when test="boolean($base-uri) and boolean($footnotes-file-path)">
+                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $footnotes-file-path))/w:footnotes/w:footnote" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/footnotes.xml']/pkg:xmlData/w:footnotes/w:footnote"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    
+    <!-- Footnote Relationships -->
+    <xsl:variable name="footnotes-relationships">
+        <xsl:choose>
+            <xsl:when test="boolean($base-uri) and boolean($footnotes-relationships-file-path)">
+                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $footnotes-relationships-file-path))/rel:Relationships/rel:Relationship"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/footnotes.xml.rels']/pkg:xmlData/rel:Relationships/rel:Relationship"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    
     <!-- Endnotes -->
-    <xsl:variable name="endnotes" select="/pkg:package/pkg:part[@pkg:name = '/word/endnotes.xml']/pkg:xmlData/w:endnotes"/>
-
-    <!-- Endnote Relationships (e.g. Hyperlinks) -->
-    <xsl:variable name="endnotes-relationships" select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/endnotes.xml.rels']/pkg:xmlData/rel:Relationships"/>
-        
+    <xsl:variable name="endnotes">
+        <xsl:choose>
+            <xsl:when test="boolean($base-uri) and boolean($endnotes-file-path)">
+                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $endnotes-file-path))/w:endnotes/w:endnote" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/endnotes.xml']/pkg:xmlData/w:endnotes/w:endnote"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    
+    <!-- Endnote Relationships -->
+    <xsl:variable name="endnotes-relationships">
+        <xsl:choose>
+            <xsl:when test="boolean($base-uri) and boolean($endnotes-relationships-file-path)">
+                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $endnotes-relationships-file-path))/rel:Relationships/rel:Relationship"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/endnotes.xml.rels']/pkg:xmlData/rel:Relationships/rel:Relationship"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    
     <!-- Comments -->
-    <xsl:variable name="comments" select="/pkg:package/pkg:part[@pkg:name = '/word/comments.xml']/pkg:xmlData/w:comments"/>
+    <xsl:variable name="comments">
+        <xsl:choose>
+            <xsl:when test="boolean($base-uri) and boolean($comments-file-path)">
+                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $comments-file-path))/w:comments/w:comment" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/comments.xml']/pkg:xmlData/w:comments/w:comment"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
     
     <!-- Citations -->
-    <xsl:variable name="citations-relationships" select="/pkg:package/pkg:part[contains(@pkg:name, 'customXml')]/pkg:xmlData[b:Sources[namespace-uri() = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography']]"/>
+    <xsl:variable name="citations-relationships">
+        <xsl:choose>
+            <xsl:when test="boolean($base-uri) and boolean($document-relationships-file-path)">
+                <xsl:variable name="relationships-document" select="document(concat($base-uri, $directory-separator, $document-relationships-file-path))"/>
+                <xsl:for-each select="$relationships-document/rel:Relationships/rel:Relationship">
+                    <xsl:if test="contains(@Type, 'customXml')">
+                        <xsl:variable name="custom-xml-file-path" select="concat($base-uri, $directory-separator, substring-after(@Target, '../'))"/>
+                        <xsl:variable name="sources-element" select="document($custom-xml-file-path)/b:Sources"/>
+                        <xsl:if test="$sources-element and namespace-uri($sources-element) = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography'">
+                            <xsl:copy-of select="document($custom-xml-file-path)/b:Sources"/>
+                        </xsl:if>
+                    </xsl:if>
+                </xsl:for-each>  
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="/pkg:package/pkg:part[contains(@pkg:name, 'customXml')]/pkg:xmlData/b:Sources[namespace-uri() = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography']"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
     
     
-
-
+    
     <!-- ++++++++++ -->
     <!-- + OUTPUT + -->
     <!-- ++++++++++ -->
     
     <!-- 
-        Hinweis:
-        für InDesign-Import dann indent="no" und 
-        Option »Inhalte von Elementen, die nur Leerräume enthalten, nicht importieren« deaktivieren
-        sonst Probleme mit Umbruch in Zellen mit mehreren Absätzen (&#x0d;)
+        Hinweis: für InDesign-Import dann indent="no" und Option »Inhalte von Elementen, die nur Leerräume enthalten, 
+        nicht importieren« deaktivieren. Ansonsten Probleme mit Umbruch in Zellen mit mehreren Absätzen (&#x0d;)
     -->
     <xsl:output method="xml" version="1.0" doctype-public="" doctype-system="" media-type="text/xml" omit-xml-declaration="no" indent="yes"/>
 
@@ -305,7 +444,12 @@
     
     <!-- Style Names -->
     <xsl:variable name="default-paragraph-style-name" select="'Standard'"/>
-
+    
+    
+    <!-- Spaces -->
+    <xsl:preserve-space elements="w:t"/>
+    <xsl:strip-space elements="pkg:package pkg:part pkg:xmlData w:document w:body w:p w:pPr w:rPr w:r w:sectPr"/>
+    
 
 
     <!-- +++++++++++++ -->

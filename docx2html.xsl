@@ -5,7 +5,7 @@
     Microsoft Word Document to HTML
     
     30. September 2021
-    23. January 2022
+    28. January 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -228,7 +228,7 @@
         </xsl:choose>
     </xsl:variable>
     
-    <!-- Footnote Relationships (e.g. Hyperlinks) -->
+    <!-- Footnote Relationships -->
     <xsl:variable name="footnotes-relationships">
         <xsl:choose>
             <xsl:when test="boolean($base-uri) and boolean($footnotes-relationships-file-path)">
@@ -252,7 +252,7 @@
         </xsl:choose>
     </xsl:variable>
     
-    <!-- Endnote Relationships (e.g. Hyperlinks) -->
+    <!-- Endnote Relationships -->
     <xsl:variable name="endnotes-relationships">
         <xsl:choose>
             <xsl:when test="boolean($base-uri) and boolean($endnotes-relationships-file-path)">
@@ -446,8 +446,8 @@
     <xsl:preserve-space elements="w:t"/>
     <xsl:strip-space elements="pkg:package pkg:part pkg:xmlData w:document w:body w:p w:pPr w:rPr w:r w:sectPr"/>
     
-    
-    
+
+
     <!-- +++++++++++++ -->
     <!-- + Templates + -->
     <!-- +++++++++++++ -->
