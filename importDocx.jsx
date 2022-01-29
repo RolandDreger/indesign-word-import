@@ -17,6 +17,57 @@
 		+ Hints
 		
 		  Temp folder e.g. /private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import
+
+
+
+			ToDo:
+			Radio-Buttons for Footnotes, Index, ... 
+			1) import content
+			1a) mark with conditional Text
+			2) create InDesign objects
+
+			Sonderzeichen entfernen aus Text
+
+
+			Test:
+    
+    – Harter Zeilenumbruch
+    – Seitenumbruch
+    – Spaltenumbruch
+    
+    
+    
+    # Images
+    
+    copy to Link folder or place it from there
+    
+    
+    # Track Changes
+    
+    Inserted Text
+
+    app.selection[0].parentStory.trackChanges = false
+    app.selection[0].contents = ""
+    app.selection[0].parentStory.trackChanges = true
+    app.selection[0].contents = "verspielt"
+    
+    Delete Text
+    
+    app.selection[0].parentStory.trackChanges = true
+    app.selection[0].contents = ""
+    app.selection[0].parentStory.trackChanges = false
+    
+    
+    # Symbol mit Unicode
+    
+    # Listen für Listenabsätze beim Import erstellen
+      (Wenn gleiches Absatzformat aber unterschiedliche Liste, 
+      dann neues Absatzformat basierend original mit neuer Liste)
+      
+    
+    # Zitate 
+        
+      mit Querverweise auf Textanker mit Name z.B. Newton, 1743
 			
 */
 
@@ -94,7 +145,7 @@ function __start() {
 	
 	/* Document Preferences */
 	var _userShowStructure = _doc.xmlViewPreferences.showStructure;
-	_doc.xmlViewPreferences.showStructure = false;
+	// _doc.xmlViewPreferences.showStructure = false;
 
 	try {
 		if(app.scriptPreferences.version >= 6 && !_global["debug"]) {
