@@ -2,7 +2,7 @@
 
 <!--    
         
-    Microsoft Word Document to XHTML
+    Microsoft Word Document -> XHTML
     
     30. September 2021
     14. Dezember 2021

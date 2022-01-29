@@ -2,7 +2,7 @@
 
 <!--    
         
-    Microsoft Word Document to HTML to InDesign
+    Microsoft Word Document -> HTML -> InDesign
     (InDesign Module)
     
     30. September 2021
@@ -10,48 +10,14 @@
     
     Author: Roland Dreger, www.rolanddreger.net
     
+     
+    Hinweis: 
+    für InDesign-Import indent="no" in <xsl:output> verwenden und 
+    Option »Inhalte von Elementen, die nur Leerräume enthalten, 
+    nicht importieren« deaktivieren. 
     
-    Test:
-    
-    – Harter Zeilenumbruch
-    – Seitenumbruch
-    – Spaltenumbruch
-    
-    
-    
-    ToDo:
-    
-    # Images
-    
-    copy to Link folder or place it from there
-    
-    
-    # Track Changes
-    
-    /* Inserted Text */
-
-    app.selection[0].parentStory.trackChanges = false
-    app.selection[0].contents = ""
-    app.selection[0].parentStory.trackChanges = true
-    app.selection[0].contents = "verspielt"
-    
-    /* Delete Text */
-    
-    app.selection[0].parentStory.trackChanges = true
-    app.selection[0].contents = ""
-    app.selection[0].parentStory.trackChanges = false
-    
-    
-    # Symbol mit Unicode
-    
-    # Listen für Listenabsätze beim Import erstellen
-      (Wenn gleiches Absatzformat aber unterschiedliche Liste, 
-      dann neues Absatzformat basierend original mit neuer Liste)
-      
-    
-    # Zitate 
-        
-      mit Querverweise auf Textanker mit Name z.B. Newton, 1743
+    Ansonsten kann es zu Problemen mit Umbruch in Zellen 
+    mit mehreren Absätzen kommen. (&#x0d;)
     
 -->
 
@@ -100,45 +66,34 @@
     xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:b="http://schemas.openxmlformats.org/officeDocument/2006/bibliography"
+    xmlns:rd="http://www.rolanddreger.net"
     xmlns:aid="http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5="http://ns.adobe.com/AdobeInDesign/5.0/"
-    xmlns:rd="http://www.rolanddreger.net"
     exclude-result-prefixes="rd pkg wpc cx cx1 cx2 cx3 cx4 cx5 cx6 cx7 cx8 mc aink am3d o r rel m v wp14 wp w10 w w14 w15 w16cex w16cid w16 w16sdtdh w16se wpg wpi wne wps cp dc dcterms dcmitype dcmitype a pic xsi b"
     version="1.0"
 >
     
     
     <xsl:import href="docx2html.xsl"/>
-    
-    
+
+
     <!-- ++++++++++++ -->
     <!-- + Settings + -->
     <!-- ++++++++++++ -->
     
     <xsl:param name="ns" select="''"/> <!-- Document Namespace -->
+    <xsl:param name="directory-separator" select="'/'"/>
+    <xsl:param name="language" select="'en'"/>
+    <xsl:param name="max-bookmark-length" select="500"/>
     <xsl:param name="is-empty-paragraph-to-remove" select="false()"/>
     <xsl:param name="is-inline-style-to-remove-on-empty-text" select="false()"/>
     <xsl:param name="is-local-override-without-tag-to-apply" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
     <xsl:param name="is-comment-to-be-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
     <xsl:param name="is-tab-to-be-preserved" select="true()"/>  <!-- Tab Character --> 
     <xsl:param name="is-special-local-override-to-apply" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
-    <xsl:param name="max-bookmark-length" select="500"/>
-    <xsl:param name="language" select="'en'"/>
-    <xsl:param name="directory-separator" select="'/'"/>
     
     
     <!-- Heading Style Map -->
-    <!-- 
-        Default:  
-        
-         docx Name           HTML Element
-        =======================================
-         H1 or h1            h1
-         Warning-Heading-1   h1 class="warning"
-        
-        The following parameters define paragraph names that are transformed into H1, H2, ... elements.
-        Multiple entries: Names must be enclosed by »«. 
-    -->
     <xsl:param name="h1-paragraph-style-names" select="''"/> <!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' -->
     <xsl:param name="h2-paragraph-style-names" select="''"/> <!-- e.g. 'Custom_Name_2' -->
     <xsl:param name="h3-paragraph-style-names" select="''"/> 
@@ -307,10 +262,6 @@
     <!-- + OUTPUT + -->
     <!-- ++++++++++ -->
     
-    <!-- 
-        Hinweis: für InDesign-Import dann indent="no" und Option »Inhalte von Elementen, die nur Leerräume enthalten, 
-        nicht importieren« deaktivieren. Ansonsten Probleme mit Umbruch in Zellen mit mehreren Absätzen (&#x0d;)
-    -->
     <xsl:output method="xml" version="1.0" doctype-public="" doctype-system="" media-type="text/xml" omit-xml-declaration="no" indent="yes"/>
 
     <!-- Output tag and attribute names -->

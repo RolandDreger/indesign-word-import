@@ -2,7 +2,7 @@
 
 <!--    
         
-    Microsoft Word Document to HTML
+    Microsoft Word Document -> HTML
     
     30. September 2021
     28. January 2022
@@ -54,6 +54,20 @@
     - Custom XML (w:customXml, ...)
     - Section Properties (w:sectPr)
     - Table of Authorities (Glosary)
+    
+    
+    
+    # Heading Style Map
+     
+      Default:  
+    
+      docx Name           HTML Element
+     =======================================
+      H1 or h1            h1
+      Warning-Heading-1   h1 class="warning"
+    
+      The following parameters define paragraph names that are transformed into H1, H2, ... elements.
+      Multiple entries: Names must be enclosed by »«. 
     
 -->
 
@@ -113,28 +127,17 @@
     <!-- ++++++++++++ -->
     
     <xsl:param name="ns" select="''"/> <!-- Document Namespace -->
+    <xsl:param name="directory-separator" select="'/'"/>
+    <xsl:param name="language" select="'en'"/>
+    <xsl:param name="max-bookmark-length" select="500"/>
     <xsl:param name="is-empty-paragraph-to-remove" select="false()"/>
     <xsl:param name="is-inline-style-to-remove-on-empty-text" select="false()"/>
     <xsl:param name="is-local-override-without-tag-to-apply" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
     <xsl:param name="is-comment-to-be-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
     <xsl:param name="is-tab-to-be-preserved" select="true()"/>  <!-- Tab Character --> 
-    <xsl:param name="max-bookmark-length" select="500"/>
-    <xsl:param name="language" select="'en'"/>
-    <xsl:param name="directory-separator" select="'/'"/>
     
     
     <!-- Heading Style Map -->
-    <!-- 
-        Default:  
-        
-         docx Name           HTML Element
-        =======================================
-         H1 or h1            h1
-         Warning-Heading-1   h1 class="warning"
-        
-        The following parameters define paragraph names that are transformed into H1, H2, ... elements.
-        Multiple entries: Names must be enclosed by »«. 
-    -->
     <xsl:param name="h1-paragraph-style-names" select="''"/> <!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' -->
     <xsl:param name="h2-paragraph-style-names" select="''"/> <!-- e.g. 'Custom_Name_2' -->
     <xsl:param name="h3-paragraph-style-names" select="''"/> 
