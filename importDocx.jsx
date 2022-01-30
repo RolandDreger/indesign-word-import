@@ -229,23 +229,23 @@ function __runSequence(_doScriptParameterArray) {
 	}
 
 	/* Get docx file */
-	// var _docxFile = __getDocxFile();
-	// if(!_docxFile) {
-	// 	return false;
-	// }
+	var _docxFile = __getDocxFile();
+	if(!_docxFile) {
+		return false;
+	}
 	
 	/* Get package data */
-	// var _unpackObj = __getPackageData(_docxFile);
-	// if(!_unpackObj) {
-	// 	return false;
-	// }
+	var _unpackObj = __getPackageData(_docxFile);
+	if(!_unpackObj) {
+		return false;
+	}
 	
-	var _unpackObj = {
-		"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220027_184755318"),
-		"word":{
-			"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220027_184755318" + "/word/document.xml")
-		}
-	};
+	// var _unpackObj = {
+	// 	"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732"),
+	// 	"word":{
+	// 		"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732" + "/word/document.xml")
+	// 	}
+	// };
 
 	/* Hook: beforeImport */
 	var _beforeImportResultObj = __beforeImport(_doc, _unpackObj, _setupObj);
@@ -438,6 +438,10 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 
 	_global["progressbar"].init(0, 1, "", localize(_global.importProgressLabel));
 
+	var _transformParams = [];
+
+	_transformParams.push(["app","indesign"]);
+
 	var _xsltFileName = _setupObj["xslt"]["name"];
 	var _xsltFile = __getXSLTFile(_xsltFileName);
 	if(!_xsltFile) { 
@@ -448,6 +452,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 	var _unpackFolder = _unpackObj["folder"];
 	if(_unpackFolder && _unpackFolder instanceof Folder && _unpackFolder.exists) {
 		_unpackFolderPath = _unpackFolder.fullName;
+		_transformParams.push(["base-uri", ".."]);
 	}
 
 	var _wordXMLFile = _unpackObj["word"]["document"];
@@ -464,6 +469,34 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 		_lastXMLElement = null;
 	}
 
+	if(File(_unpackFolderPath + "/" + "word/comments.xml").exists) {
+		_transformParams.push(["comments-file-path", "word/comments.xml"]);
+	}
+	if(File(_unpackFolderPath + "/" + "docProps/core.xml").exists) {
+		_transformParams.push(["core-props-file-path", "docProps/core.xml"]);
+	}
+	if(File(_unpackFolderPath + "/" + "word/_rels/document.xml.rels").exists) {
+		_transformParams.push(["document-relationships-file-path", "word/_rels/document.xml.rels"]);
+	}
+	if(File(_unpackFolderPath + "/" + "word/endnotes.xml").exists) {
+		_transformParams.push(["endnotes-file-path", "word/endnotes.xml"]);
+	}
+	if(File(_unpackFolderPath + "/" + "word/_rels/endnotes.xml.rels").exists) {
+		_transformParams.push(["endnotes-relationships-file-path", "word/_rels/endnotes.xml.rels"]);
+	}
+	if(File(_unpackFolderPath + "/" + "word/footnotes.xml").exists) {
+		_transformParams.push(["footnotes-file-path", "word/footnotes.xml"]);
+	}
+	if(File(_unpackFolderPath + "/" + "word/_rels/footnotes.xml.rels").exists) {
+		_transformParams.push(["footnotes-relationships-file-path", "word/_rels/footnotes.xml.rels"]);
+	}
+	if(File(_unpackFolderPath + "/" + "word/numbering.xml").exists) {
+		_transformParams.push(["numbering-file-path", "word/numbering.xml"]);
+	}
+	if(File(_unpackFolderPath + "/" + "word/styles.xml").exists) {
+		_transformParams.push(["styles-file-path", "word/styles.xml"]);
+	}
+
 	var _userXMLImportPreferences = _doc.xmlImportPreferences.properties;
 
 	try {
@@ -472,7 +505,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 			importStyle:XMLImportStyles.APPEND_IMPORT,
 			allowTransform:true,
 			transformFilename:_xsltFile,
-			transformParameters:[["base-uri", _unpackFolderPath]],
+			transformParameters:_transformParams,
 			repeatTextElements:false,
 			ignoreWhitespace:false,
 			createLinkToXML:false,
