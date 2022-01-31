@@ -452,7 +452,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 	var _unpackFolder = _unpackObj["folder"];
 	if(_unpackFolder && _unpackFolder instanceof Folder && _unpackFolder.exists) {
 		_unpackFolderPath = _unpackFolder.fullName;
-		_transformParams.push(["base-uri", ".."]);
+		_transformParams.push(["package-base-uri", ".."]);
 	}
 
 	var _wordXMLFile = _unpackObj["word"]["document"];
@@ -461,6 +461,8 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 		return null;
 	}
 	
+	_transformParams.push(["document-file-name",_wordXMLFile.name]);
+
 	var _rootXMLElement = _doc.xmlElements.firstItem();
 	var _lastXMLElement = _rootXMLElement.xmlElements.lastItem();
 	if(_lastXMLElement.isValid) {
@@ -470,31 +472,31 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 	}
 
 	if(File(_unpackFolderPath + "/" + "word/comments.xml").exists) {
-		_transformParams.push(["comments-file-path", "word/comments.xml"]);
+		_transformParams.push(["comments-file-path", "comments.xml"]);
 	}
 	if(File(_unpackFolderPath + "/" + "docProps/core.xml").exists) {
-		_transformParams.push(["core-props-file-path", "docProps/core.xml"]);
+		_transformParams.push(["core-props-file-path", "../docProps/core.xml"]);
 	}
 	if(File(_unpackFolderPath + "/" + "word/_rels/document.xml.rels").exists) {
-		_transformParams.push(["document-relationships-file-path", "word/_rels/document.xml.rels"]);
+		_transformParams.push(["document-relationships-file-path", "../word/_rels/document.xml.rels"]);
 	}
 	if(File(_unpackFolderPath + "/" + "word/endnotes.xml").exists) {
-		_transformParams.push(["endnotes-file-path", "word/endnotes.xml"]);
+		_transformParams.push(["endnotes-file-path", "endnotes.xml"]);
 	}
 	if(File(_unpackFolderPath + "/" + "word/_rels/endnotes.xml.rels").exists) {
-		_transformParams.push(["endnotes-relationships-file-path", "word/_rels/endnotes.xml.rels"]);
+		_transformParams.push(["endnotes-relationships-file-path", "_rels/endnotes.xml.rels"]);
 	}
 	if(File(_unpackFolderPath + "/" + "word/footnotes.xml").exists) {
-		_transformParams.push(["footnotes-file-path", "word/footnotes.xml"]);
+		_transformParams.push(["footnotes-file-path", "footnotes.xml"]);
 	}
 	if(File(_unpackFolderPath + "/" + "word/_rels/footnotes.xml.rels").exists) {
-		_transformParams.push(["footnotes-relationships-file-path", "word/_rels/footnotes.xml.rels"]);
+		_transformParams.push(["footnotes-relationships-file-path", "_rels/footnotes.xml.rels"]);
 	}
 	if(File(_unpackFolderPath + "/" + "word/numbering.xml").exists) {
-		_transformParams.push(["numbering-file-path", "word/numbering.xml"]);
+		_transformParams.push(["numbering-file-path", "numbering.xml"]);
 	}
 	if(File(_unpackFolderPath + "/" + "word/styles.xml").exists) {
-		_transformParams.push(["styles-file-path", "word/styles.xml"]);
+		_transformParams.push(["styles-file-path", "styles.xml"]);
 	}
 
 	var _userXMLImportPreferences = _doc.xmlImportPreferences.properties;
