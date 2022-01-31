@@ -5,7 +5,7 @@
     Microsoft Word Document -> HTML
     
     30. September 2021
-    28. January 2022
+    1. February 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -136,7 +136,6 @@
     <xsl:param name="is-comment-to-be-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
     <xsl:param name="is-tab-to-be-preserved" select="true()"/>  <!-- Tab Character --> 
     
-    
     <!-- Heading Style Map -->
     <xsl:param name="h1-paragraph-style-names" select="''"/> <!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' -->
     <xsl:param name="h2-paragraph-style-names" select="''"/> <!-- e.g. 'Custom_Name_2' -->
@@ -146,7 +145,6 @@
     <xsl:param name="h6-paragraph-style-names" select="''"/> 
     
     <xsl:variable name="heading-marker" select="'-Heading-'"/>
-    
     
     <!-- Case conversion -->
     <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿžšœ'" />
@@ -158,7 +156,8 @@
     <!-- +++++++++ -->
     
     <!-- Folder and File Paths -->
-    <xsl:param name="base-uri" select="''"/> <!-- an empty string is passed if input is a Word-XML-Document. -->
+    <xsl:param name="package-base-uri" select="''"/> <!-- an empty string is passed if input is a Word-XML-Document. -->
+    <xsl:param name="document-file-name" select="'document.xml'"/> <!-- document.xml or name of Word-XML-Document -->
     <xsl:param name="image-folder-path" select="''"/> <!-- If image folder path is defined, all images get the path according to this pattern: $image-folder-path + '/' + $image-name  -->
     <xsl:param name="core-props-file-path" select="''"/> <!-- docProps/core.xml -->
     <xsl:param name="styles-file-path" select="''"/> <!-- word/styles.xml --> 
@@ -174,8 +173,8 @@
     <!-- Core Properties (Metadata) -->
     <xsl:variable name="core-props">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($core-props-file-path)">
-                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $core-props-file-path))/cp:coreProperties/*" />
+            <xsl:when test="boolean($package-base-uri) and boolean($core-props-file-path)">
+                <xsl:copy-of select="document(concat($package-base-uri, $directory-separator, $core-props-file-path))/cp:coreProperties/*" />
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/docProps/core.xml']/pkg:xmlData/cp:coreProperties/*"/>
@@ -186,8 +185,8 @@
     <!-- Styles -->
     <xsl:variable name="styles">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($styles-file-path)">
-                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $styles-file-path))/w:styles/w:style" />
+            <xsl:when test="boolean($package-base-uri) and boolean($styles-file-path)">
+                <xsl:copy-of select="document(concat($package-base-uri, $directory-separator, $styles-file-path))/w:styles/w:style" />
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/styles.xml']/pkg:xmlData/w:styles/w:style"/>
@@ -198,8 +197,8 @@
     <!-- Numbering -->
     <xsl:variable name="numbering">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($numbering-file-path)">
-                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $numbering-file-path))/w:numbering/*" />
+            <xsl:when test="boolean($package-base-uri) and boolean($numbering-file-path)">
+                <xsl:copy-of select="document(concat($package-base-uri, $directory-separator, $numbering-file-path))/w:numbering/*" />
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/numbering.xml']/pkg:xmlData/w:numbering/*"/>
@@ -210,8 +209,8 @@
     <!-- Document Relationships (e.g. Hyperlinks) -->
     <xsl:variable name="document-relationships">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($document-relationships-file-path)">
-                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $document-relationships-file-path))/rel:Relationships/rel:Relationship"/>
+            <xsl:when test="boolean($package-base-uri) and boolean($document-relationships-file-path)">
+                <xsl:copy-of select="document(concat($package-base-uri, $directory-separator, $document-relationships-file-path))/rel:Relationships/rel:Relationship"/>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/document.xml.rels']/pkg:xmlData/rel:Relationships/rel:Relationship"/>
@@ -222,8 +221,8 @@
     <!-- Footnotes -->
     <xsl:variable name="footnotes">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($footnotes-file-path)">
-                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $footnotes-file-path))/w:footnotes/w:footnote" />
+            <xsl:when test="boolean($package-base-uri) and boolean($footnotes-file-path)">
+                <xsl:copy-of select="document(concat($package-base-uri, $directory-separator, $footnotes-file-path))/w:footnotes/w:footnote" />
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/footnotes.xml']/pkg:xmlData/w:footnotes/w:footnote"/>
@@ -234,8 +233,8 @@
     <!-- Footnote Relationships -->
     <xsl:variable name="footnotes-relationships">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($footnotes-relationships-file-path)">
-                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $footnotes-relationships-file-path))/rel:Relationships/rel:Relationship"/>
+            <xsl:when test="boolean($package-base-uri) and boolean($footnotes-relationships-file-path)">
+                <xsl:copy-of select="document(concat($package-base-uri, $directory-separator, $footnotes-relationships-file-path))/rel:Relationships/rel:Relationship"/>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/footnotes.xml.rels']/pkg:xmlData/rel:Relationships/rel:Relationship"/>
@@ -246,8 +245,8 @@
     <!-- Endnotes -->
     <xsl:variable name="endnotes">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($endnotes-file-path)">
-                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $endnotes-file-path))/w:endnotes/w:endnote" />
+            <xsl:when test="boolean($package-base-uri) and boolean($endnotes-file-path)">
+                <xsl:copy-of select="document(concat($package-base-uri, $directory-separator, $endnotes-file-path))/w:endnotes/w:endnote" />
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/endnotes.xml']/pkg:xmlData/w:endnotes/w:endnote"/>
@@ -258,8 +257,8 @@
     <!-- Endnote Relationships -->
     <xsl:variable name="endnotes-relationships">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($endnotes-relationships-file-path)">
-                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $endnotes-relationships-file-path))/rel:Relationships/rel:Relationship"/>
+            <xsl:when test="boolean($package-base-uri) and boolean($endnotes-relationships-file-path)">
+                <xsl:copy-of select="document(concat($package-base-uri, $directory-separator, $endnotes-relationships-file-path))/rel:Relationships/rel:Relationship"/>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/endnotes.xml.rels']/pkg:xmlData/rel:Relationships/rel:Relationship"/>
@@ -270,8 +269,8 @@
     <!-- Comments -->
     <xsl:variable name="comments">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($comments-file-path)">
-                <xsl:copy-of select="document(concat($base-uri, $directory-separator, $comments-file-path))/w:comments/w:comment" />
+            <xsl:when test="boolean($package-base-uri) and boolean($comments-file-path)">
+                <xsl:copy-of select="document(concat($package-base-uri, $directory-separator, $comments-file-path))/w:comments/w:comment" />
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy-of select="/pkg:package/pkg:part[@pkg:name = '/word/comments.xml']/pkg:xmlData/w:comments/w:comment"/>
@@ -282,11 +281,11 @@
     <!-- Citations -->
     <xsl:variable name="citations-relationships">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($document-relationships-file-path)">
-                <xsl:variable name="relationships-document" select="document(concat($base-uri, $directory-separator, $document-relationships-file-path))"/>
+            <xsl:when test="boolean($package-base-uri) and boolean($document-relationships-file-path)">
+                <xsl:variable name="relationships-document" select="document(concat($package-base-uri, $directory-separator, $document-relationships-file-path))"/>
                 <xsl:for-each select="$relationships-document/rel:Relationships/rel:Relationship">
                     <xsl:if test="contains(@Type, 'customXml')">
-                        <xsl:variable name="custom-xml-file-path" select="concat($base-uri, $directory-separator, substring-after(@Target, '../'))"/>
+                        <xsl:variable name="custom-xml-file-path" select="concat($package-base-uri, $directory-separator, substring-after(@Target, '../'))"/>
                         <xsl:variable name="sources-element" select="document($custom-xml-file-path)/b:Sources"/>
                         <xsl:if test="$sources-element and namespace-uri($sources-element) = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography'">
                             <xsl:copy-of select="document($custom-xml-file-path)/b:Sources"/>
@@ -852,12 +851,12 @@
     </xsl:template>
     
     <!-- Paragraph content (without container element) -->
-    <xsl:template match="w:p" mode="content-only">
-        <!-- Structure text runs -->
+    <!--<xsl:template match="w:p" mode="content-only">
+        <!-\- Structure text runs -\->
         <xsl:call-template name="structure-text-runs">
             <xsl:with-param name="target-elements" select="*"/>
         </xsl:call-template>
-    </xsl:template>
+    </xsl:template>-->
     
     <!-- Tag Name for Paragraph (h1, h2, ..., li, p) -->
     <xsl:template name="get-paragraph-tag-name">
