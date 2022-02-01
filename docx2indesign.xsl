@@ -880,8 +880,24 @@
     </xsl:template><!-- Citation source element --><xsl:template name="insert-citation-source">
         <xsl:param name="id" select="''"/>
         <xsl:element name="{$citation-source-tag-name}" namespace="{$ns}">
-            <xsl:apply-templates select="$citations-relationships/b:Sources/b:Source[b:Tag = $id]/b:*"/>
+            <xsl:apply-templates select="$citations-relationships/b:Sources/b:Source[b:Tag = $id]/b:*" mode="citation-source"/>
         </xsl:element>
+    </xsl:template><xsl:template match="*" mode="citation-source">
+        <xsl:element name="{local-name()}" namespace="{$ns}">
+            <xsl:apply-templates select="*|node()" mode="citation-source"/>
+        </xsl:element>
+    </xsl:template><xsl:template match="@*" mode="citation-source">
+        <xsl:attribute name="{local-name()}">
+            <xsl:value-of select="."/>
+        </xsl:attribute>
+    </xsl:template><xsl:template match="text()" mode="citation-source">
+        <xsl:if test="normalize-space()">
+            <xsl:element name="{$citation-text-tag-name}" namespace="{$ns}">
+                <xsl:attribute name="{$citation-value-attribute-name}">
+                    <xsl:value-of select="."/>
+                </xsl:attribute>
+            </xsl:element>
+        </xsl:if>
     </xsl:template><!-- Attributes for general complex field --><xsl:template name="insert-general-complex-field-attributes">
         <xsl:param name="complex-field-content" select="''"/>
         <xsl:param name="field-begin-element"/>
@@ -1740,7 +1756,7 @@
     <!-- Comments -->
     <xsl:variable name="comments" select="document($comments-file-path)/w:comments | /pkg:package/pkg:part[@pkg:name = '/word/comments.xml']/pkg:xmlData/w:comments"/>
     
-    <!-- Citations concat($package-base-uri, $directory-separator, $document-relationships-file-path)-->
+    <!-- Citations -->
     <xsl:variable name="citations-relationships">
         <xsl:choose>
             <xsl:when test="boolean($package-base-uri) and boolean($document-relationships-file-path)">
@@ -1750,21 +1766,21 @@
                         <xsl:variable name="custom-xml-file-path" select="concat($package-base-uri, $directory-separator, substring-after(@Target, '../'))"/>
                         <xsl:variable name="sources-element" select="document($custom-xml-file-path)/b:Sources"/>
                         <xsl:if test="$sources-element and namespace-uri($sources-element) = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography'">
-                            <xsl:apply-templates select="document($custom-xml-file-path)/b:Sources" mode="citation"/>
+                            <xsl:apply-templates select="document($custom-xml-file-path)/b:Sources" mode="citation-sources"/>
                         </xsl:if>
                     </xsl:if>
                 </xsl:for-each>  
             </xsl:when>
             <xsl:otherwise>
-                <xsl:apply-templates select="/pkg:package/pkg:part[contains(@pkg:name, 'customXml')]/pkg:xmlData/b:Sources[namespace-uri() = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography']" mode="citation"/>
+                <xsl:apply-templates select="/pkg:package/pkg:part[contains(@pkg:name, 'customXml')]/pkg:xmlData/b:Sources[namespace-uri() = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography']" mode="citation-sources"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:variable>
     
-    <!-- Identity Transform for Citations -->
-    <xsl:template match="@*|node()" mode="citation">
+    <!-- Identity Transform for all Citation Sources -->
+    <xsl:template match="@*|node()" mode="citation-sources">
         <xsl:copy>
-            <xsl:apply-templates select="@*|node()" mode="citation"/>
+            <xsl:apply-templates select="@*|node()" mode="citation-sources"/>
         </xsl:copy>
     </xsl:template>
     
@@ -1816,6 +1832,8 @@
     <xsl:variable name="citation-style-type-attribute-name" select="'Formattyp'"/>
     <xsl:variable name="citation-style-name-attribute-name" select="'Formatname'"/>
     <xsl:variable name="citation-version-attribute-name" select="'Version'"/>
+    <xsl:variable name="citation-text-tag-name" select="'text'"/>
+    <xsl:variable name="citation-value-attribute-name" select="'value'"/>
     <xsl:variable name="group-tag-name" select="'Gruppe'"/>
     <xsl:variable name="group-style-attribute-name" select="'ostyle'"/>
     <xsl:variable name="group-style-attribute-value" select="'Gruppe'"/>
@@ -2193,15 +2211,8 @@
         </xsl:choose>
     </xsl:template>
     
-    
-    <!-- Citation source elements -->   
-    <xsl:template match="b:*[ancestor::b:Source]">
-        <xsl:element name="{local-name()}" namespace="{$ns}">
-            <xsl:apply-templates/>
-        </xsl:element>
-    </xsl:template>
-    
-    
+   
+   
     <!-- Mathematical Equation -->
     <xsl:template match="m:oMath">
         <xsl:element name="{$equation-tag-name}" namespace="{$ns}">

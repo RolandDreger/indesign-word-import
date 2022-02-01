@@ -349,6 +349,8 @@
     <xsl:variable name="citation-style-type-attribute-name" select="'data-style-type'"/>
     <xsl:variable name="citation-style-name-attribute-name" select="'data-style-name'"/>
     <xsl:variable name="citation-version-attribute-name" select="'data-version'"/>
+    <xsl:variable name="citation-text-tag-name" select="'text'"/>
+    <xsl:variable name="citation-value-attribute-name" select="'value'"/>
     <xsl:variable name="group-tag-name" select="'shape-group'"/>
     <xsl:variable name="group-style-attribute-name" select="'class'"/>
     <xsl:variable name="group-style-attribute-value" select="'shapegroup'"/>
@@ -1626,15 +1628,34 @@
     <xsl:template name="insert-citation-source">
         <xsl:param name="id" select="''"/>
         <xsl:element name="{$citation-source-tag-name}" namespace="{$ns}">
-            <xsl:apply-templates select="$citations-relationships/b:Sources/b:Source[b:Tag = $id]/b:*"/>
+            <xsl:apply-templates select="$citations-relationships/b:Sources/b:Source[b:Tag = $id]/b:*" mode="citation-source"/>
+        </xsl:element>
+    </xsl:template>
+       
+    <xsl:template match="*" mode="citation-source">
+        <xsl:element name="{local-name()}" namespace="{$ns}">
+            <xsl:apply-templates select="*|node()" mode="citation-source"/>
         </xsl:element>
     </xsl:template>
     
-    <xsl:template match="b:*[ancestor::b:Source]">
-        <xsl:element name="{concat('b', '-', translate(local-name(), $uppercase, $lowercase))}" namespace="{$ns}">
-            <xsl:apply-templates/>
-        </xsl:element>
+    <xsl:template match="@*" mode="citation-source">
+        <xsl:attribute name="{local-name()}">
+            <xsl:value-of select="."/>
+        </xsl:attribute>
     </xsl:template>
+    
+    <xsl:template match="text()" mode="citation-source">
+        <xsl:if test="normalize-space()">
+            <xsl:element name="{$citation-text-tag-name}" namespace="{$ns}">
+                <xsl:attribute name="{$citation-value-attribute-name}">
+                    <xsl:value-of select="."/>
+                </xsl:attribute>
+            </xsl:element>
+        </xsl:if>
+    </xsl:template>
+    
+    
+    
     
     <!-- Attributes for general complex field -->
     <xsl:template name="insert-general-complex-field-attributes">
