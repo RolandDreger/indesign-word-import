@@ -168,17 +168,23 @@
                         <xsl:variable name="custom-xml-file-path" select="concat($package-base-uri, $directory-separator, substring-after(@Target, '../'))"/>
                         <xsl:variable name="sources-element" select="document($custom-xml-file-path)/b:Sources"/>
                         <xsl:if test="$sources-element and namespace-uri($sources-element) = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography'">
-                            <xsl:copy-of select="document($custom-xml-file-path)/b:Sources"/>
+                            <xsl:apply-templates select="document($custom-xml-file-path)/b:Sources"  mode="citation"/>
                         </xsl:if>
                     </xsl:if>
                 </xsl:for-each>  
             </xsl:when>
             <xsl:otherwise>
-                <xsl:copy-of select="/pkg:package/pkg:part[contains(@pkg:name, 'customXml')]/pkg:xmlData/b:Sources[namespace-uri() = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography']"/>
+                <xsl:apply-templates select="/pkg:package/pkg:part[contains(@pkg:name, 'customXml')]/pkg:xmlData/b:Sources[namespace-uri() = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography']" mode="citation"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:variable>
     
+    <!-- Identity Transform for Citations -->
+    <xsl:template match="@*|node()" mode="citation">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()" mode="citation"/>
+        </xsl:copy>
+    </xsl:template>
     
     
     <!-- ++++++++++ -->
