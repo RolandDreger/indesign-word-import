@@ -1680,7 +1680,6 @@
     <xsl:param name="is-tab-to-be-preserved" select="true()"/>  <!-- Tab Character --> 
     <xsl:param name="is-special-local-override-to-apply" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
     
-    
     <!-- Heading Style Map -->
     <xsl:param name="h1-paragraph-style-names" select="''"/> <!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' -->
     <xsl:param name="h2-paragraph-style-names" select="''"/> <!-- e.g. 'Custom_Name_2' -->
@@ -1690,7 +1689,6 @@
     <xsl:param name="h6-paragraph-style-names" select="''"/> 
     
     <xsl:variable name="heading-marker" select="'-Heading-'"/>
-    
     
     <!-- Case conversion -->
     <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿžšœ'"/>
@@ -1702,7 +1700,7 @@
     <!-- +++++++++ -->
     
     <!-- Folder and File Paths -->
-    <xsl:param name="base-uri" select="''"/> <!-- empty string is passed if input is a Word-XML-Document -->
+    <xsl:param name="package-base-uri" select="''"/> <!-- for Word-XML-Document an empty string -->
     <xsl:param name="document-file-name" select="'document.xml'"/> <!-- document.xml or name of Word-XML-Document -->
     <xsl:param name="image-folder-path" select="''"/> <!-- If image folder path is defined, all images get the path according to this pattern: $image-folder-path + '/' + $image-name  -->
     <xsl:param name="core-props-file-path" select="$document-file-name"/> <!-- ../docProps/core.xml -->
@@ -1742,14 +1740,14 @@
     <!-- Comments -->
     <xsl:variable name="comments" select="document($comments-file-path)/w:comments | /pkg:package/pkg:part[@pkg:name = '/word/comments.xml']/pkg:xmlData/w:comments"/>
     
-    <!-- Citations concat($base-uri, $directory-separator, $document-relationships-file-path)-->
+    <!-- Citations concat($package-base-uri, $directory-separator, $document-relationships-file-path)-->
     <xsl:variable name="citations-relationships">
         <xsl:choose>
-            <xsl:when test="boolean($base-uri) and boolean($document-relationships-file-path)">
+            <xsl:when test="boolean($package-base-uri) and boolean($document-relationships-file-path)">
                 <xsl:variable name="relationships-document" select="document($document-relationships-file-path)"/>
                 <xsl:for-each select="$relationships-document/rel:Relationships/rel:Relationship">
                     <xsl:if test="contains(@Type, 'customXml')">
-                        <xsl:variable name="custom-xml-file-path" select="concat($base-uri, $directory-separator, substring-after(@Target, '../'))"/>
+                        <xsl:variable name="custom-xml-file-path" select="concat($package-base-uri, $directory-separator, substring-after(@Target, '../'))"/>
                         <xsl:variable name="sources-element" select="document($custom-xml-file-path)/b:Sources"/>
                         <xsl:if test="$sources-element and namespace-uri($sources-element) = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography'">
                             <xsl:copy-of select="document($custom-xml-file-path)/b:Sources"/>

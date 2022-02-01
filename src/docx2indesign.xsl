@@ -118,7 +118,7 @@
     <!-- +++++++++ -->
     
     <!-- Folder and File Paths -->
-    <xsl:param name="package-base-uri" select="''"/> <!-- empty string is passed if input is a Word-XML-Document -->
+    <xsl:param name="package-base-uri" select="''"/> <!-- for Word-XML-Document an empty string -->
     <xsl:param name="document-file-name" select="'document.xml'"/> <!-- document.xml or name of Word-XML-Document -->
     <xsl:param name="image-folder-path" select="''"/> <!-- If image folder path is defined, all images get the path according to this pattern: $image-folder-path + '/' + $image-name  -->
     <xsl:param name="core-props-file-path" select="$document-file-name"/> <!-- ../docProps/core.xml -->
