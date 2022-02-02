@@ -1628,13 +1628,13 @@
     <xsl:template name="insert-citation-source">
         <xsl:param name="id" select="''"/>
         <xsl:element name="{$citation-source-tag-name}" namespace="{$ns}">
-            <xsl:apply-templates select="$citations-relationships/b:Sources/b:Source[b:Tag = $id]/b:*" mode="citation-source"/>
+            <xsl:apply-templates select="$citations-relationships/b:Sources/b:Source[b:Tag = $id]/*" mode="citation-source"/>
         </xsl:element>
     </xsl:template>
        
     <xsl:template match="*" mode="citation-source">
         <xsl:element name="{local-name()}" namespace="{$ns}">
-            <xsl:apply-templates select="*|node()" mode="citation-source"/>
+            <xsl:apply-templates select="@*|*|text()" mode="citation-source"/>
         </xsl:element>
     </xsl:template>
     
@@ -1653,9 +1653,6 @@
             </xsl:element>
         </xsl:if>
     </xsl:template>
-    
-    
-    
     
     <!-- Attributes for general complex field -->
     <xsl:template name="insert-general-complex-field-attributes">
