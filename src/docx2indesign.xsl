@@ -5,25 +5,28 @@
     Microsoft Word Document -> HTML -> InDesign
     (InDesign Module)
     
-    30. September 2021
-    1. February 2022
+    Created: 30. September 2021
+    Modified: 2. February 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
      
-    Hinweis: 
-    für InDesign-Import indent="no" in <xsl:output> verwenden und 
-    Option »Inhalte von Elementen, die nur Leerräume enthalten, 
-    nicht importieren« deaktivieren. 
+    # Notes
     
-    Ansonsten kann es zu Problemen mit Umbruch in Zellen 
-    mit mehreren Absätzen kommen. (&#x0d;)
+    ## InDesign Import
     
-    Note:
-    InDesign crashes with copy-of therefore the construct
-    document($document-file-name) that always exits 
-    instead of xsl:choose and xsl:copy-of for global paramerters
+    Use indent="no" in <xsl:output> for InDesign import and 
+    deactivate option »Do Not Import Contents Of Whitespace-Only Elements«. 
     
+    Otherwise, there may be problems with text wrap in cells 
+    with multiple paragraphs. (&#x0d;)
+    
+    
+    ## Document Ressources
+    
+    InDesign sometimes crashes with copy-of therefore the construct
+    document($document-file-name) that always exits xsl:choose and 
+    xsl:copy-of for global paramerters
     
 -->
 
@@ -191,7 +194,7 @@
     <!-- + OUTPUT + -->
     <!-- ++++++++++ -->
     
-    <xsl:output method="xml" version="1.0" doctype-public="" doctype-system="" media-type="text/xml" omit-xml-declaration="no" indent="yes"/>
+    <xsl:output method="xml" version="1.0" doctype-public="" doctype-system="" media-type="text/xml" omit-xml-declaration="no" indent="no"/>
 
     <!-- Output tag and attribute names -->
     <xsl:variable name="root-tag-name" select="'Document'"/>

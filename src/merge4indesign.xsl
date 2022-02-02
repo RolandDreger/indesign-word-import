@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    
+    Merge Stylesheets for InDesign
+    
+    src/docs2html.xsl | src/docx2indesign.xsl (with xsl:import) -> docx2indesign.xsl
+    
+    Created: 16. January 2022
+    Modified: 2. February 2022
+    
+-->
 <xsl:stylesheet 
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"

@@ -4,8 +4,8 @@
         
     Microsoft Word Document -> HTML
     
-    30. September 2021
-    1. February 2022
+    Created: 30. September 2021
+    Modified: 2. February 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     

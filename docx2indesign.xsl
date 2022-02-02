@@ -3,25 +3,28 @@
     Microsoft Word Document -> HTML -> InDesign
     (InDesign Module)
     
-    30. September 2021
-    1. February 2022
+    Created: 30. September 2021
+    Modified: 2. February 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
      
-    Hinweis: 
-    für InDesign-Import indent="no" in <xsl:output> verwenden und 
-    Option »Inhalte von Elementen, die nur Leerräume enthalten, 
-    nicht importieren« deaktivieren. 
+    # Notes
     
-    Ansonsten kann es zu Problemen mit Umbruch in Zellen 
-    mit mehreren Absätzen kommen. (&#x0d;)
+    ## InDesign Import
     
-    Note:
-    InDesign crashes with copy-of therefore the construct
-    document($document-file-name) that always exits 
-    instead of xsl:choose and xsl:copy-of for global paramerters
+    Use indent="no" in <xsl:output> for InDesign import and 
+    deactivate option »Do Not Import Contents Of Whitespace-Only Elements«. 
     
+    Otherwise, there may be problems with text wrap in cells 
+    with multiple paragraphs. (&#x0d;)
+    
+    
+    ## Document Ressources
+    
+    InDesign sometimes crashes with copy-of therefore the construct
+    document($document-file-name) that always exits xsl:choose and 
+    xsl:copy-of for global paramerters
     
 --><xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:b="http://schemas.openxmlformats.org/officeDocument/2006/bibliography" xmlns:rd="http://www.rolanddreger.net" xmlns:aid="http://ns.adobe.com/AdobeInDesign/4.0/" xmlns:aid5="http://ns.adobe.com/AdobeInDesign/5.0/" exclude-result-prefixes="rd pkg wpc cx cx1 cx2 cx3 cx4 cx5 cx6 cx7 cx8 mc aink am3d o r rel m v wp14 wp w10 w w14 w15 w16cex w16cid w16 w16sdtdh w16se wpg wpi wne wps cp dc dcterms dcmitype dcmitype a pic xsi b" version="1.0">
     
@@ -1789,7 +1792,7 @@
     <!-- + OUTPUT + -->
     <!-- ++++++++++ -->
     
-    <xsl:output method="xml" version="1.0" doctype-public="" doctype-system="" media-type="text/xml" omit-xml-declaration="no" indent="yes"/>
+    <xsl:output method="xml" version="1.0" doctype-public="" doctype-system="" media-type="text/xml" omit-xml-declaration="no" indent="no"/>
 
     <!-- Output tag and attribute names -->
     <xsl:variable name="root-tag-name" select="'Document'"/>
