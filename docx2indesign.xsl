@@ -4,7 +4,7 @@
     (InDesign Module)
     
     Created: 30. September 2021
-    Modified: 2. February 2022
+    Modified: 4. February 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -29,7 +29,7 @@
 --><xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:b="http://schemas.openxmlformats.org/officeDocument/2006/bibliography" xmlns:rd="http://www.rolanddreger.net" xmlns:aid="http://ns.adobe.com/AdobeInDesign/4.0/" xmlns:aid5="http://ns.adobe.com/AdobeInDesign/5.0/" exclude-result-prefixes="rd pkg wpc cx cx1 cx2 cx3 cx4 cx5 cx6 cx7 cx8 mc aink am3d o r rel m v wp14 wp w10 w w14 w15 w16cex w16cid w16 w16sdtdh w16se wpg wpi wne wps cp dc dcterms dcmitype dcmitype a pic xsi b" version="1.0">
     
     
-    <!-- ++++++++++++ --><!-- + Settings + --><!-- ++++++++++++ --><!-- Document Namespace --><!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  --><!-- Comments for Complex Fields, Tab, ... --><!-- Tab Character --><!-- Heading Style Map --><!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' --><!-- e.g. 'Custom_Name_2' --><!-- Case conversion --><!-- +++++++++ --><!-- + INPUT + --><!-- +++++++++ --><!-- Folder and File Paths --><!-- an empty string is passed if input is a Word-XML-Document. --><!-- document.xml or name of Word-XML-Document --><!-- If image folder path is defined, all images get the path according to this pattern: $image-folder-path + '/' + $image-name  --><!-- docProps/core.xml --><!-- word/styles.xml --><!-- word/numbering.xml --><!-- word/footnotes.xml --><!-- word/endnotes.xml --><!-- word/comments.xml --><!-- word/_rels/document.xml.rels --><!-- word/_rels/footnotes.xml.rels --><!-- word/_rels/endnotes.xml.rels --><!-- Core Properties (Metadata) --><!-- Styles --><!-- Numbering --><!-- Document Relationships (e.g. Hyperlinks) --><!-- Footnotes --><!-- Footnote Relationships --><!-- Endnotes --><!-- Endnote Relationships --><!-- Comments --><!-- Citations --><!-- ++++++++++ --><!-- + OUTPUT + --><!-- ++++++++++ --><!-- Output tag and attribute names --><xsl:variable name="heading-tag-name" select="'h'"/><xsl:variable name="list-item-tag-name" select="'li'"/><xsl:variable name="table-column-group-tag-name" select="'colgroup'"/><xsl:variable name="table-column-tag-name" select="'col'"/><xsl:variable name="table-row-tag-name" select="'tr'"/><xsl:variable name="table-cell-column-span-attribute-name" select="'colspan'"/><xsl:variable name="table-cell-row-span-attribute-name" select="'rowspan'"/><xsl:variable name="table-header-cell-tag-name" select="'th'"/><xsl:variable name="table-header-cell-scope-attribute-name" select="'scope'"/><xsl:variable name="bold-tag-name" select="'strong'"/><xsl:variable name="italics-tag-name" select="'i'"/><xsl:variable name="emphasis-mark-tag-name" select="'em'"/><xsl:variable name="underline-tag-name" select="'u'"/><xsl:variable name="subscript-tag-name" select="'sub'"/><xsl:variable name="superscript-tag-name" select="'sup'"/><xsl:variable name="section-break-type-attribute-name" select="'data-wrap-type'"/><!-- Spaces --><!-- +++++++++++++ --><!-- + Templates + --><!-- +++++++++++++ --><!-- Head --><xsl:template name="create-head-section">
+    <!-- ++++++++++++ --><!-- + Settings + --><!-- ++++++++++++ --><!-- Document Namespace --><!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  --><!-- Comments for Complex Fields, Tab, ... --><!-- Tab Character --><!-- Heading Style Map --><xsl:param name="h1-paragraph-style-names" select="''"/><!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' --><xsl:param name="h2-paragraph-style-names" select="''"/><!-- e.g. 'Custom_Name_2' --><xsl:param name="h3-paragraph-style-names" select="''"/><xsl:param name="h4-paragraph-style-names" select="''"/><xsl:param name="h5-paragraph-style-names" select="''"/><xsl:param name="h6-paragraph-style-names" select="''"/><!-- Heading Marker --><xsl:variable name="heading-marker" select="'-Heading-'"/><!-- Heading Font Sizes --><xsl:param name="h1-font-size" select="0"/><!-- e.g. 28 or 28.5 or 0   --><xsl:param name="h2-font-size" select="0"/><xsl:param name="h3-font-size" select="0"/><xsl:param name="h4-font-size" select="0"/><xsl:param name="h5-font-size" select="0"/><xsl:param name="h6-font-size" select="0"/><!-- Case conversion --><xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿžšœ'"/><xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸŽŠŒ'"/><!-- +++++++++ --><!-- + INPUT + --><!-- +++++++++ --><!-- Folder and File Paths --><!-- an empty string is passed if input is a Word-XML-Document. --><!-- document.xml or name of Word-XML-Document --><!-- If image folder path is defined, all images get the path according to this pattern: $image-folder-path + '/' + $image-name  --><!-- docProps/core.xml --><!-- word/styles.xml --><!-- word/numbering.xml --><!-- word/footnotes.xml --><!-- word/endnotes.xml --><!-- word/comments.xml --><!-- word/_rels/document.xml.rels --><!-- word/_rels/footnotes.xml.rels --><!-- word/_rels/endnotes.xml.rels --><!-- Core Properties (Metadata) --><!-- Styles --><!-- Numbering --><!-- Document Relationships (e.g. Hyperlinks) --><!-- Footnotes --><!-- Footnote Relationships --><!-- Endnotes --><!-- Endnote Relationships --><!-- Comments --><!-- Citations --><!-- ++++++++++ --><!-- + OUTPUT + --><!-- ++++++++++ --><!-- Output tag and attribute names --><xsl:variable name="heading-tag-name" select="'h'"/><xsl:variable name="list-item-tag-name" select="'li'"/><xsl:variable name="table-column-group-tag-name" select="'colgroup'"/><xsl:variable name="table-column-tag-name" select="'col'"/><xsl:variable name="table-row-tag-name" select="'tr'"/><xsl:variable name="table-cell-column-span-attribute-name" select="'colspan'"/><xsl:variable name="table-cell-row-span-attribute-name" select="'rowspan'"/><xsl:variable name="table-header-cell-tag-name" select="'th'"/><xsl:variable name="table-header-cell-scope-attribute-name" select="'scope'"/><xsl:variable name="bold-tag-name" select="'strong'"/><xsl:variable name="italics-tag-name" select="'i'"/><xsl:variable name="emphasis-mark-tag-name" select="'em'"/><xsl:variable name="underline-tag-name" select="'u'"/><xsl:variable name="subscript-tag-name" select="'sub'"/><xsl:variable name="superscript-tag-name" select="'sup'"/><xsl:variable name="section-break-type-attribute-name" select="'data-wrap-type'"/><!-- Spaces --><!-- +++++++++++++ --><!-- + Templates + --><!-- +++++++++++++ --><!-- Head --><xsl:template name="create-head-section">
         <xsl:element name="head" namespace="{$ns}">
             <xsl:element name="meta" namespace="{$ns}">
                 <xsl:attribute name="charset">UTF-8</xsl:attribute>
@@ -102,27 +102,7 @@
         <xsl:apply-templates select="pkg:part[@pkg:name='/word/document.xml']/pkg:xmlData/w:document"/> <!-- for Word XML Document (single XML file) -->
     </xsl:template><xsl:template match="w:document">
         <xsl:apply-templates/>
-    </xsl:template><!-- Structure paragraphs (e.g. lists) --><!-- 
-        Target elements are ALL elements below w:body (*) (from a certain position) 
-        important for determining the number of elements with count() and xPath
-        <w:body>
-            <w:p>
-                <w:pPr>
-                    <w:pStyle w:val="Listenabsatz"/>
-                    <w:numPr>
-                        <w:ilvl w:val="0"/>
-                        <w:numId w:val="10"/>
-                    </w:numPr>
-                </w:pPr>
-                <w:r>
-                    <w:t>...1</w:t>
-                </w:r>
-            </w:p>
-            <w:p>...</w:p>
-            <w:tbl>...</w:tbl>
-            <w:p>...</w:p>
-        </w:body>
-    --><xsl:template name="structure-paragraphs">
+    </xsl:template><!-- Structure paragraphs (e.g. lists) --><xsl:template name="structure-paragraphs">
         <xsl:param name="target-elements"/>
         <xsl:choose>
             <!-- Check: Are there any (list) elements? -->
@@ -346,45 +326,110 @@
         <xsl:attribute name="{$list-item-level-attribute-name}">
             <xsl:value-of select="$level"/>
         </xsl:attribute>
-    </xsl:template><!-- Paragraph --><!-- Paragraph content (without container element) --><!--<xsl:template match="w:p" mode="content-only">
-        <!-\- Structure text runs -\->
+    </xsl:template><!-- Paragraph --><!-- Paragraph content (without container element) --><!--
+    <xsl:template match="w:p" mode="content-only">
         <xsl:call-template name="structure-text-runs">
             <xsl:with-param name="target-elements" select="*"/>
         </xsl:call-template>
-    </xsl:template>--><!-- Tag Name for Paragraph (h1, h2, ..., li, p) --><xsl:template name="get-paragraph-tag-name">
+    </xsl:template>
+    --><!-- Tag Name for Paragraph (h1, h2, ..., li, p) --><xsl:template name="get-paragraph-tag-name">
         <xsl:param name="target-element" select="."/>
         <xsl:variable name="p-style-id" select="$target-element/w:pPr/w:pStyle/@w:val"/>
         <xsl:variable name="p-style-name" select="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:name/@w:val"/>
         <xsl:variable name="heading-level">
             <xsl:choose>
-                <!-- Heading (Default WordML) -->
-                <xsl:when test="contains($p-style-name, 'heading')">
-                    <xsl:value-of select="number(substring-after($p-style-name, 'heading'))"/>
+                <!-- Heading: Default WordML Name -->
+                <xsl:when test="starts-with($p-style-name, 'heading')">
+                    <xsl:variable name="heading-level-string" select="substring-after($p-style-name, 'heading')"/>
+                    <xsl:variable name="heading-level-number" select="number($heading-level-string)"/>
+                    <xsl:choose>
+                        <xsl:when test="$heading-level-number">
+                            <xsl:value-of select="$heading-level-number"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="0"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:when>
-                <!-- Heading (H1, H2, H3, H4, H5, H6) -->
+                <!-- Heading: User Paragraph Name (H1, H2, H3, H4, H5, H6) -->
                 <xsl:when test="                     translate($p-style-name, 'H ', 'h') = 'h1' or                      translate($p-style-name, 'H ', 'h') = 'h2' or                     translate($p-style-name, 'H ', 'h') = 'h3' or                     translate($p-style-name, 'H ', 'h') = 'h4' or                     translate($p-style-name, 'H ', 'h') = 'h5' or                     translate($p-style-name, 'H ', 'h') = 'h6'                 ">
                     <xsl:value-of select="number(substring-after(translate($p-style-name, 'H','h'), 'h'))"/>
                 </xsl:when>
+                <!-- Heading: User Paragraph Name with $heading-marker -->
                 <xsl:when test="contains($p-style-name, $heading-marker)">
                     <xsl:value-of select="number(substring-after(translate($p-style-name, 'h','H'), $heading-marker))"/>
                 </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h1-paragraph-style-names = $p-style-name or (contains($h1-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="1"/>
+                <!-- Heading: User Paragraph Name in $h1-paragraph-style-names -->
+                <xsl:when test="boolean($h1-paragraph-style-names)">
+                    <xsl:choose>
+                        <xsl:when test="($h1-paragraph-style-names = $p-style-name or (contains($h1-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="1"/>
+                        </xsl:when>
+                        <xsl:when test="($h2-paragraph-style-names = $p-style-name or (contains($h2-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="2"/>
+                        </xsl:when>
+                        <xsl:when test="($h3-paragraph-style-names = $p-style-name or (contains($h3-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="3"/>
+                        </xsl:when>
+                        <xsl:when test="($h4-paragraph-style-names = $p-style-name or (contains($h4-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="4"/>
+                        </xsl:when>
+                        <xsl:when test="($h5-paragraph-style-names = $p-style-name or (contains($h5-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="5"/>
+                        </xsl:when>
+                        <xsl:when test="($h6-paragraph-style-names = $p-style-name or (contains($h6-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="6"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="0"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h2-paragraph-style-names = $p-style-name or (contains($h2-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="2"/>
-                </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h3-paragraph-style-names = $p-style-name or (contains($h3-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="3"/>
-                </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h4-paragraph-style-names = $p-style-name or (contains($h4-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="4"/>
-                </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h5-paragraph-style-names = $p-style-name or (contains($h5-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="5"/>
-                </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h6-paragraph-style-names = $p-style-name or (contains($h6-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="6"/>
+                <!-- Heading: Defined Font Size (last in chain) -->
+                <xsl:when test="$h1-font-size or $h2-font-size or $h3-font-size or $h4-font-size or $h5-font-size or $h6-font-size">
+                    <xsl:variable name="sz-attribute-value">
+                        <xsl:choose>
+                            <xsl:when test="$target-element/w:pPr/w:rPr/w:sz">
+                                <xsl:value-of select="$target-element/w:pPr/w:rPr/w:sz/@w:val"/>
+                            </xsl:when>
+                            <xsl:when test="$target-element/w:pPr/w:szCs">
+                                <xsl:value-of select="$target-element/w:pPr/w:rPr/w:szCs/@w:val"/>
+                            </xsl:when>
+                           <xsl:when test="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:sz">
+                                <xsl:value-of select="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:sz/@w:val"/>
+                            </xsl:when>
+                            <xsl:when test="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:szCs">
+                                <xsl:value-of select="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:szCs/@w:val"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="0"/>
+                            </xsl:otherwise>
+                        </xsl:choose>   
+                    </xsl:variable>
+                    <xsl:variable name="p-font-size" select="number($sz-attribute-value) div 2"/>
+                    <xsl:choose>
+                        <xsl:when test="$p-font-size and $p-font-size = $h1-font-size">
+                            <xsl:value-of select="1"/>
+                        </xsl:when>
+                        <xsl:when test="$p-font-size and $p-font-size = $h2-font-size">
+                            <xsl:value-of select="2"/>
+                        </xsl:when>
+                        <xsl:when test="$p-font-size and $p-font-size = $h3-font-size">
+                            <xsl:value-of select="3"/>
+                        </xsl:when>
+                        <xsl:when test="$p-font-size and $p-font-size = $h4-font-size">
+                            <xsl:value-of select="4"/>
+                        </xsl:when>
+                        <xsl:when test="$p-font-size and $p-font-size = $h5-font-size">
+                            <xsl:value-of select="5"/>
+                        </xsl:when>
+                        <xsl:when test="$p-font-size and $p-font-size = $h6-font-size">
+                            <xsl:value-of select="6"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="0"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:when>
                 <xsl:otherwise>
                     <xsl:value-of select="0"/>
@@ -486,16 +531,7 @@
         </xsl:element>
     </xsl:template><!-- Deleted Run Content (ancestor::w:numPr or ancestor::w:rPr or ancestor::w:trPr or child::w:rPr) --><xsl:template match="w:del">
         <xsl:apply-templates/>
-    </xsl:template><!-- Deleted Text --><!-- 
-        <w:del w:id="0" w:author="Roland" w:date="2021-12-05T21:37:00Z">
-            <w:r>
-                <w:delText>deleted Text</w:delText>
-            </w:r>
-        </w:del>
-        <w:r>
-            <w:t>normal Text</w:t>
-        </w:r>
-    --><xsl:template match="w:delText">
+    </xsl:template><!-- Deleted Text --><xsl:template match="w:delText">
         <xsl:apply-templates/>
     </xsl:template><!-- Move Source Run Content --><xsl:template match="w:moveFrom[w:r]">
         <xsl:element name="{$moved-from-text-tag-name}" namespace="{$ns}">
@@ -522,32 +558,7 @@
         <xsl:attribute name="{$track-change-date-attribute-name}">
             <xsl:value-of select="@w:date"/>
         </xsl:attribute>
-    </xsl:template><!-- Structure text runs (e.g. complex fields) --><!-- 
-        <w:p>
-            <w:r>
-                <w:t>...</w:t>
-            </w:r>
-            <w:r>
-                <w:fldChar w:fldCharType="begin"/>
-            </w:r>
-            <w:r>
-                <w:instrText> REF ziel \h </w:instrText>
-            </w:r>
-            <w:r>
-                <w:fldChar w:fldCharType="separate"/>
-            </w:r>
-            <w:r>
-                <w:t>...</w:t>
-            </w:r>
-            <w:r>
-                <w:fldChar w:fldCharType="end"/>
-            </w:r>
-            <w:r>
-                <w:t>...</w:t>
-            </w:r>
-            <w:bookmarkEnd w:id="0"/>
-        </w:p>
-    --><xsl:template name="structure-text-runs">
+    </xsl:template><!-- Structure text runs (e.g. complex fields) --><xsl:template name="structure-text-runs">
         <xsl:param name="target-elements"/>
         <xsl:param name="parent-field" select="''"/>
         <xsl:choose>
@@ -1698,20 +1709,6 @@
     <xsl:param name="is-comment-to-be-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
     <xsl:param name="is-tab-to-be-preserved" select="true()"/>  <!-- Tab Character --> 
     <xsl:param name="is-special-local-override-to-apply" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
-    
-    <!-- Heading Style Map -->
-    <xsl:param name="h1-paragraph-style-names" select="''"/> <!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' -->
-    <xsl:param name="h2-paragraph-style-names" select="''"/> <!-- e.g. 'Custom_Name_2' -->
-    <xsl:param name="h3-paragraph-style-names" select="''"/> 
-    <xsl:param name="h4-paragraph-style-names" select="''"/> 
-    <xsl:param name="h5-paragraph-style-names" select="''"/> 
-    <xsl:param name="h6-paragraph-style-names" select="''"/> 
-    
-    <xsl:variable name="heading-marker" select="'-Heading-'"/>
-    
-    <!-- Case conversion -->
-    <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿžšœ'"/>
-    <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸŽŠŒ'"/>
     
     
     <!-- +++++++++ -->

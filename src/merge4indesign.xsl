@@ -3,12 +3,13 @@
     
     Merge Stylesheets for InDesign
     
-    src/docs2html.xsl | src/docx2indesign.xsl (with xsl:import) -> docx2indesign.xsl
+    src/docs2html.xsl + src/docx2indesign.xsl => docx2indesign.xsl
     
-    Created: 16. January 2022
-    Modified: 2. February 2022
+    Created: January 16, 2022
+    Modified: February 2, 2022
     
 -->
+
 <xsl:stylesheet 
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -26,8 +27,10 @@
     
     <xsl:output method="xml" indent="no"/>
     
-    <!--<xsl:strip-space elements="*"/>
-    <xsl:preserve-space elements="xsl:text"/>-->
+    <!--
+    <xsl:strip-space elements="*"/>
+    <xsl:preserve-space elements="xsl:text"/>
+    -->
     
     <xsl:template match="@*|node()">
         <xsl:copy>

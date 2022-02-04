@@ -4,8 +4,8 @@
         
     Microsoft Word Document -> HTML
     
-    Created: 30. September 2021
-    Modified: 2. February 2022
+    Created: September 30, 2021
+    Modified: February 4, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -62,12 +62,26 @@
       Default:  
     
       docx Name           HTML Element
-     =======================================
+     ================= => ==================
       H1 or h1            h1
       Warning-Heading-1   h1 class="warning"
     
       The following parameters define paragraph names that are transformed into H1, H2, ... elements.
-      Multiple entries: Names must be enclosed by »«. 
+      Multiple entries: Names must be enclosed by »«.
+      
+      
+    # Heading Font Size
+      
+      The headings can also be defined by the font sizes in Microsoft Word document.
+      Value 0, if the heading should not be defined by the font size.
+      
+      e.g.: 
+      Font size is 28 + <xsl:param name="h1-font-size" select="28"/>  =>  <h1>-Element
+      Font size is 24 + <xsl:param name="h2-font-size" select="24"/>  =>  <h2>-Element
+      
+      ...
+      
+      otherwise <p>- or <li>-Element
     
 -->
 
@@ -144,7 +158,16 @@
     <xsl:param name="h5-paragraph-style-names" select="''"/> 
     <xsl:param name="h6-paragraph-style-names" select="''"/> 
     
+    <!-- Heading Marker -->
     <xsl:variable name="heading-marker" select="'-Heading-'"/>
+    
+    <!-- Heading Font Sizes -->
+    <xsl:param name="h1-font-size" select="0"/> <!-- e.g. 28 or 28.5 or 0   -->
+    <xsl:param name="h2-font-size" select="0"/>
+    <xsl:param name="h3-font-size" select="0"/>
+    <xsl:param name="h4-font-size" select="0"/>
+    <xsl:param name="h5-font-size" select="0"/>
+    <xsl:param name="h6-font-size" select="0"/>
     
     <!-- Case conversion -->
     <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿžšœ'" />
@@ -566,27 +589,6 @@
     
     
     <!-- Structure paragraphs (e.g. lists) -->
-    <!-- 
-        Target elements are ALL elements below w:body (*) (from a certain position) 
-        important for determining the number of elements with count() and xPath
-        <w:body>
-            <w:p>
-                <w:pPr>
-                    <w:pStyle w:val="Listenabsatz"/>
-                    <w:numPr>
-                        <w:ilvl w:val="0"/>
-                        <w:numId w:val="10"/>
-                    </w:numPr>
-                </w:pPr>
-                <w:r>
-                    <w:t>...1</w:t>
-                </w:r>
-            </w:p>
-            <w:p>...</w:p>
-            <w:tbl>...</w:tbl>
-            <w:p>...</w:p>
-        </w:body>
-    -->
     <xsl:template name="structure-paragraphs">
         <xsl:param name="target-elements"/>
         <xsl:choose>
@@ -853,12 +855,13 @@
     </xsl:template>
     
     <!-- Paragraph content (without container element) -->
-    <!--<xsl:template match="w:p" mode="content-only">
-        <!-\- Structure text runs -\->
+    <!--
+    <xsl:template match="w:p" mode="content-only">
         <xsl:call-template name="structure-text-runs">
             <xsl:with-param name="target-elements" select="*"/>
         </xsl:call-template>
-    </xsl:template>-->
+    </xsl:template>
+    -->
     
     <!-- Tag Name for Paragraph (h1, h2, ..., li, p) -->
     <xsl:template name="get-paragraph-tag-name">
@@ -867,11 +870,20 @@
         <xsl:variable name="p-style-name" select="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:name/@w:val"/>
         <xsl:variable name="heading-level">
             <xsl:choose>
-                <!-- Heading (Default WordML) -->
-                <xsl:when test="contains($p-style-name, 'heading')">
-                    <xsl:value-of select="number(substring-after($p-style-name, 'heading'))"/>
+                <!-- Heading: Default WordML Name -->
+                <xsl:when test="starts-with($p-style-name, 'heading')">
+                    <xsl:variable name="heading-level-string" select="substring-after($p-style-name, 'heading')"/>
+                    <xsl:variable name="heading-level-number" select="number($heading-level-string)"/>
+                    <xsl:choose>
+                        <xsl:when test="$heading-level-number">
+                            <xsl:value-of select="$heading-level-number"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="0"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:when>
-                <!-- Heading (H1, H2, H3, H4, H5, H6) -->
+                <!-- Heading: User Paragraph Name (H1, H2, H3, H4, H5, H6) -->
                 <xsl:when test="
                     translate($p-style-name, 'H ', 'h') = 'h1' or 
                     translate($p-style-name, 'H ', 'h') = 'h2' or
@@ -882,26 +894,81 @@
                 ">
                     <xsl:value-of select="number(substring-after(translate($p-style-name, 'H','h'), 'h'))"/>
                 </xsl:when>
+                <!-- Heading: User Paragraph Name with $heading-marker -->
                 <xsl:when test="contains($p-style-name, $heading-marker)">
                     <xsl:value-of select="number(substring-after(translate($p-style-name, 'h','H'), $heading-marker))"/>
                 </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h1-paragraph-style-names = $p-style-name or (contains($h1-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="1"/>
+                <!-- Heading: User Paragraph Name in $h1-paragraph-style-names -->
+                <xsl:when test="boolean($h1-paragraph-style-names)">
+                    <xsl:choose>
+                        <xsl:when test="($h1-paragraph-style-names = $p-style-name or (contains($h1-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="1"/>
+                        </xsl:when>
+                        <xsl:when test="($h2-paragraph-style-names = $p-style-name or (contains($h2-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="2"/>
+                        </xsl:when>
+                        <xsl:when test="($h3-paragraph-style-names = $p-style-name or (contains($h3-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="3"/>
+                        </xsl:when>
+                        <xsl:when test="($h4-paragraph-style-names = $p-style-name or (contains($h4-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="4"/>
+                        </xsl:when>
+                        <xsl:when test="($h5-paragraph-style-names = $p-style-name or (contains($h5-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="5"/>
+                        </xsl:when>
+                        <xsl:when test="($h6-paragraph-style-names = $p-style-name or (contains($h6-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                            <xsl:value-of select="6"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="0"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h2-paragraph-style-names = $p-style-name or (contains($h2-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="2"/>
-                </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h3-paragraph-style-names = $p-style-name or (contains($h3-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="3"/>
-                </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h4-paragraph-style-names = $p-style-name or (contains($h4-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="4"/>
-                </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h5-paragraph-style-names = $p-style-name or (contains($h5-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="5"/>
-                </xsl:when>
-                <xsl:when test="boolean($h1-paragraph-style-names) and ($h6-paragraph-style-names = $p-style-name or (contains($h6-paragraph-style-names, concat('»', $p-style-name, '«'))))">
-                    <xsl:value-of select="6"/>
+                <!-- Heading: Defined Font Size (last in chain) -->
+                <xsl:when test="$h1-font-size or $h2-font-size or $h3-font-size or $h4-font-size or $h5-font-size or $h6-font-size">
+                    <xsl:variable name="sz-attribute-value">
+                        <xsl:choose>
+                            <xsl:when test="$target-element/w:pPr/w:rPr/w:sz">
+                                <xsl:value-of select="$target-element/w:pPr/w:rPr/w:sz/@w:val"/>
+                            </xsl:when>
+                            <xsl:when test="$target-element/w:pPr/w:szCs">
+                                <xsl:value-of select="$target-element/w:pPr/w:rPr/w:szCs/@w:val"/>
+                            </xsl:when>
+                           <xsl:when test="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:sz">
+                                <xsl:value-of select="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:sz/@w:val"/>
+                            </xsl:when>
+                            <xsl:when test="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:szCs">
+                                <xsl:value-of select="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:szCs/@w:val"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="0"/>
+                            </xsl:otherwise>
+                        </xsl:choose>   
+                    </xsl:variable>
+                    <xsl:variable name="p-font-size" select="number($sz-attribute-value) div 2"/>
+                    <xsl:choose>
+                        <xsl:when test="$p-font-size and $p-font-size = $h1-font-size">
+                            <xsl:value-of select="1"/>
+                        </xsl:when>
+                        <xsl:when test="$p-font-size and $p-font-size = $h2-font-size">
+                            <xsl:value-of select="2"/>
+                        </xsl:when>
+                        <xsl:when test="$p-font-size and $p-font-size = $h3-font-size">
+                            <xsl:value-of select="3"/>
+                        </xsl:when>
+                        <xsl:when test="$p-font-size and $p-font-size = $h4-font-size">
+                            <xsl:value-of select="4"/>
+                        </xsl:when>
+                        <xsl:when test="$p-font-size and $p-font-size = $h5-font-size">
+                            <xsl:value-of select="5"/>
+                        </xsl:when>
+                        <xsl:when test="$p-font-size and $p-font-size = $h6-font-size">
+                            <xsl:value-of select="6"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="0"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:when>
                 <xsl:otherwise>
                     <xsl:value-of select="0"/>
@@ -1162,16 +1229,6 @@
     </xsl:template>
     
     <!-- Deleted Text -->
-    <!-- 
-        <w:del w:id="0" w:author="Roland" w:date="2021-12-05T21:37:00Z">
-            <w:r>
-                <w:delText>deleted Text</w:delText>
-            </w:r>
-        </w:del>
-        <w:r>
-            <w:t>normal Text</w:t>
-        </w:r>
-    -->
     <xsl:template match="w:delText">
         <xsl:apply-templates />
     </xsl:template>
@@ -1220,32 +1277,6 @@
     
     
     <!-- Structure text runs (e.g. complex fields) -->
-    <!-- 
-        <w:p>
-            <w:r>
-                <w:t>...</w:t>
-            </w:r>
-            <w:r>
-                <w:fldChar w:fldCharType="begin"/>
-            </w:r>
-            <w:r>
-                <w:instrText> REF ziel \h </w:instrText>
-            </w:r>
-            <w:r>
-                <w:fldChar w:fldCharType="separate"/>
-            </w:r>
-            <w:r>
-                <w:t>...</w:t>
-            </w:r>
-            <w:r>
-                <w:fldChar w:fldCharType="end"/>
-            </w:r>
-            <w:r>
-                <w:t>...</w:t>
-            </w:r>
-            <w:bookmarkEnd w:id="0"/>
-        </w:p>
-    -->
     <xsl:template name="structure-text-runs">
         <xsl:param name="target-elements"/>
         <xsl:param name="parent-field" select="''"/>

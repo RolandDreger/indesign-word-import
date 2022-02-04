@@ -5,8 +5,8 @@
     Microsoft Word Document -> HTML -> InDesign
     (InDesign Module)
     
-    Created: 30. September 2021
-    Modified: 2. February 2022
+    Created: September 30, 2021
+    Modified: February 4, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -15,8 +15,9 @@
     
     ## InDesign Import
     
-    Use indent="no" in <xsl:output> for InDesign import and 
-    deactivate option »Do Not Import Contents Of Whitespace-Only Elements«. 
+    For InDesign import use indent="no" in <xsl:output> in this stylesheet and 
+    deactivate option »Do Not Import Contents Of Whitespace-Only Elements« 
+    in InDesign XML import settings. 
     
     Otherwise, there may be problems with text wrap in cells 
     with multiple paragraphs. (&#x0d;)
@@ -27,6 +28,11 @@
     InDesign sometimes crashes with copy-of therefore the construct
     document($document-file-name) that always exits xsl:choose and 
     xsl:copy-of for global paramerters
+    
+    
+    ## ToDo
+    
+    - Seitenumbrüche als processing-instructions???
     
 -->
 
@@ -100,20 +106,6 @@
     <xsl:param name="is-comment-to-be-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
     <xsl:param name="is-tab-to-be-preserved" select="true()"/>  <!-- Tab Character --> 
     <xsl:param name="is-special-local-override-to-apply" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
-    
-    <!-- Heading Style Map -->
-    <xsl:param name="h1-paragraph-style-names" select="''"/> <!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' -->
-    <xsl:param name="h2-paragraph-style-names" select="''"/> <!-- e.g. 'Custom_Name_2' -->
-    <xsl:param name="h3-paragraph-style-names" select="''"/> 
-    <xsl:param name="h4-paragraph-style-names" select="''"/> 
-    <xsl:param name="h5-paragraph-style-names" select="''"/> 
-    <xsl:param name="h6-paragraph-style-names" select="''"/> 
-    
-    <xsl:variable name="heading-marker" select="'-Heading-'"/>
-    
-    <!-- Case conversion -->
-    <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿžšœ'" />
-    <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸŽŠŒ'" />
     
     
     <!-- +++++++++ -->
