@@ -1,3 +1,2 @@
-﻿src export-ignore
+﻿src/ export-ignore
 src/** export-ignore
-README.md export-ignore
