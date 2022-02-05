@@ -2,13 +2,20 @@
 
 <!--    
         
-    Microsoft Word Document -> XHTML
+    Microsoft Word Document => HTML => XHTML
+    (XHTML Module)
     
-    30. September 2021
-    14. Dezember 2021
+    Created: September 30, 2021
+    Modified: February 5, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
+    # Default namespaces:
+    
+    <html xmlns="http://www.w3.org/1999/xhtml"> 
+    <math xmlns="http://www.w3.org/1998/Math/MathML"> 
+    <svg xmlns="http://www.w3.org/2000/svg"> 
+
     ToDo:
     
     - Tag names without dash "-"
@@ -29,24 +36,51 @@
     <xsl:import href="docx2html.xsl"/>
     
     <xsl:output 
-        method="xhtml" 
+        method="xml" 
         version="1.0" 
-        doctype-public="-//W3C//DTD XHTML 1.1//EN" 
-        doctype-system="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" 
+        encoding="UTF-8"
+        doctype-public="" 
+        doctype-system=""
         media-type="application/xhtml+xml" 
-        omit-xml-declaration="no" 
+        omit-xml-declaration="yes" 
         indent="yes" 
-        standalone="yes"
     />
     
     <!-- Document Namespace -->
     <xsl:param name="ns" select="'http://www.w3.org/1999/xhtml'"/>
+    
+
+    <!-- +++++++++++++ -->
+    <!-- + Templates + -->
+    <!-- +++++++++++++ -->
+    
+    <xsl:template match="/">
+        <xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;&#x0d;</xsl:text>
+        <xsl:element name="html" namespace="{$ns}">
+            <xsl:attribute name="xml:lang">
+                <xsl:value-of select="$language"/>
+            </xsl:attribute>
+            <xsl:attribute name="lang">
+                <xsl:value-of select="$language"/>
+            </xsl:attribute>
+            <!-- Head -->
+            <xsl:call-template name="create-head-section" />
+            <!-- Body -->
+            <xsl:call-template name="create-body-section" />
+        </xsl:element>
+    </xsl:template>
+    
     
     <!-- Head -->
     <xsl:template name="create-head-section">
         <xsl:element name="head" namespace="{$ns}">
             <xsl:element name="title" namespace="{$ns}">
                 <xsl:value-of select="$core-props/dc:title"/>
+            </xsl:element>
+            <xsl:element name="meta" namespace="{$ns}">
+                <xsl:attribute name="charset">
+                    <xsl:value-of select="'UTF-8'"/>
+                </xsl:attribute>
             </xsl:element>
             <xsl:element name="meta" namespace="{$ns}">
                 <xsl:attribute name="name">
