@@ -3,8 +3,8 @@
     Microsoft Word Document -> HTML -> InDesign
     (InDesign Module)
     
-    Created: 30. September 2021
-    Modified: 4. February 2022
+    Created: September 30, 2021
+    Modified: February 4, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -13,8 +13,9 @@
     
     ## InDesign Import
     
-    Use indent="no" in <xsl:output> for InDesign import and 
-    deactivate option »Do Not Import Contents Of Whitespace-Only Elements«. 
+    For InDesign import use indent="no" in <xsl:output> in this stylesheet and 
+    deactivate option »Do Not Import Contents Of Whitespace-Only Elements« 
+    in InDesign XML import settings. 
     
     Otherwise, there may be problems with text wrap in cells 
     with multiple paragraphs. (&#x0d;)
@@ -25,6 +26,11 @@
     InDesign sometimes crashes with copy-of therefore the construct
     document($document-file-name) that always exits xsl:choose and 
     xsl:copy-of for global paramerters
+    
+    
+    ## ToDo
+    
+    - Seitenumbrüche als processing-instructions???
     
 --><xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:b="http://schemas.openxmlformats.org/officeDocument/2006/bibliography" xmlns:rd="http://www.rolanddreger.net" xmlns:aid="http://ns.adobe.com/AdobeInDesign/4.0/" xmlns:aid5="http://ns.adobe.com/AdobeInDesign/5.0/" exclude-result-prefixes="rd pkg wpc cx cx1 cx2 cx3 cx4 cx5 cx6 cx7 cx8 mc aink am3d o r rel m v wp14 wp w10 w w14 w15 w16cex w16cid w16 w16sdtdh w16se wpg wpi wne wps cp dc dcterms dcmitype dcmitype a pic xsi b" version="1.0">
     
@@ -728,7 +734,7 @@
             <!-- Citations -->
             <xsl:when test="starts-with($complex-field-content, 'CITATION')">
                 <xsl:variable name="citation-id" select="substring-before(normalize-space(substring-after($complex-field-content, 'CITATION')), ' ')"/>
-                <xsl:element name="{$citation-tag-name}">
+                <xsl:element name="{$citation-tag-name}" namespace="{$ns}">
                     <!-- Attributes -->
                     <xsl:call-template name="insert-citation-attributes">
                         <xsl:with-param name="id" select="$citation-id"/>
@@ -879,11 +885,15 @@
         </xsl:attribute>
     </xsl:template><!-- Attributes for citation element --><xsl:template name="insert-citation-attributes">
         <xsl:param name="id" select="''"/>
-        <!-- Style Type -->
+        <!-- Style Attribute -->
+        <xsl:attribute name="{$citation-style-attribute-name}">
+            <xsl:value-of select="$citation-style-attribute-value"/>
+        </xsl:attribute>
+        <!-- Type -->
         <xsl:attribute name="{$citation-style-type-attribute-name}">
             <xsl:value-of select="$citations-relationships/b:Sources[b:Source/b:Tag = $id]/@SelectedStyle"/>
         </xsl:attribute>
-        <!-- Style Name -->
+        <!-- Name -->
         <xsl:attribute name="{$citation-style-name-attribute-name}">
             <xsl:value-of select="$citations-relationships/b:Sources[b:Source/b:Tag = $id]/@StyleName"/>
         </xsl:attribute>
@@ -1829,6 +1839,8 @@
     <xsl:variable name="citation-tag-name" select="'Zitat'"/>
     <xsl:variable name="citation-call-tag-name" select="'Zitataufruf'"/>
     <xsl:variable name="citation-source-tag-name" select="'Zitatquelle'"/>
+    <xsl:variable name="citation-style-attribute-name" select="'class'"/>
+    <xsl:variable name="citation-style-attribute-value" select="'citation'"/>
     <xsl:variable name="citation-style-type-attribute-name" select="'Formattyp'"/>
     <xsl:variable name="citation-style-name-attribute-name" select="'Formatname'"/>
     <xsl:variable name="citation-version-attribute-name" select="'Version'"/>
@@ -1964,7 +1976,7 @@
                 </xsl:call-template>
             </xsl:element>
             <xsl:if test="(following-sibling::w:p or following-sibling::w:tbl) and not(parent::w:footnote or parent::w:endnote or parent::w:comment)">
-                <xsl:text>&#xD;</xsl:text> <!-- Return einfuegen -->
+                <xsl:text>&#xD;</xsl:text> <!-- Carriage Return -->
             </xsl:if>
         </xsl:if>
     </xsl:template>
@@ -2042,7 +2054,7 @@
             <xsl:apply-templates/>
         </xsl:element>
         <xsl:if test="(following-sibling::w:p or following-sibling::w:tbl) and not(parent::w:footnote or parent::w:endnote)">
-            <xsl:text>&#xD;</xsl:text> <!-- Return einfuegen -->
+            <xsl:text>&#xD;</xsl:text> <!-- Carriage Return -->
         </xsl:if>
     </xsl:template>
 

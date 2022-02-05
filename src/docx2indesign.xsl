@@ -186,7 +186,15 @@
     <!-- + OUTPUT + -->
     <!-- ++++++++++ -->
     
-    <xsl:output method="xml" version="1.0" doctype-public="" doctype-system="" media-type="text/xml" omit-xml-declaration="no" indent="no"/>
+    <xsl:output 
+        method="xml" 
+        version="1.0" 
+        doctype-public="" 
+        doctype-system="" 
+        media-type="text/xml" 
+        omit-xml-declaration="no" 
+        indent="no"
+    />
 
     <!-- Output tag and attribute names -->
     <xsl:variable name="root-tag-name" select="'Document'"/>
@@ -226,6 +234,8 @@
     <xsl:variable name="citation-tag-name" select="'Zitat'"/>
     <xsl:variable name="citation-call-tag-name" select="'Zitataufruf'"/>
     <xsl:variable name="citation-source-tag-name" select="'Zitatquelle'"/>
+    <xsl:variable name="citation-style-attribute-name" select="'class'"/>
+    <xsl:variable name="citation-style-attribute-value" select="'citation'"/>
     <xsl:variable name="citation-style-type-attribute-name" select="'Formattyp'"/>
     <xsl:variable name="citation-style-name-attribute-name" select="'Formatname'"/>
     <xsl:variable name="citation-version-attribute-name" select="'Version'"/>
@@ -361,7 +371,7 @@
                 </xsl:call-template>
             </xsl:element>
             <xsl:if test="(following-sibling::w:p or following-sibling::w:tbl) and not(parent::w:footnote or parent::w:endnote or parent::w:comment)">
-                <xsl:text>&#x0d;</xsl:text> <!-- Return einfuegen -->
+                <xsl:text>&#x0d;</xsl:text> <!-- Carriage Return -->
             </xsl:if>
         </xsl:if>
     </xsl:template>
@@ -439,7 +449,7 @@
             <xsl:apply-templates/>
         </xsl:element>
         <xsl:if test="(following-sibling::w:p or following-sibling::w:tbl) and not(parent::w:footnote or parent::w:endnote)">
-            <xsl:text>&#x0d;</xsl:text> <!-- Return einfuegen -->
+            <xsl:text>&#x0d;</xsl:text> <!-- Carriage Return -->
         </xsl:if>
     </xsl:template>
 

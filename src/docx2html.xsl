@@ -5,7 +5,7 @@
     Microsoft Word Document -> HTML
     
     Created: September 30, 2021
-    Modified: February 4, 2022
+    Modified: February 5, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -369,6 +369,8 @@
     <xsl:variable name="citation-tag-name" select="'citation-note'"/>
     <xsl:variable name="citation-call-tag-name" select="'citation-call'"/>
     <xsl:variable name="citation-source-tag-name" select="'citation-source'"/>
+    <xsl:variable name="citation-style-attribute-name" select="'class'"/>
+    <xsl:variable name="citation-style-attribute-value" select="'citation'"/>
     <xsl:variable name="citation-style-type-attribute-name" select="'data-style-type'"/>
     <xsl:variable name="citation-style-name-attribute-name" select="'data-style-name'"/>
     <xsl:variable name="citation-version-attribute-name" select="'data-version'"/>
@@ -1465,7 +1467,7 @@
             <!-- Citations -->
             <xsl:when test="starts-with($complex-field-content, 'CITATION')">
                 <xsl:variable name="citation-id" select="substring-before(normalize-space(substring-after($complex-field-content, 'CITATION')), ' ')"/>
-                <xsl:element name="{$citation-tag-name}">
+                <xsl:element name="{$citation-tag-name}" namespace="{$ns}">
                     <!-- Attributes -->
                     <xsl:call-template name="insert-citation-attributes">
                         <xsl:with-param name="id" select="$citation-id"/>
@@ -1641,11 +1643,15 @@
     <!-- Attributes for citation element -->
     <xsl:template name="insert-citation-attributes">
         <xsl:param name="id" select="''"/>
-        <!-- Style Type -->
+        <!-- Style Attribute -->
+        <xsl:attribute name="{$citation-style-attribute-name}">
+            <xsl:value-of select="$citation-style-attribute-value"/>
+        </xsl:attribute>
+        <!-- Type -->
         <xsl:attribute name="{$citation-style-type-attribute-name}">
             <xsl:value-of select="$citations-relationships/b:Sources[b:Source/b:Tag = $id]/@SelectedStyle"/>
         </xsl:attribute>
-        <!-- Style Name -->
+        <!-- Name -->
         <xsl:attribute name="{$citation-style-name-attribute-name}">
             <xsl:value-of select="$citations-relationships/b:Sources[b:Source/b:Tag = $id]/@StyleName"/>
         </xsl:attribute>
