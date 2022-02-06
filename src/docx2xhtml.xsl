@@ -10,16 +10,12 @@
     
     Author: Roland Dreger, www.rolanddreger.net
     
+    
     # Default namespaces:
     
     <html xmlns="http://www.w3.org/1999/xhtml"> 
     <math xmlns="http://www.w3.org/1998/Math/MathML"> 
     <svg xmlns="http://www.w3.org/2000/svg"> 
-
-    ToDo:
-    
-    - Tag names without dash "-"
-    - Citation source elements
     
 -->
 
