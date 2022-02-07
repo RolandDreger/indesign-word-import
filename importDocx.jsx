@@ -71,13 +71,14 @@
 			
 */
 
-/* Hooks */
-//@include "lib/dialogs.jsx"
-//@include "lib/helpers.jsx"
+
+//@include "utils/classes.jsx"
+//@include "utils/dialogs.jsx"
+//@include "utils/helpers.jsx"
 //@include "hooks/beforeImport.jsx"
 //@include "hooks/beforeMount.jsx"
-//@include "hooks/beforePlace.jsx"
-//@include "hooks/afterPlace.jsx"
+//@include "hooks/beforePlaced.jsx"
+//@include "hooks/afterPlaced.jsx"
 
 
 var _global = {
@@ -108,8 +109,6 @@ _global["setups"] = {
 if(_global["setups"]["user"] === "rolanddreger") {
 	// _global["debug"] = true;
 }
-
-
 
 
 __start();
@@ -150,14 +149,14 @@ function __start() {
 	try {
 		if(app.scriptPreferences.version >= 6 && !_global["debug"]) {
 			app.doScript(
-				__runSequence, 
+				__runMainSequence, 
 				ScriptLanguage.JAVASCRIPT, 
 				[_doc], 
 				UndoModes.ENTIRE_SCRIPT, 
 				localize(_global.goBackLabel)
 			);
 		} else {
-			__runSequence([_doc]);
+			__runMainSequence([_doc]);
 		}
 	} catch(_error) {
 		if(_error instanceof Error) {
@@ -201,15 +200,12 @@ _global = null;
 
 
 
-/* +++++++++++++++++ */
-/* + Main Sequence + */
-/* +++++++++++++++++ */
 /**
- * 
+ * Main Sequence
  * @param {Array} _doScriptParameterArray 
  * @returns Boolean
  */
-function __runSequence(_doScriptParameterArray) {
+function __runMainSequence(_doScriptParameterArray) {
 	
 	if(!_global.hasOwnProperty("setups")) { 
 		throw new Error("Global object has no property [_setups]."); 
@@ -227,6 +223,8 @@ function __runSequence(_doScriptParameterArray) {
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
 		throw new Error("Document as parameter required."); 
 	}
+
+	var _hooks = new Hooks();
 
 	/* Get docx file */
 	var _docxFile = __getDocxFile();
@@ -248,7 +246,7 @@ function __runSequence(_doScriptParameterArray) {
 	// };
 
 	/* Hook: beforeImport */
-	var _beforeImportResultObj = __beforeImport(_doc, _unpackObj, _setupObj);
+	var _beforeImportResultObj = _hooks.beforeImport(_doc, _unpackObj, _setupObj);
 	if(!_beforeImportResultObj) {
 		return false;
 	}
@@ -260,46 +258,46 @@ function __runSequence(_doScriptParameterArray) {
 	}
 
 	/* Hook: beforeMount */
-	var _beforeMountResultObj = __beforeMount(_doc, _unpackObj, _wordXMLElement, _setupObj);
+	var _beforeMountResultObj = _hooks.beforeMount(_doc, _unpackObj, _wordXMLElement, _setupObj);
 	if(!_beforeMountResultObj) {
 		return false;
 	}
 
-
-	/* ... */
+	/* Mount InDesign items before placing XML */
+	var _mountBeforePlaceResultObj = __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj);
+	if(!_mountBeforePlaceResultObj) {
+		return false;
+	}
 	
-
-	/* Hook: beforePlace */
-	var _beforePlaceResultObj = __beforePlace(_doc, _unpackObj, _wordXMLElement, _setupObj);
+	/* Hook: beforePlaced */
+	var _beforePlaceResultObj = _hooks.beforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj);
 	if(!_beforePlaceResultObj) {
 		return false;
 	}
 
-	/* Place imported XML */
+	/* Place imported XML structure */
 	var _wordStory = __placeXML(_doc, _wordXMLElement, _setupObj);
 	if(!_wordStory) {
 		return false;
 	}
 
-
-	/* ... */
-
-
-	/* Hook: afterPlace */
-	var _afterPlaceResultObj = __afterPlace(_doc, _unpackObj, _wordXMLElement, _setupObj);
+	/* Hook: afterPlaced */
+	var _afterPlaceResultObj = _hooks.afterPlaced(_doc, _unpackObj, _wordXMLElement, _wordStory, _setupObj);
 	if(!_afterPlaceResultObj) {
 		return false;
 	}
 
+	/* Mount InDesign items after placing XML */
+	var _mountAfterPlaceResultObj = __mountAfterPlaced(_doc, _unpackObj, _wordXMLElement, _wordStory, _setupObj);
+	if(!_mountAfterPlaceResultObj) {
+		return false;
+	}
+
 	return true;
-} /* END function __runSequence */
+} /* END function __runMainSequence */
 
 
 
-
-/* +++++++++++ */
-/* +  Import + */
-/* +++++++++++ */
 
 /**
  * Get docx file
@@ -603,20 +601,41 @@ function __getXSLTFile(_xsltFileName) {
 
 
 
-/* ++++++++++ */
-/* +  Mount + */
-/* ++++++++++ */
-
-
-
-
-
-/* +++++++++ */
-/* + Place + */
-/* +++++++++ */
 
 /**
- * Place imported XML  
+ * Mount InDesign items before placing XML
+ * @param {Document} _doc 
+ * @param {Object} _unpackObj 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns Object
+ */
+function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_unpackObj || !(_unpackObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+
+
+
+	return {};
+} /* END function __mountBeforePlaced */
+
+
+
+
+/**
+ * Place imported XML structure 
  * @param {Document} _doc 
  * @param {XMLElement} _wordXMLElement
  * @param {Object} _setupObj
@@ -673,6 +692,44 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 
 	return _wordStory;
 } /* END function __placeXML */
+
+
+
+
+/**
+ * Mount InDesign items after placing XML
+ * @param {Document} _doc 
+ * @param {Object} _unpackObj 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Story} _wordStory
+ * @param {Object} _setupObj 
+ * @returns Object
+ */
+function __mountAfterPlaced(_doc, _unpackObj, _wordXMLElement, _wordStory, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_unpackObj || !(_unpackObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_wordStory || !(_wordStory instanceof Story) || !_wordStory.isValid) { 
+		throw new Error("Story as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+
+
+
+	return {};
+} /* END function __mountAfterPlaced */
+
+
 
 
 

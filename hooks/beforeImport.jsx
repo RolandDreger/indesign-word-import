@@ -6,7 +6,7 @@
  * @param {Object} _setupObj
  * @returns Object
  */
-function __beforeImport(_doc, _unpackObj, _setupObj) {
+Hooks.prototype.beforeImport = function (_doc, _unpackObj, _setupObj) {
 	
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
 		throw new Error("Document as parameter required.");  
@@ -20,5 +20,5 @@ function __beforeImport(_doc, _unpackObj, _setupObj) {
 
 	// $.writeln("beforeImport");
 
-	return {};
-} /* END function __beforeImport */
+	return {a:"a"};
+} /* END method beforeImport */

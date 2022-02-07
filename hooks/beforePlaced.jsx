@@ -1,13 +1,13 @@
 /**
- * Hook: afterPlace 
- * Handler runs after placing XML 
+ * Hook: beforePlace 
+ * Handler runs before placing XML
  * @param {Document} _doc 
  * @param {Object} _unpackObj
  * @param {XMLElement} _wordXMLElement
  * @param {Object} _setupObj
  * @returns Object
  */
-function __afterPlace(_doc, _unpackObj, _wordXMLElement, _setupObj) {
+ Hooks.prototype.beforePlaced = function (_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
 		throw new Error("Document as parameter required.");
@@ -22,7 +22,7 @@ function __afterPlace(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	// $.writeln("afterPlace");
+	// $.writeln("beforePlaced");
 
 	return {};
-} /* END function __afterPlace */
+} /* END method beforePlaced */
