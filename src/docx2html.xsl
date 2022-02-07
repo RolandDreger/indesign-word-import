@@ -9,15 +9,8 @@
     
     Author: Roland Dreger, www.rolanddreger.net
     
-    # ToDo:
     
-    - Glossary 
-        Table of Authorities -> Komplex field
-        (https://c-rex.net/projects/samples/ooxml/e1/Part1/OOXML_P1_Fundamentals_Glossary_topic_ID0ELEAK.html?hl=glossary)
-    
-    
-    
-    # Transferred items:
+    # Implemented:
     
     - Paragraph styles (ID, Class)
     - Character styles (Class)
