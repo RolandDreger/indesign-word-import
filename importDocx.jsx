@@ -178,22 +178,20 @@ function __start() {
 		app.scriptPreferences.userInteractionLevel = _userInteractionLevel;
 	}
 
+	/* Close progressbar */
+	if(_global.hasOwnProperty("progressbar")) {
+		_global["progressbar"].close();
+	}
+
 	/* Check: Log messages? */
 	if(_global["log"].length > 0) {
 		__showLog(_global["log"]);
 		return false;
 	}
-	  
+	
 	return true;
 } /* END function __start */
 
-
-if(
-	_global !== null && _global !== undefined && 
-	_global.hasOwnProperty("progressbar")
-) {
-	_global["progressbar"].close();
-}
 
 _global = null;
 
