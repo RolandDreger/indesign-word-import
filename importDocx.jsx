@@ -687,26 +687,26 @@ function __mountFootnotes(_doc, _wordXMLElement, _setupObj) {
 
 	const FOOTNOTE_TAG_NAME = _setupObj["footnote"]["tag"];
 	const COLOR_ARRAY = _setupObj["footnote"]["color"];
-	const IS_CREATED = _setupObj["footnote"]["isCreated"];
-	const IS_MARKED = _setupObj["footnote"]["isMarked"];
-	const IS_REMOVED = _setupObj["footnote"]["isRemoved"];
+	const FOOTNOTE_IS_CREATED = _setupObj["footnote"]["isCreated"];
+	const FOOTNOTE_IS_MARKED = _setupObj["footnote"]["isMarked"];
+	const FOOTNOTE_IS_REMOVED = _setupObj["footnote"]["isRemoved"];
 
 	var _footnoteXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + FOOTNOTE_TAG_NAME);
 	if(_footnoteXMLElementArray.length === 0) {
 		return true;
 	}
 
-	if(IS_REMOVED) {
+	if(FOOTNOTE_IS_REMOVED) {
 		__removeXMLElements(_footnoteXMLElementArray, localize(_global.footnotesLabel));
 		return true;
 	}
 
-	if(IS_MARKED) {
+	if(FOOTNOTE_IS_MARKED) {
 		__markXMLElements(_doc, _footnoteXMLElementArray, localize(_global.footnotesLabel), COLOR_ARRAY);
 		return true;
 	}
 
-	if(IS_CREATED) {
+	if(FOOTNOTE_IS_CREATED) {
 		__createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _setupObj);
 		return true;
 	} 
@@ -721,7 +721,7 @@ function __mountFootnotes(_doc, _wordXMLElement, _setupObj) {
  * @param {XMLElement} _wordXMLElement 
  * @param {Array} _footnoteXMLElementArray 
  * @param {Object} _setupObj 
- * @returns 
+ * @returns Boolean
  */
 function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _setupObj) {
 
