@@ -35,12 +35,9 @@
 
 			Sonderzeichen entfernen aus Text
 
+			ToDo
 
-			Test:
-    
-    – Harter Zeilenumbruch
-    – Seitenumbruch
-    – Spaltenumbruch
+			Abschnittsumbruch
     
     
     
@@ -109,6 +106,22 @@ _global["setups"] = {
 	"mount":{},
 	"paragraph":{
 		"tag":"paragraph"
+	},
+	"pageBreak":{
+		"tag":"pagebreak",
+		"isInserted":true
+	},
+	"columnBreak":{
+		"tag":"columnbreak",
+		"isInserted":true
+	},
+	"forcedLineBreak":{
+		"tag":"forcedlinebreak",
+		"isInserted":true
+	},
+	"sectionBreak":{
+		"tag":"sectionbreak",
+		"isInserted":true
 	},
 	"footnote":{ 
 		"tag":"footnote", 
@@ -644,14 +657,18 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
+	/* Breaks */
+	__insertBreaks(_doc, _wordXMLElement, _setupObj);
 
-	/* Footnotes */ /* Last in chain, XML elements are removed from footnotes */
-	__mountFootnotes(_doc, _wordXMLElement, _setupObj);
-	
 
 	/* Index */
 	// _doc.indexes[0].topics[0].pageReferences.add(_xmlElement.texts[0], PageReferenceType.CURRENT_PAGE)
 
+	/* Hyperlinks */
+
+	/* Footnotes */ /* Last in chain, XML elements are removed from footnotes */
+	__mountFootnotes(_doc, _wordXMLElement, _setupObj);
+	
 	/* Endnotes */
 	// _wordXMLElement.xmlElements[0].insertionPoints[0].createEndnote()
 
@@ -664,6 +681,107 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 
 	return {};
 } /* END function __mountBeforePlaced */
+
+
+
+/**
+ * Insert Breaks
+ * - Page Break
+ * - Column Break
+ * - Forced Line Break
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __insertBreaks(_doc, _wordXMLElement, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+	
+	const IS_PAGE_BREAK_INSERTED = _setupObj["pageBreak"]["isInserted"];
+	const PAGE_BREAK_TAG = _setupObj["pageBreak"]["tag"];
+	const IS_COLUMN_BREAK_INSERTED = _setupObj["columnBreak"]["isInserted"];
+	const COLUMN_BREAK_TAG = _setupObj["columnBreak"]["tag"];
+	const IS_FORCED_LINE_BREAK_INSERTED = _setupObj["forcedLineBreak"]["isInserted"];
+	const FORCED_LINE_BREAK_TAG = _setupObj["forcedLineBreak"]["tag"];
+
+	if(IS_PAGE_BREAK_INSERTED) {
+		var _pageBreakXMLElementsArray = _wordXMLElement.evaluateXPathExpression("//" + PAGE_BREAK_TAG);
+		__insertSpecialCharacter(_pageBreakXMLElementsArray, "PAGE_BREAK");
+	}
+	
+	if(IS_COLUMN_BREAK_INSERTED) {
+		var _columnBreakXMLElementsArray = _wordXMLElement.evaluateXPathExpression("//" + COLUMN_BREAK_TAG);
+		__insertSpecialCharacter(_columnBreakXMLElementsArray, "COLUMN_BREAK");
+	}
+	
+	if(IS_FORCED_LINE_BREAK_INSERTED) {
+		var _forcedLineBreakXMLElementsArray = _wordXMLElement.evaluateXPathExpression("//" + FORCED_LINE_BREAK_TAG);
+		__insertSpecialCharacter(_forcedLineBreakXMLElementsArray, "FORCED_LINE_BREAK");
+	}
+
+	return true;
+} /* END function __insertBreaks */
+
+/**
+ * Inserting special characters into empty XML elements
+ * @param {Array} _xmlElementArray 
+ * @param {String} _specialCharName 
+ * @returns Boolean
+ */
+function __insertSpecialCharacter(_xmlElementArray, _specialCharName) {
+	
+	if(!_xmlElementArray || !(_xmlElementArray instanceof Array)) { 
+		throw new Error("Array as parameter required.");
+	}
+	if(!_specialCharName || _specialCharName.constructor !== String) { 
+		throw new Error("String as parameter required.");
+	}
+
+	var _counter = 0;
+
+	for(var i=_xmlElementArray.length-1; i>=0; i-=1) { 
+
+		var _xmlElement = _xmlElementArray[i];
+		if(!_xmlElement || !_xmlElement.hasOwnProperty("contents") || !_xmlElement.isValid) {
+			continue;
+		}
+
+		if(!SpecialCharacters.hasOwnProperty(_specialCharName)) {
+			_global["log"].push(localize(_global.specialCharacterNotAvailableErrorMessage, _specialCharName));
+			continue;
+		}
+		
+		var _content = _xmlElement.contents;
+		if(_content !== "") {
+			_global["log"].push(localize(_global.xmlElementNotEmptyErrorMessage, _xmlElement.markupTag.name, _content));
+			continue;
+		}
+
+		try {
+			_xmlElement.contents = SpecialCharacters[_specialCharName]; 
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+		
+		_counter += 1;
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.insertSpecialCharactersMessage, _counter, _specialCharName));
+	}
+
+	return true;
+} /* END function __insertSpecialCharacters */
 
 
 /**
@@ -1124,6 +1242,19 @@ function __defLocalizeStrings() {
 		de: "Fußnote [%1]: Fehler beim Zuweisen der Absatzformate."
 	};
 
-
+	_global.specialCharacterNotAvailableErrorMessage = { 
+		en: "Special character not available: 1%",
+		de: "Sonderzeichen nicht verfügbar: %1" 
+	}; 
+	
+	_global.xmlElementNotEmptyErrorMessage = { 
+		en: "XML element [%1] not empty: %2",
+		de: "XML-Element [%1] nicht leer: %2" 
+	};
+		
+	_global.insertSpecialCharactersMessage = { 
+		en: "%1 special characters [%2] inserted.",
+		de: "%1 Sonderzeichen [%2] eingefügt." 
+	};
 
 } /* END function __defLocalizeStrings */

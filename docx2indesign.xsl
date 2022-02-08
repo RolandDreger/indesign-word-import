@@ -1901,11 +1901,11 @@
     <xsl:variable name="cross-reference-format-attribute-name" select="'Format'"/>
     <xsl:variable name="inline-style-tag-name" select="'Zeichenformat'"/>
     <xsl:variable name="inline-style-attribute-name" select="'cstyle'"/>
-    <xsl:variable name="page-break-tag-name" select="'Seitenumbruch'"/>
-    <xsl:variable name="column-break-tag-name" select="'Spaltenumbruch'"/>
-    <xsl:variable name="forced-line-break-tag-name" select="'Harter_Zeilenumbruch'"/>
-    <xsl:variable name="carriage-return-tag-name" select="'Harter_Zeilenumbruch'"/>
-    <xsl:variable name="section-break-tag-name" select="'Abschnittwechsel'"/>
+    <xsl:variable name="page-break-tag-name" select="'pagebreak'"/>
+    <xsl:variable name="column-break-tag-name" select="'columnbreak'"/>
+    <xsl:variable name="forced-line-break-tag-name" select="'forcedlinebreak'"/>
+    <xsl:variable name="carriage-return-tag-name" select="'carriagereturn'"/>
+    <xsl:variable name="section-break-tag-name" select="'sectionbreak'"/>
     <xsl:variable name="element-type-attribute-name" select="'Typ'"/>
     <xsl:variable name="inserted-text-tag-name" select="'Eingefügter_Text'"/>
     <xsl:variable name="deleted-text-tag-name" select="'Gelöschter_Text'"/>
