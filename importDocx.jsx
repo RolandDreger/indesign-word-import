@@ -755,6 +755,7 @@ function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _set
 			continue;
 		}
 
+		var _isAssignmentCorrect = true;
 		var _pStyleNameArray = [];
 		var _paragraphXMLElementArray = _footnoteXMLElement.evaluateXPathExpression(PARAGRAPH_TAG_NAME);
 		
@@ -764,61 +765,66 @@ function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _set
 			var _paragraphXMLElement = _paragraphXMLElementArray[p];
 			if(!_paragraphXMLElement || !_paragraphXMLElement.isValid) {
 				_pStyleNameArray.push("");
+				_isAssignmentCorrect = false;
 				continue;
 			}
 
 			var _pStyleAttribute = _paragraphXMLElement.xmlAttributes.itemByName("pstyle");
 			if(!_pStyleAttribute.isValid) {
+				_pStyleNameArray.push("");
+				_isAssignmentCorrect = false;
 				continue;
 			}
 
 			_pStyleNameArray.push(_pStyleAttribute.value);
 		}
 
+		var _targetIP = _footnoteXMLElement.storyOffset;
+
+		/* Handle Footnote */
+		var _footnote;
+
 		try {
-			/* Create Footnote */
-			var _targetIP = _footnoteXMLElement.storyOffset;
-			var _footnote = _wordXMLStory.footnotes.add(LocationOptions.BEFORE, _targetIP);
+			/* Add footnote */
+			_footnote = _wordXMLStory.footnotes.add(LocationOptions.BEFORE, _targetIP);
 			if(!_footnote || !_footnote.isValid) {
 				_global["log"].push(localize(_global.footnoteValidationErrorMessage));
 				continue;
 			}
-
-			_footnoteXMLElement.xmlElements.everyItem().untag(); /* Indesign does not allow XML elements in footnotes */
-
+			/* Untag foonote XML elemente (InDesign does not allow XML elements in footnotes) */
+			_footnoteXMLElement.xmlElements.everyItem().untag();
+			/* Add text to footnote */
 			var _footnoteText = _footnoteXMLElement.texts[0];
 			if(!_footnoteText || !_footnoteText.isValid) {
 				continue;
 			}
-
 			_footnoteText.move(LocationOptions.AT_END, _footnote.texts[0]);
+			/* Remove XML container element */
 			_footnoteXMLElement.remove();
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
 
-			/* Apply styles to footnote paragraphs */
-			var _footnoteParagraphArray = _footnote.paragraphs.everyItem().getElements();
+		/* Apply styles to footnote paragraphs */
+		var _footnoteParagraphArray;
 
+		try {
+			_footnoteParagraphArray = _footnote.paragraphs.everyItem().getElements();
 			for(var s=0; s<_footnoteParagraphArray.length; s+=1) {
-
 				var _footnoteParagraph = _footnoteParagraphArray[s];
 				if(!_footnoteParagraph || !_footnoteParagraph.isValid) {
 					continue;
 				}
-
 				var _pStyleName = _pStyleNameArray[s];
 				if(!_pStyleName) {
 					continue;
 				}
-
 				var _pStyle = _doc.paragraphStyles.itemByName(_pStyleName);
 				if(!_pStyle.isValid) {
 					_pStyle = _doc.paragraphStyles.add({ name:_pStyleName });
 				}
-
 				_footnoteParagraph.applyParagraphStyle(_pStyle, true);
-			}
-
-			if(_pStyleNameArray.length !== _footnoteParagraphArray.length) {
-				_global["log"].push(localize(_global.footnoteParagraphStyleErrorMessage, (_counter + 1)));
 			}
 		} catch(_error) {
 			_global["log"].push(_error.message);
@@ -826,6 +832,10 @@ function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _set
 		}
 
 		_counter += 1;
+
+		if(!_isAssignmentCorrect || _pStyleNameArray.length !== _footnoteParagraphArray.length) {
+			_global["log"].push(localize(_global.footnoteParagraphStyleErrorMessage, _counter));
+		}
 	}
 
 	if(_global["isLogged"]) {
