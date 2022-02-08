@@ -732,7 +732,7 @@ function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _set
 		throw new Error("XMLElement as parameter required."); 
 	}
 	if(!_footnoteXMLElementArray || !(_footnoteXMLElementArray instanceof Array)) { 
-		throw new Error("XMLElement as parameter required.");
+		throw new Error("Array as parameter required.");
 	}
 	if(!_setupObj || !(_setupObj instanceof Object)) { 
 		throw new Error("Object as parameter required.");
