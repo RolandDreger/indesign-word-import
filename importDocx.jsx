@@ -645,7 +645,7 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	}
 
 
-	/* Footnotes */
+	/* Footnotes */ /* Last in chain, XML elements are removed from footnotes */
 	__mountFootnotes(_doc, _wordXMLElement, _setupObj);
 	
 
