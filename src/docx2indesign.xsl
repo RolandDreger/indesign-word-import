@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: February 4, 2022
+    Modified: February 8, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -26,13 +26,8 @@
     ## Document Ressources
     
     InDesign sometimes crashes with copy-of therefore the construct
-    document($document-file-name) that always exits xsl:choose and 
-    xsl:copy-of for global paramerters
-    
-    
-    ## ToDo
-    
-    - Seitenumbrüche als processing-instructions???
+    document($document-file-name) that always exits instead of 
+    xsl:choose and xsl:copy-of for global paramerters
     
 -->
 
