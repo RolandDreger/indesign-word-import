@@ -1802,8 +1802,8 @@
     <xsl:output method="xml" version="1.0" doctype-public="" doctype-system="" media-type="text/xml" omit-xml-declaration="no" indent="no"/>
 
     <!-- Output tag and attribute names -->
-    <xsl:variable name="root-tag-name" select="'Document'"/>
-    <xsl:variable name="paragraph-tag-name" select="'Absatz'"/>
+    <xsl:variable name="root-tag-name" select="'document'"/>
+    <xsl:variable name="paragraph-tag-name" select="'paragraph'"/>
     <xsl:variable name="paragraph-id-attribute-name" select="'ID'"/>
     <xsl:variable name="paragraph-style-attribute-name" select="'pstyle'"/>
     <xsl:variable name="list-item-level-attribute-name" select="'Ebene'"/>
@@ -1818,11 +1818,11 @@
     <xsl:variable name="table-header-attribute-name" select="'theader'"/>
     <xsl:variable name="table-column-number-attribute-name" select="'ccols'"/>
     <xsl:variable name="table-row-number-attribute-name" select="'crows'"/>
-    <xsl:variable name="footnote-tag-name" select="'Fussnote'"/>
-    <xsl:variable name="footnote-reference-tag-name" select="'Fussnoten_Referenz'"/>
-    <xsl:variable name="footnote-index-attribute-name" select="'Index'"/>
+    <xsl:variable name="footnote-tag-name" select="'footnote'"/>
+    <xsl:variable name="footnote-reference-tag-name" select="'footnoteref'"/>
+    <xsl:variable name="footnote-index-attribute-name" select="'index'"/>
     <xsl:variable name="footnote-style-attribute-name" select="'pstyle'"/>
-    <xsl:variable name="footnote-style-attribute-value" select="'Fussnote'"/>
+    <xsl:variable name="footnote-style-attribute-value" select="'footnote'"/>
     <xsl:variable name="endnote-tag-name" select="'Endnote'"/>
     <xsl:variable name="endnote-reference-tag-name" select="'Endnoten_Referenz'"/>
     <xsl:variable name="endnote-index-attribute-name" select="'Index'"/>
@@ -1975,7 +1975,7 @@
                     <xsl:with-param name="target-elements" select="*"/>
                 </xsl:call-template>
             </xsl:element>
-            <xsl:if test="(following-sibling::w:p or following-sibling::w:tbl) and not(parent::w:footnote or parent::w:endnote or parent::w:comment)">
+            <xsl:if test="(following-sibling::w:p or following-sibling::w:tbl) and not(parent::w:endnote or parent::w:comment)">
                 <xsl:text>&#xD;</xsl:text> <!-- Carriage Return -->
             </xsl:if>
         </xsl:if>

@@ -2,11 +2,11 @@
 
 /*
 	
-		+ Adobe InDesign Version: CC2021
+		+ Adobe InDesign Version: CC2021+
 		+ Author: Roland Dreger 
-		+ Date: 24. January 2022
+		+ Date: January 24, 2022
 		
-		+ Last modified: 27. January 2022
+		+ Last modified: February 8, 2022
 		
 		
 		+ Descriptions
@@ -18,6 +18,13 @@
 		
 		  Temp folder e.g. /private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import
 
+			
+	// var _unpackObj = {
+	// 	"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732"),
+	// 	"word":{
+	// 		"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732" + "/word/document.xml")
+	// 	}
+	// };
 
 
 			ToDo:
@@ -84,7 +91,8 @@
 var _global = {
 	"projectName":"Import_Docx",
 	"version":"1.0",
-	"debug":false,
+	"mode":"release", /* Values: "debug", "release" */
+	"isLogged":false,
 	"log":[]
 };
 
@@ -94,20 +102,28 @@ _global["setups"] = {
 	"xslt":{
 		"name":"docx2Indesign.xsl"
 	},
-	"tags":{
-		"image":"Bild"
-	},
+	"import":{},
 	"place":{
 		"isAutoflowing": false /* Value: Boolean; Description: If true, autoflows placed text. */
 	},
-	"structure":{
-		"isShown":true
+	"mount":{},
+	"paragraph":{
+		"tag":"paragraph"
+	},
+	"footnote":{ 
+		"tag":"footnote", 
+		"color":[128,255,255],
+		"isCreated":true, 
+		"isMarked":false, 
+		"isRemoved":false 
 	}
+	
 };
 
 /* Check: Developer or User? */
 if(_global["setups"]["user"] === "rolanddreger") {
-	// _global["debug"] = true;
+	// _global["mode"] = "debug";
+	_global["isLogged"] = true;
 }
 
 
@@ -147,7 +163,7 @@ function __start() {
 	// _doc.xmlViewPreferences.showStructure = false;
 
 	try {
-		if(app.scriptPreferences.version >= 6 && !_global["debug"]) {
+		if(_global["mode"] !== "debug") {
 			app.doScript(
 				__runMainSequence, 
 				ScriptLanguage.JAVASCRIPT, 
@@ -225,6 +241,8 @@ function __runMainSequence(_doScriptParameterArray) {
 	var _hooks = new Hooks();
 
 	/* Get docx file */
+// Remove if ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+if(_doc.xmlElements[0].xmlElements.length === 0) {
 	var _docxFile = __getDocxFile();
 	if(!_docxFile) {
 		return false;
@@ -236,13 +254,6 @@ function __runMainSequence(_doScriptParameterArray) {
 		return false;
 	}
 	
-	// var _unpackObj = {
-	// 	"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732"),
-	// 	"word":{
-	// 		"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732" + "/word/document.xml")
-	// 	}
-	// };
-
 	/* Hook: beforeImport */
 	var _beforeImportResultObj = _hooks.beforeImport(_doc, _unpackObj, _setupObj);
 	if(!_beforeImportResultObj) {
@@ -254,6 +265,16 @@ function __runMainSequence(_doScriptParameterArray) {
 	if(!_wordXMLElement) {
 		return false;
 	}
+} else {
+	var _wordXMLElement = _doc.xmlElements[0].xmlElements.lastItem();
+	var _unpackObj = {
+		"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732"),
+		"word":{
+			"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732" + "/word/document.xml")
+		}
+	};
+}
+
 
 	/* Hook: beforeMount */
 	var _beforeMountResultObj = _hooks.beforeMount(_doc, _unpackObj, _wordXMLElement, _setupObj);
@@ -261,7 +282,7 @@ function __runMainSequence(_doScriptParameterArray) {
 		return false;
 	}
 
-	/* Mount InDesign items before placing XML */
+	/* Mount InDesign items before XML placed */
 	var _mountBeforePlaceResultObj = __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj);
 	if(!_mountBeforePlaceResultObj) {
 		return false;
@@ -285,7 +306,7 @@ function __runMainSequence(_doScriptParameterArray) {
 		return false;
 	}
 
-	/* Mount InDesign items after placing XML */
+	/* Mount InDesign items after XML placed  */
 	var _mountAfterPlaceResultObj = __mountAfterPlaced(_doc, _unpackObj, _wordXMLElement, _wordStory, _setupObj);
 	if(!_mountAfterPlaceResultObj) {
 		return false;
@@ -624,10 +645,204 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	}
 
 
+	/* Footnotes */
+	__mountFootnotes(_doc, _wordXMLElement, _setupObj);
+	
+
+	/* Index */
+	// _doc.indexes[0].topics[0].pageReferences.add(_xmlElement.texts[0], PageReferenceType.CURRENT_PAGE)
+
+	/* Endnotes */
+	// _wordXMLElement.xmlElements[0].insertionPoints[0].createEndnote()
+
+
+
+
+
+
 
 
 	return {};
 } /* END function __mountBeforePlaced */
+
+
+/**
+ * Mount Footnotes
+ * @param {Document} _doc  
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __mountFootnotes(_doc, _wordXMLElement, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const FOOTNOTE_TAG_NAME = _setupObj["footnote"]["tag"];
+	const COLOR_ARRAY = _setupObj["footnote"]["color"];
+	const IS_CREATED = _setupObj["footnote"]["isCreated"];
+	const IS_MARKED = _setupObj["footnote"]["isMarked"];
+	const IS_REMOVED = _setupObj["footnote"]["isRemoved"];
+
+	var _footnoteXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + FOOTNOTE_TAG_NAME);
+	if(_footnoteXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if(IS_REMOVED) {
+		__removeXMLElements(_footnoteXMLElementArray, localize(_global.footnotesLabel));
+		return true;
+	}
+
+	if(IS_MARKED) {
+		__markXMLElements(_doc, _footnoteXMLElementArray, localize(_global.footnotesLabel), COLOR_ARRAY);
+		return true;
+	}
+
+	if(IS_CREATED) {
+		__createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _setupObj);
+		return true;
+	} 
+
+	return true;
+} /* END function __mountFootnotes */
+
+
+/**
+ * Create Footnotes
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Array} _footnoteXMLElementArray 
+ * @param {Object} _setupObj 
+ * @returns 
+ */
+function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_footnoteXMLElementArray || !(_footnoteXMLElementArray instanceof Array)) { 
+		throw new Error("XMLElement as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const PARAGRAPH_TAG_NAME = _setupObj["paragraph"]["tag"];
+
+	var _wordXMLStory = _wordXMLElement.parentStory;
+	if(!_wordXMLStory || !_wordXMLStory.isValid) {
+		_global["log"].push(localize(_global.xmlStoryValidationError));
+		return false;
+	}
+
+	var _counter = 0;
+
+	for(var i=_footnoteXMLElementArray.length-1; i>=0; i-=1) {
+
+		var _footnoteXMLElement = _footnoteXMLElementArray[i];
+		if(!_footnoteXMLElement || !_footnoteXMLElement.isValid) {
+			continue;
+		}
+
+		var _pStyleNameArray = [];
+		var _paragraphXMLElementArray = _footnoteXMLElement.evaluateXPathExpression(PARAGRAPH_TAG_NAME);
+		
+		/* Get style names of footnote paragraphs */
+		for(var p=0; p<_paragraphXMLElementArray.length; p+=1) {
+
+			var _paragraphXMLElement = _paragraphXMLElementArray[p];
+			if(!_paragraphXMLElement || !_paragraphXMLElement.isValid) {
+				_pStyleNameArray.push("");
+				continue;
+			}
+
+			var _pStyleAttribute = _paragraphXMLElement.xmlAttributes.itemByName("pstyle");
+			if(!_pStyleAttribute.isValid) {
+				continue;
+			}
+
+			_pStyleNameArray.push(_pStyleAttribute.value);
+		}
+
+		try {
+			/* Create Footnote */
+			var _targetIP = _footnoteXMLElement.storyOffset;
+			var _footnote = _wordXMLStory.footnotes.add(LocationOptions.BEFORE, _targetIP);
+			if(!_footnote || !_footnote.isValid) {
+				_global["log"].push(localize(_global.footnoteValidationErrorMessage));
+				continue;
+			}
+
+			_footnoteXMLElement.xmlElements.everyItem().untag(); /* Indesign does not allow XML elements in footnotes */
+
+			var _footnoteText = _footnoteXMLElement.texts[0];
+			if(!_footnoteText || !_footnoteText.isValid) {
+				continue;
+			}
+
+			_footnoteText.move(LocationOptions.AT_END, _footnote.texts[0]);
+			_footnoteXMLElement.remove();
+
+			/* Apply styles to footnote paragraphs */
+			var _footnoteParagraphArray = _footnote.paragraphs.everyItem().getElements();
+
+			for(var s=0; s<_footnoteParagraphArray.length; s+=1) {
+
+				var _footnoteParagraph = _footnoteParagraphArray[s];
+				if(!_footnoteParagraph || !_footnoteParagraph.isValid) {
+					continue;
+				}
+
+				var _pStyleName = _pStyleNameArray[s];
+				if(!_pStyleName) {
+					continue;
+				}
+
+				var _pStyle = _doc.paragraphStyles.itemByName(_pStyleName);
+				if(!_pStyle.isValid) {
+					_pStyle = _doc.paragraphStyles.add({ name:_pStyleName });
+				}
+
+				_footnoteParagraph.applyParagraphStyle(_pStyle, true);
+			}
+
+			if(_pStyleNameArray.length !== _footnoteParagraphArray.length) {
+				_global["log"].push(localize(_global.footnoteParagraphStyleErrorMessage, (_counter + 1)));
+			}
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.footnotesLabel)));
+	}
+
+	return true;
+} /* END function __createFootnotes */
+
+
+
+
+
+
+
+
+
 
 
 
@@ -863,6 +1078,42 @@ function __defLocalizeStrings() {
 		en: "Story with placed content not valid.",
 		de: "Textabschnitt mit platziertem Inhalt nicht valide." 
 	};
+
+	_global.xmlStoryValidationError = { 
+		en: "Story of XML element not valid.",
+		de: "Textabschnitt des XML-Elements nicht valide." 
+	};
+
+	_global.removeXMLElementsMessage = { 
+		en: "%1 %2 removed.",
+		de: "%1 %2 gelöscht." 
+	};
+
+	_global.markXMLElementsMessage = { 
+		en: "%1 %2 marked.",
+		de: "%1 %2 markiert." 
+	};
+
+	_global.createXMLElementsMessage = { 
+		en: "%1 %2 created.",
+		de: "%1 %2 erstellt." 
+	};
+
+	_global.footnotesLabel = { 
+		en: "footnotes",
+		de: "Fußnoten" 
+	};
+
+	_global.footnoteValidationErrorMessage = { 
+		en: "Footnote not valid.",
+		de: "Fußnote nicht valide." 
+	};
+
+	_global.footnoteParagraphStyleErrorMessage = {
+		en: "Footnote [%1]: Error applying paragraph styles.",
+		de: "Fußnote [%1]: Fehler beim Zuweisen der Absatzformate."
+	};
+
 
 
 } /* END function __defLocalizeStrings */
