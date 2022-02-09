@@ -18,7 +18,7 @@ function __removeXMLElements(_xmlElementArray, _label) {
 
 	for(var i=0; i<_xmlElementArray.length; i+=1) {
 
-		var _xmlElement = _xmlElementArray[0];
+		var _xmlElement = _xmlElementArray[i];
 		if(!_xmlElement || !_xmlElement.hasOwnProperty("remove") || !_xmlElement.isValid) {
 			continue;
 		}
