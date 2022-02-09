@@ -212,10 +212,10 @@
     <xsl:variable name="footnote-reference-tag-name" select="'footnoteref'"/>
     <xsl:variable name="footnote-index-attribute-name" select="'index'"/>
     <xsl:variable name="footnote-style-attribute-name" select="'pstyle'"/>
-    <xsl:variable name="footnote-style-attribute-value" select="'footnote'"/>
-    <xsl:variable name="endnote-tag-name" select="'Endnote'"/>
-    <xsl:variable name="endnote-reference-tag-name" select="'Endnoten_Referenz'"/>
-    <xsl:variable name="endnote-index-attribute-name" select="'Index'"/>
+    <xsl:variable name="footnote-style-attribute-value" select="'Footnote'"/>
+    <xsl:variable name="endnote-tag-name" select="'endnote'"/>
+    <xsl:variable name="endnote-reference-tag-name" select="'endnoteref'"/>
+    <xsl:variable name="endnote-index-attribute-name" select="'index'"/>
     <xsl:variable name="endnote-style-attribute-name" select="'pstyle'"/>
     <xsl:variable name="endnote-style-attribute-value" select="'Endnote'"/>
     <xsl:variable name="comment-tag-name" select="'Kommentar'"/>
@@ -365,7 +365,7 @@
                     <xsl:with-param name="target-elements" select="*"/>
                 </xsl:call-template>
             </xsl:element>
-            <xsl:if test="(following-sibling::w:p or following-sibling::w:tbl) and not(parent::w:endnote or parent::w:comment)">
+            <xsl:if test="(following-sibling::w:p or following-sibling::w:tbl) and not(parent::w:comment)">
                 <xsl:text>&#x0d;</xsl:text> <!-- Carriage Return -->
             </xsl:if>
         </xsl:if>
