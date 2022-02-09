@@ -71,7 +71,7 @@ function __markXMLElements(_doc, _xmlElementArray, _label, _colorArray) {
 
 	for(var i=0; i<_xmlElementArray.length; i+=1) {
 
-		var _xmlElement = _xmlElementArray[0];
+		var _xmlElement = _xmlElementArray[i];
 		if(!_xmlElement || !_xmlElement.hasOwnProperty("texts") || !_xmlElement.isValid) {
 			continue;
 		}
