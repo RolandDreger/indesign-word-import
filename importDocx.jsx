@@ -1126,12 +1126,17 @@ function __getStylesOfNoteParagraphs(_containerXMLElement, _setupObj) {
 function __applyStylesToNoteParagraphs(_doc, _note, _pStyleNameArray) {
 
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return false; }
-	if(!_note || !_note.hasOwnProperty("paragraphs") || !_note.isValid) { return false; }
+	if(!_note || !_note.hasOwnProperty("texts") || !_note.isValid) { return false; }
 	if(!_pStyleNameArray || !(_pStyleNameArray instanceof Array)) { return false; }
 
 	var _isAssignmentCorrect = true;
 
-	var _noteParagraphArray = _note.paragraphs.everyItem().getElements();
+	var _noteTexts = _note.texts.everyItem().getElements();
+	if(!_noteTexts || _noteTexts.length === 0) {
+		return false;
+	}
+
+	var _noteParagraphArray = _note.texts[0].paragraphs.everyItem().getElements();
 
 	for(var i=0; i<_noteParagraphArray.length; i+=1) {
 
