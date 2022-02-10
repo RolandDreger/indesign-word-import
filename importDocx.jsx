@@ -884,7 +884,7 @@ function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _set
 		}
 
 		/* Get style names of footnote paragraphs */
-		var _pStyleNameArray = __getParagraphStyleNames(_footnoteXMLElement, _setupObj);
+		var _pStyleNameArray = __getStylesOfNoteParagraphs(_footnoteXMLElement, _setupObj);
 		if(!_pStyleNameArray) {
 			_pStyleNameArray = [];
 		}
@@ -1024,7 +1024,7 @@ function __createEndnotes(_doc, _wordXMLElement, _endnoteXMLElementArray, _setup
 		}
 
 		/* Get style names of endnote paragraphs */
-		var _pStyleNameArray = __getParagraphStyleNames(_endnoteXMLElement, _setupObj);
+		var _pStyleNameArray = __getStylesOfNoteParagraphs(_endnoteXMLElement, _setupObj);
 		if(!_pStyleNameArray) {
 			_pStyleNameArray = [];
 		}
@@ -1083,7 +1083,7 @@ function __createEndnotes(_doc, _wordXMLElement, _endnoteXMLElementArray, _setup
  * @param {Object} _setupObj
  * @returns Array
  */
-function __getParagraphStyleNames(_containerXMLElement, _setupObj) {
+function __getStylesOfNoteParagraphs(_containerXMLElement, _setupObj) {
 
 	if(!_containerXMLElement || !(_containerXMLElement instanceof XMLElement) || !_containerXMLElement.isValid) { return false; }
 	if(!_setupObj || !(_setupObj instanceof Object)) { return false; }
@@ -1113,7 +1113,7 @@ function __getParagraphStyleNames(_containerXMLElement, _setupObj) {
 	}
 
 	return _pStyleNameArray;
-} /* END function __getParagraphStyleNames */
+} /* END function __getStylesOfNoteParagraphs */
 
 
 /**
