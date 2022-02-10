@@ -2,11 +2,11 @@
 
 /*
 	
-		+ Adobe InDesign Version: CC2021+
+		+ Adobe InDesign Version: CC2018+
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: February 8, 2022
+		+ Last modified: February 10, 2022
 		
 		
 		+ Descriptions
@@ -101,7 +101,7 @@ _global["setups"] = {
 	},
 	"import":{},
 	"place":{
-		"isAutoflowing": false /* Value: Boolean; Description: If true, autoflows placed text. */
+		"isAutoflowing": true /* Value: Boolean; Description: If true, autoflows placed text. (Depends on document settings.) */
 	},
 	"mount":{},
 	"paragraph":{
@@ -1008,12 +1008,6 @@ function __createEndnotes(_doc, _wordXMLElement, _endnoteXMLElementArray, _setup
 		throw new Error("Object as parameter required.");
 	}
 
-	var _wordXMLStory = _wordXMLElement.parentStory;
-	if(!_wordXMLStory || !_wordXMLStory.isValid) {
-		_global["log"].push(localize(_global.xmlStoryValidationError));
-		return false;
-	}
-
 	var _counter = 0;
 
 	for(var i=_endnoteXMLElementArray.length-1; i>=0; i-=1) {
@@ -1205,25 +1199,30 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 
 	_global["progressbar"].init(0, 1, "", localize(_global.placeProgressLabel));
 
-	var _page = _doc.pages.lastItem();
-	if(_page.allPageItems.length !== 0) {
-		_page = _doc.pages.add(LocationOptions.AFTER, _page);
+	var _targetPage = __getTargetPage(_doc, IS_AUTOFLOWING);
+	if(!_targetPage) {
+		_global["log"].push(localize(_global.noTargetPageErrorMessage));
+		return null;
 	}
 
 	var _userZeroPoint = _doc.zeroPoint;
 	_doc.zeroPoint = [0,0];
 
-	var _placePointTop = _page.marginPreferences.top;
-	var _placePointLeft = _page.marginPreferences.left;
+	var _userRulerOrigin = _doc.viewPreferences.rulerOrigin;
+	_doc.viewPreferences.rulerOrigin = RulerOrigin.PAGE_ORIGIN;
+
+	var _placePointTop = _targetPage.marginPreferences.top;
+	var _placePointLeft = _targetPage.marginPreferences.left;
 
 	var _wordTextFrame;
 
 	try {
-		_wordTextFrame = _page.placeXML(_wordXMLElement, [_placePointTop, _placePointLeft], IS_AUTOFLOWING);
+		_wordTextFrame = _targetPage.placeXML(_wordXMLElement, [_placePointTop, _placePointLeft], IS_AUTOFLOWING);
 	} catch(_error) {
 		_global["log"].push(_error.message);
 		return null;
 	} finally {
+		_doc.viewPreferences.rulerOrigin = _userRulerOrigin;
 		_doc.zeroPoint = _userZeroPoint;
 	}
 	
@@ -1240,6 +1239,40 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 
 	return _wordStory;
 } /* END function __placeXML */
+
+
+/**
+ * Get target page for placing XML structure
+ * @param {Document} _doc 
+ * @param {Boolean} _isAutoflowing (optional)
+ * @returns Page
+ */
+function __getTargetPage(_doc, _isAutoflowing) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return null; }
+	
+	var _lastPage = _doc.pages.lastItem().getElements()[0];
+	var _targetPage = _lastPage;
+
+	/* Check: Endnotes on last page? */
+	if(_isAutoflowing === false) {
+		var _firstTextFrame = _targetPage.textFrames.firstItem();
+		if(_firstTextFrame.isValid && _firstTextFrame.parentStory.isEndnoteStory) {
+			_targetPage = _doc.pages[_targetPage.documentOffset - 1];
+		}
+	}
+	
+	/* Check: Page items on target page? */
+	if(_targetPage.allPageItems.length !== 0) {
+		_targetPage = _doc.pages.add(LocationOptions.AFTER, _targetPage);
+	}
+
+	if(!_targetPage || !_targetPage.isValid) {
+		return null;
+	}
+	
+	return _targetPage;
+} /* END function __getTargetPage */
 
 
 
@@ -1402,6 +1435,11 @@ function __defLocalizeStrings() {
 	_global.wordDocumentFileErrorMessage = { 
 		en: "File for import could not be found: %1",
 		de: "Datei für Import konnte nicht gefunden werden: %1" 
+	};
+
+	_global.noTargetPageErrorMessage= { 
+		en: "Target page could not be determined.",
+		de: "Zielseite konnte nicht ermittelt werden." 
 	};
 
 	_global.wordTextFrameValidationErrorMessage = { 
