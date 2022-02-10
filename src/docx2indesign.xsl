@@ -95,12 +95,12 @@
     <xsl:param name="directory-separator" select="'/'"/>
     <xsl:param name="language" select="'en'"/>
     <xsl:param name="max-bookmark-length" select="500"/>
-    <xsl:param name="is-empty-paragraph-to-remove" select="false()"/>
-    <xsl:param name="is-inline-style-to-remove-on-empty-text" select="false()"/>
-    <xsl:param name="is-local-override-without-tag-to-apply" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
-    <xsl:param name="is-comment-to-be-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
-    <xsl:param name="is-tab-to-be-preserved" select="true()"/>  <!-- Tab Character --> 
-    <xsl:param name="is-special-local-override-to-apply" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
+    <xsl:param name="is-empty-paragraph-removed" select="false()"/>
+    <xsl:param name="is-inline-style-on-empty-text-removed" select="false()"/>
+    <xsl:param name="is-local-override-without-tag-applied" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
+    <xsl:param name="is-comment-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
+    <xsl:param name="is-tab-preserved" select="true()"/>  <!-- Tab Character --> 
+    <xsl:param name="is-special-local-override-applied" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
     
     
     <!-- +++++++++ -->
@@ -218,14 +218,14 @@
     <xsl:variable name="endnote-index-attribute-name" select="'index'"/>
     <xsl:variable name="endnote-style-attribute-name" select="'pstyle'"/>
     <xsl:variable name="endnote-style-attribute-value" select="'Endnote'"/>
-    <xsl:variable name="comment-tag-name" select="'Kommentar'"/>
-    <xsl:variable name="comment-reference-tag-name" select="'Kommentar_Referenz'"/>
+    <xsl:variable name="comment-tag-name" select="'comment'"/>
+    <xsl:variable name="comment-reference-tag-name" select="'commentref'"/>
     <xsl:variable name="comment-style-attribute-name" select="'pstyle'"/>
     <xsl:variable name="comment-style-attribute-value" select="'comment'"/>
-    <xsl:variable name="comment-index-attribute-name" select="'Index'"/>
-    <xsl:variable name="comment-date-attribute-name" select="'Datum'"/>
-    <xsl:variable name="comment-initials-attribute-name" select="'Initialien'"/>
-    <xsl:variable name="comment-author-attribute-name" select="'Autor'"/>
+    <xsl:variable name="comment-index-attribute-name" select="'index'"/>
+    <xsl:variable name="comment-date-attribute-name" select="'date'"/>
+    <xsl:variable name="comment-initials-attribute-name" select="'initials'"/>
+    <xsl:variable name="comment-author-attribute-name" select="'author'"/>
     <xsl:variable name="citation-tag-name" select="'Zitat'"/>
     <xsl:variable name="citation-call-tag-name" select="'Zitataufruf'"/>
     <xsl:variable name="citation-source-tag-name" select="'Zitatquelle'"/>
@@ -357,7 +357,7 @@
     <!-- Paragraph -->
     <xsl:template match="w:p">
         <!-- Check: Remove empty paragraph? -->
-        <xsl:if test="not($is-empty-paragraph-to-remove) or ($is-empty-paragraph-to-remove and boolean(normalize-space(.)))">
+        <xsl:if test="not($is-empty-paragraph-removed) or ($is-empty-paragraph-removed and boolean(normalize-space(.)))">
             <xsl:element name="{$paragraph-tag-name}" namespace="{$ns}">
                 <xsl:call-template name="insert-paragraph-attributes"/>
                 <!-- Structure text runs (e.g. complex fields) -->
@@ -542,9 +542,9 @@
         </xsl:choose>
     </xsl:template>
 
-
-
-
+    
+    
+    
     <!-- InDesign Character Style -->
     <xsl:template name="assign-inline-styles">
         <xsl:param name="inline-style-elements"/>
@@ -563,7 +563,7 @@
                         w:annotationRef or
                         w:instrText or 
                         $target-style-element[name() = 'w:noProof'] or 
-                        ($is-inline-style-to-remove-on-empty-text and w:t and normalize-space(w:t) = '')
+                        ($is-inline-style-on-empty-text-removed and w:t and normalize-space(w:t) = '')
                         ">
                         <xsl:call-template name="assign-inline-styles">
                             <xsl:with-param name="inline-style-elements" select="$inline-style-elements[position() != 1]"/>
@@ -588,7 +588,7 @@
                         $target-style-element[name() = 'w:caps'] or 
                         $target-style-element[name() = 'w:highlight'] or  
                         $target-style-element[name() = 'w:lang'] or 
-                        ($is-special-local-override-to-apply and 
+                        ($is-special-local-override-applied and 
                             (
                                 $target-style-element[name() = 'w:rFonts'] or 
                                 $target-style-element[name() = 'w:strike'] or 

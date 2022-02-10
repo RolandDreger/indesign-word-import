@@ -1823,14 +1823,14 @@
     <xsl:variable name="endnote-index-attribute-name" select="'index'"/>
     <xsl:variable name="endnote-style-attribute-name" select="'pstyle'"/>
     <xsl:variable name="endnote-style-attribute-value" select="'Endnote'"/>
-    <xsl:variable name="comment-tag-name" select="'Kommentar'"/>
-    <xsl:variable name="comment-reference-tag-name" select="'Kommentar_Referenz'"/>
+    <xsl:variable name="comment-tag-name" select="'comment'"/>
+    <xsl:variable name="comment-reference-tag-name" select="'commentref'"/>
     <xsl:variable name="comment-style-attribute-name" select="'pstyle'"/>
     <xsl:variable name="comment-style-attribute-value" select="'comment'"/>
-    <xsl:variable name="comment-index-attribute-name" select="'Index'"/>
-    <xsl:variable name="comment-date-attribute-name" select="'Datum'"/>
-    <xsl:variable name="comment-initials-attribute-name" select="'Initialien'"/>
-    <xsl:variable name="comment-author-attribute-name" select="'Autor'"/>
+    <xsl:variable name="comment-index-attribute-name" select="'index'"/>
+    <xsl:variable name="comment-date-attribute-name" select="'date'"/>
+    <xsl:variable name="comment-initials-attribute-name" select="'initials'"/>
+    <xsl:variable name="comment-author-attribute-name" select="'author'"/>
     <xsl:variable name="citation-tag-name" select="'Zitat'"/>
     <xsl:variable name="citation-call-tag-name" select="'Zitataufruf'"/>
     <xsl:variable name="citation-source-tag-name" select="'Zitatquelle'"/>

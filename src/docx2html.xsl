@@ -137,11 +137,11 @@
     <xsl:param name="directory-separator" select="'/'"/>
     <xsl:param name="language" select="'en'"/>
     <xsl:param name="max-bookmark-length" select="500"/>
-    <xsl:param name="is-empty-paragraph-to-remove" select="false()"/>
-    <xsl:param name="is-inline-style-to-remove-on-empty-text" select="false()"/>
-    <xsl:param name="is-local-override-without-tag-to-apply" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
-    <xsl:param name="is-comment-to-be-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
-    <xsl:param name="is-tab-to-be-preserved" select="true()"/>  <!-- Tab Character --> 
+    <xsl:param name="is-empty-paragraph-removed" select="false()"/>
+    <xsl:param name="is-inline-style-on-empty-text-removed" select="false()"/>
+    <xsl:param name="is-local-override-without-tag-applied" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
+    <xsl:param name="is-comment-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
+    <xsl:param name="is-tab-preserved" select="true()"/>  <!-- Tab Character --> 
     
     <!-- Heading Style Map -->
     <xsl:param name="h1-paragraph-style-names" select="''"/> <!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' -->
@@ -828,7 +828,7 @@
     <xsl:template match="w:p">
         <xsl:choose>
             <!-- Check: Remove empty paragraphs? -->
-            <xsl:when test="$is-empty-paragraph-to-remove and normalize-space(.) = '' and count(*) = 0">
+            <xsl:when test="$is-empty-paragraph-removed and normalize-space(.) = '' and count(*) = 0">
                 <!-- Skip paragraph -->
             </xsl:when>
             <xsl:otherwise>
@@ -1738,7 +1738,7 @@
     </xsl:template>
     
     <xsl:template match="w:fldChar[@w:fldCharType='begin']">
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:comment>
                 <xsl:value-of select="'complex field begin'"/>
             </xsl:comment>
@@ -1747,7 +1747,7 @@
     </xsl:template>
     
     <xsl:template match="w:fldChar[@w:fldCharType='separate']">
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:comment>
                 <xsl:value-of select="'complex field separate'"/>
             </xsl:comment>
@@ -1757,7 +1757,7 @@
     
     <xsl:template match="w:fldChar[@w:fldCharType='end']">
         <xsl:apply-templates />
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:comment>
                 <xsl:value-of select="'complex field end'"/>
             </xsl:comment>
@@ -1829,7 +1829,7 @@
                         $target-style-element[name() = 'w:noProof'] or 
                         $target-style-element[name() = 'w:rFonts'] or
                         $target-style-element[name() = 'w:rPrChange'] or 
-                        ($is-inline-style-to-remove-on-empty-text and w:t and normalize-space(w:t) = '')
+                        ($is-inline-style-on-empty-text-removed and w:t and normalize-space(w:t) = '')
                         ">
                         <xsl:call-template name="assign-inline-styles">
                             <xsl:with-param name="inline-style-elements" select="$inline-style-elements[position() != 1]"/>
@@ -1916,7 +1916,7 @@
                     </xsl:when>
                     <!-- Attribute: class -->
                     <xsl:when test="
-                        $is-local-override-without-tag-to-apply and 
+                        $is-local-override-without-tag-applied and 
                         (
                             $target-style-element[name() = 'w:caps'] or
                             $target-style-element[name() = 'w:smallCaps'] or
@@ -2676,7 +2676,7 @@
     
     <!-- Comment Anchor Range Start -->
     <xsl:template match="w:commentRangeStart">
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:variable name="id" select="@w:id"/>
             <xsl:comment>
                 <xsl:value-of select="concat('comment ', $id ,' range start')"/>
@@ -2688,7 +2688,7 @@
     <!-- Comment Anchor Range End -->
     <xsl:template match="w:commentRangeEnd">
         <xsl:apply-templates />
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:variable name="id" select="@w:id"/>
             <xsl:comment>
                 <xsl:value-of select="concat('comment ', $id ,' range end')"/>
@@ -2701,7 +2701,7 @@
     <xsl:template match="w:bookmarkStart">
         <xsl:variable name="id" select="@w:id"/>
         <xsl:variable name="name" select="@w:name"/>
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:comment>
                 <xsl:value-of select="concat('bookmark ', $id , ' ', $name, ' start')"/>
             </xsl:comment>
@@ -2769,7 +2769,7 @@
     <!-- Bookmark End -->
     <xsl:template match="w:bookmarkEnd">
         <xsl:apply-templates />
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:variable name="id" select="@w:id"/>
             <xsl:variable name="name" select="@w:name"/>
             <xsl:comment>
@@ -2909,13 +2909,13 @@
                 <xsl:value-of select="$tab-style-attribute-value"/>
             </xsl:attribute>
             <!-- Comment -->
-            <xsl:if test="$is-comment-to-be-inserted">
+            <xsl:if test="$is-comment-inserted">
                 <xsl:comment>
                     <xsl:text>tab</xsl:text>
                 </xsl:comment>
             </xsl:if>
             <!-- Tab Character -->
-            <xsl:if test="$is-tab-to-be-preserved">
+            <xsl:if test="$is-tab-preserved">
                 <xsl:text>&#x09;</xsl:text>
             </xsl:if>
         </xsl:element>
