@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: February 10, 2022
+		+ Last modified: February 11, 2022
 		
 		
 		+ Descriptions
@@ -39,7 +39,7 @@
 
 			Abschnittsumbruch
     
-    
+			delete files and foldes off zip package in temp folder
     
     # Images
     
@@ -79,6 +79,7 @@
 //@include "utils/classes.jsx"
 //@include "utils/dialogs.jsx"
 //@include "utils/helpers.jsx"
+
 //@include "hooks/beforeImport.jsx"
 //@include "hooks/beforeMount.jsx"
 //@include "hooks/beforePlaced.jsx"
@@ -100,6 +101,9 @@ _global["setups"] = {
 		"name":"docx2Indesign.xsl"
 	},
 	"import":{},
+	"dialog":{
+		"isShown":false
+	},
 	"place":{
 		"isAutoflowing": true /* Value: Boolean; Description: If true, autoflows placed text. (Depends on document settings.) */
 	},
@@ -123,19 +127,29 @@ _global["setups"] = {
 		"tag":"sectionbreak",
 		"isInserted":true
 	},
+	"comment":{
+		"tag":"comment", 
+		"color":[255,255,155],
+		"metadata":{
+			"isAdded":true
+		}, 
+		"isRemoved":false,
+		"isMarked":true, 
+		"isCreated":false
+	},
 	"footnote":{ 
 		"tag":"footnote", 
-		"color":[155,255,255],
-		"isCreated":true, 
+		"color":[155,255,255], 
+		"isRemoved":false,
 		"isMarked":false, 
-		"isRemoved":false 
+		"isCreated":true 
 	},
 	"endnote":{ 
 		"tag":"endnote", 
-		"color":[255,155,255],
-		"isCreated":true, 
+		"color":[255,155,255], 
+		"isRemoved":false,
 		"isMarked":false, 
-		"isRemoved":false
+		"isCreated":true
 	}
 	
 };
@@ -667,17 +681,24 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	/* Breaks */
 	__insertBreaks(_doc, _wordXMLElement, _setupObj);
 
+	/* Comments */
+	__handleComments(_doc, _wordXMLElement, _setupObj);
 
 	/* Index */
 	// _doc.indexes[0].topics[0].pageReferences.add(_xmlElement.texts[0], PageReferenceType.CURRENT_PAGE)
 
 	/* Hyperlinks */
 
-	/* Footnotes */ /* Last in chain, XML elements are removed from footnotes */
-	__mountFootnotes(_doc, _wordXMLElement, _setupObj);
+	/* 
+		Last in chain. 
+		XML elements must be removed from footnotes and endnotes
+	*/
+
+	/* Footnotes */ 
+	__handleFootnotes(_doc, _wordXMLElement, _setupObj);
 	
 	/* Endnotes */
-	__mountEndnotes(_doc, _wordXMLElement, _setupObj);
+	__handleEndnotes(_doc, _wordXMLElement, _setupObj);
 	
 
 
@@ -797,13 +818,183 @@ function __insertSpecialCharacter(_xmlElementArray, _specialCharName) {
 
 
 /**
- * Mount Footnotes
+ * Handle Comments
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns 
+ */
+function __handleComments(_doc, _wordXMLElement, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const COMMENT_TAG_NAME = _setupObj["comment"]["tag"];
+	const COLOR_ARRAY = _setupObj["comment"]["color"];
+	const IS_COMMENT_CREATED = _setupObj["comment"]["isCreated"];
+	const IS_COMMENT_MARKED = _setupObj["comment"]["isMarked"];
+	const IS_COMMENT_REMOVED = _setupObj["comment"]["isRemoved"];
+
+	var _commentXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + COMMENT_TAG_NAME);
+	if(_commentXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if(IS_COMMENT_REMOVED) {
+		__removeXMLElements(_commentXMLElementArray, localize(_global.commentsLabel));
+		return true;
+	}
+
+	if(IS_COMMENT_MARKED) {
+		__markXMLElements(_doc, _commentXMLElementArray, localize(_global.commentsLabel), COLOR_ARRAY);
+		return true;
+	}
+
+	if(IS_COMMENT_CREATED) {
+		__createComments(_doc, _wordXMLElement, _commentXMLElementArray, _setupObj);
+		return true;
+	}
+	
+	return true;
+} /* END function __handleComments */
+
+
+/**
+ * Create Comments
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {XMLElement} _commentXMLElementArray 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __createComments(_doc, _wordXMLElement, _commentXMLElementArray, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_commentXMLElementArray || !(_commentXMLElementArray instanceof Array)) { 
+		throw new Error("Array as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	var _wordXMLStory = _wordXMLElement.parentStory;
+	if(!_wordXMLStory || !_wordXMLStory.isValid) {
+		_global["log"].push(localize(_global.xmlStoryValidationError));
+		return false;
+	}
+
+	var _counter = 0;
+	
+	for(var i=_commentXMLElementArray.length-1; i>=0; i-=1) {
+
+		var _commmentXMLElement = _commentXMLElementArray[i];
+		if(!_commmentXMLElement || !_commmentXMLElement.isValid) {
+			continue;
+		}
+
+		var _commentText = __getCommentText(_commmentXMLElement, _setupObj);
+		var _targetIP = _commmentXMLElement.storyOffset;
+
+		try {
+
+			/* Add comment */
+			var _comment = _wordXMLStory.notes.add(LocationOptions.BEFORE, _targetIP);
+			if(!_comment || !_comment.isValid) {
+				_global["log"].push(localize(_global.commentValidationErrorMessage));
+				continue;
+			}
+
+			/* Insert text */
+			_comment.texts[0].contents = _commentText;
+
+			/* Remove XML container element */
+			_commmentXMLElement.remove();
+
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.commentsLabel)));
+	}
+
+	return true;
+} /* END function __createComments */
+
+
+/**
+ * Get content text of comment
+ * @param {XMLElement} _xmlElement 
+ * @param {Obejct} _setupObj 
+ * @returns String
+ */
+function __getCommentText(_xmlElement, _setupObj) {
+
+	if(!_xmlElement || !(_xmlElement instanceof XMLElement) || !_xmlElement.isValid) { return ""; }
+	if(!_setupObj || !(_setupObj instanceof Object)) { return ""; }
+
+	const PARAGRAPH_TAG_NAME = _setupObj["paragraph"]["tag"];
+	const IS_METADATA_ADDED = _setupObj["comment"]["metadata"]["isAdded"];
+
+	var _textArray = [];
+
+	if(IS_METADATA_ADDED) {
+
+		var _metadataArray = [];
+
+		var _authorXMLAttribute = _xmlElement.xmlAttributes.itemByName("author");
+		if(_authorXMLAttribute.isValid) {
+			_metadataArray.push(_authorXMLAttribute.value);
+		}
+
+		var _dateXMLAttribute = _xmlElement.xmlAttributes.itemByName("date");
+		if(_dateXMLAttribute.isValid) {
+			_metadataArray.push(_dateXMLAttribute.value);
+		}
+
+		_textArray.push(_metadataArray.join(" | ") + ":");
+	}
+
+	var _paragraphXMLElementArray = _xmlElement.evaluateXPathExpression("//" + PARAGRAPH_TAG_NAME);
+	
+	for(var i=0; i<_paragraphXMLElementArray.length; i+=1) {
+		
+		var _paragraphXMLElement = _paragraphXMLElementArray[i];
+		if(!_paragraphXMLElement || !_paragraphXMLElement.isValid) {
+			continue;
+		}
+
+		_textArray.push(_paragraphXMLElement.contents);
+	}
+
+	return _textArray.join("\r");
+} /* END function __getCommentText */
+
+
+/**
+ * Handle Footnotes
  * @param {Document} _doc  
  * @param {XMLElement} _wordXMLElement 
  * @param {Object} _setupObj 
  * @returns Boolean
  */
-function __mountFootnotes(_doc, _wordXMLElement, _setupObj) {
+function __handleFootnotes(_doc, _wordXMLElement, _setupObj) {
 	
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
 		throw new Error("Document as parameter required.");
@@ -842,7 +1033,7 @@ function __mountFootnotes(_doc, _wordXMLElement, _setupObj) {
 	} 
 
 	return true;
-} /* END function __mountFootnotes */
+} /* END function __handleFootnotes */
 
 
 /**
@@ -937,13 +1128,13 @@ function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _set
 
 
 /**
- * Mount Endnotes
+ * Handle Endnotes
  * @param {Document} _doc  
  * @param {XMLElement} _wordXMLElement 
  * @param {Object} _setupObj 
  * @returns Boolean
  */
-function __mountEndnotes(_doc, _wordXMLElement, _setupObj) {
+function __handleEndnotes(_doc, _wordXMLElement, _setupObj) {
 	
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
 		throw new Error("Document as parameter required.");
@@ -977,29 +1168,25 @@ function __mountEndnotes(_doc, _wordXMLElement, _setupObj) {
 	}
 
 	if(IS_ENDNOTE_CREATED) {
-		__createEndnotes(_doc, _wordXMLElement, _endnoteXMLElementArray, _setupObj);
+		__createEndnotes(_doc, _endnoteXMLElementArray, _setupObj);
 		return true;
 	} 
 
 	return true;
-} /* END function __mountEndnotes */
+} /* END function __handleEndnotes */
 
 
 /**
  * Create Endnotes
- * @param {Document} _doc 
- * @param {XMLElement} _wordXMLElement 
+ * @param {Document} _doc  
  * @param {Array} _endnoteXMLElementArray 
  * @param {Object} _setupObj 
  * @returns Boolean
  */
-function __createEndnotes(_doc, _wordXMLElement, _endnoteXMLElementArray, _setupObj) {
+function __createEndnotes(_doc, _endnoteXMLElementArray, _setupObj) {
 
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
 		throw new Error("Document as parameter required.");
-	}
-	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
-		throw new Error("XMLElement as parameter required."); 
 	}
 	if(!_endnoteXMLElementArray || !(_endnoteXMLElementArray instanceof Array)) { 
 		throw new Error("Array as parameter required.");
@@ -1070,9 +1257,9 @@ function __createEndnotes(_doc, _wordXMLElement, _endnoteXMLElementArray, _setup
 } /* END function __createEndnotes */
 
 
-
 /**
- * Get style names of paragraphs (defined in attribute »pstyle«)
+ * Get style names of footnote or endnote paragraphs 
+ * (defined in attribute »pstyle«)
  * @param {XMLElement} _containerXMLElement 
  * @param {Object} _setupObj
  * @returns Array
@@ -1168,10 +1355,6 @@ function __applyStylesToNoteParagraphs(_doc, _note, _pStyleNameArray) {
 
 	return true;
 } /* END function __applyStylesToNoteParagraphs */
-
-
-
-
 
 
 
@@ -1517,6 +1700,14 @@ function __defLocalizeStrings() {
 		de: "%1 Sonderzeichen [%2] eingefügt." 
 	};
 
+	_global.commentsLabel = { 
+		en: "Comments",
+		de: "Kommentare" 
+	};
 
+	_global.commentValidationErrorMessage = { 
+		en: "Comment not valid.",
+		de: "Kommentar nicht valide." 
+	};
 
 } /* END function __defLocalizeStrings */
