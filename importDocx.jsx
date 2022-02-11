@@ -134,8 +134,8 @@ _global["setups"] = {
 			"isAdded":true
 		}, 
 		"isRemoved":false,
-		"isMarked":true, 
-		"isCreated":false
+		"isMarked":false, 
+		"isCreated":true
 	},
 	"footnote":{ 
 		"tag":"footnote", 
@@ -147,6 +147,30 @@ _global["setups"] = {
 	"endnote":{ 
 		"tag":"endnote", 
 		"color":[255,155,255], 
+		"isRemoved":false,
+		"isMarked":false, 
+		"isCreated":true
+	},
+	"textbox":{ 
+		"tag":"textbox", 
+		"color":[155,155,255], 
+		"width":"100",
+		"height":"40",
+		"objectStyleProperties":{
+			"enableAnchoredObjectOptions":true,
+			"anchoredObjectSettings": {
+				"anchoredPosition":AnchorPosition.ANCHORED,
+				"anchorPoint":AnchorPoint.TOP_LEFT_ANCHOR,
+				"horizontalAlignment": HorizontalAlignment.LEFT_ALIGN,
+				"horizontalReferencePoint":AnchoredRelativeTo.TEXT_FRAME,
+				"spineRelative":false,
+				"verticalReferencePoint":VerticallyRelativeTo.LINE_BASELINE
+			},
+			"enableTextWrapAndOthers":true,
+			"textWrapPreferences":{
+				"textWrapMode":TextWrapModes.JUMP_OBJECT_TEXT_WRAP
+			}
+		},
 		"isRemoved":false,
 		"isMarked":false, 
 		"isCreated":true
@@ -688,6 +712,9 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	// _doc.indexes[0].topics[0].pageReferences.add(_xmlElement.texts[0], PageReferenceType.CURRENT_PAGE)
 
 	/* Hyperlinks */
+
+	/* Textboxes */
+	__handleTextboxes(_doc, _wordXMLElement, _setupObj);
 
 	/* 
 		Last in chain. 
@@ -1357,6 +1384,199 @@ function __applyStylesToNoteParagraphs(_doc, _note, _pStyleNameArray) {
 } /* END function __applyStylesToNoteParagraphs */
 
 
+/**
+ * Handle Textboxes
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns 
+ */
+function __handleTextboxes(_doc, _wordXMLElement, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const TEXTBOX_TAG_NAME = _setupObj["textbox"]["tag"];
+	const COLOR_ARRAY = _setupObj["textbox"]["color"];
+	const IS_TEXTBOX_REMOVED = _setupObj["textbox"]["isRemoved"];
+	const IS_TEXTBOX_MARKED = _setupObj["textbox"]["isMarked"];
+	const IS_TEXTBOX_CREATED = _setupObj["textbox"]["isCreated"];
+
+	var _textboxXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + TEXTBOX_TAG_NAME);
+	if(_textboxXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if(IS_TEXTBOX_REMOVED) {
+		__removeXMLElements(_textboxXMLElementArray, localize(_global.textboxesLabel));
+		return true;
+	}
+
+	if(IS_TEXTBOX_MARKED) {
+		__markXMLElements(_doc, _textboxXMLElementArray, localize(_global.textboxesLabel), COLOR_ARRAY);
+		return true;
+	}
+
+	if(IS_TEXTBOX_CREATED) {
+		__createTextboxes(_doc, _textboxXMLElementArray, _setupObj);
+		return true;
+	}
+	
+	return true;
+} /* END function __handleTextboxes */
+
+
+
+/**
+ * Create Textboxes
+ * @param {Document} _doc 
+ * @param {XMLElement} _textboxXMLElementArray 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __createTextboxes(_doc, _textboxXMLElementArray, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_textboxXMLElementArray || !(_textboxXMLElementArray instanceof Array)) { 
+		throw new Error("Array as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const OBJECT_STYLE_ATTRIBUTE_NAME = "ostyle";
+	const OBJECT_STYLE_PROPERTIES = _setupObj["textbox"]["objectStyleProperties"];
+	const TEXTBOX_WIDTH = _setupObj["textbox"]["width"];
+	const TEXTBOX_HEIGHT = _setupObj["textbox"]["height"];
+
+	var _counter = 0;
+	
+	for(var i=_textboxXMLElementArray.length-1; i>=0; i-=1) {
+
+		var _textboxXMLElement = _textboxXMLElementArray[i];
+		if(!_textboxXMLElement || !_textboxXMLElement.isValid) {
+			continue;
+		}
+
+		/* Textbox Object Style */
+		var _oStyleName = "";
+		var _oStyleXMLAttrbute = _textboxXMLElement.xmlAttributes.itemByName(OBJECT_STYLE_ATTRIBUTE_NAME);
+		if(_oStyleXMLAttrbute.isValid) {
+			_oStyleName = _oStyleXMLAttrbute.value;
+		}
+
+		try {
+
+			/* Add comment */
+			var _textbox = _textboxXMLElement.placeIntoInlineFrame([TEXTBOX_WIDTH,TEXTBOX_HEIGHT]);
+			
+			/* Apply object style */
+			if(_oStyleName !== "") {
+				var _oStyle = _doc.objectStyles.itemByName(_oStyleName);
+				if(!_oStyle.isValid) {
+					_oStyle = _doc.objectStyles.add({ name:_oStyleName });
+					_oStyle.properties = OBJECT_STYLE_PROPERTIES;
+				}
+				_textbox.applyObjectStyle(_oStyle, true, true);
+			}
+
+			/* Apply paragraph styles */
+			__applyStylesToTextboxParagraphs(_doc, _textboxXMLElement, _setupObj);
+
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.textboxesLabel)));
+	}
+
+	return true;
+} /* END function __createTextboxes */
+
+
+/**
+ * Apply styles to textbox paragraphps
+ * @param {Document} _doc 
+ * @param {XMLElement} _textboxXMLElement 
+ * @param {Object} _setupObj
+ * @returns Boolean
+ */
+function __applyStylesToTextboxParagraphs(_doc, _textboxXMLElement, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return false; }
+	if(!_textboxXMLElement || !(_textboxXMLElement instanceof XMLElement) || !_textboxXMLElement.isValid) { return false; }
+	if(!_setupObj || !(_setupObj instanceof Object)) { return false; }
+
+	const PARAGRAPH_TAG_NAME = _setupObj["paragraph"]["tag"];
+	const STYLE_ATTRIBUTE_NAME = "pstyle";
+
+	var _isAssignmentCorrect = true;
+
+	var _paragraphXMLElementArray = _textboxXMLElement.evaluateXPathExpression(PARAGRAPH_TAG_NAME);
+	
+	for(var i=0; i<_paragraphXMLElementArray.length; i+=1) {
+
+		var _paragraphXMLElement = _paragraphXMLElementArray[i];
+		if(!_paragraphXMLElement || !_paragraphXMLElement.isValid) {
+			continue;
+		}
+
+		var _pStyleAttribute = _paragraphXMLElement.xmlAttributes.itemByName(STYLE_ATTRIBUTE_NAME);
+		if(!_pStyleAttribute.isValid) {
+			continue;
+		}
+
+		var _pStyleName = _pStyleAttribute.value;
+		if(!_pStyleName) {
+			continue;
+		}
+
+		var _pStyle = _doc.paragraphStyles.itemByName(_pStyleName);
+		if(!_pStyle.isValid) {
+			_pStyle = _doc.paragraphStyles.add({ 
+				name:_pStyleName 
+			});
+		}
+
+		try {
+			_paragraphXMLElement.applyParagraphStyle(_pStyle, true);
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			_isAssignmentCorrect = false;
+			continue;
+		}
+	}
+
+	if(_isAssignmentCorrect === false) {
+		return false;
+	}
+
+	return true;
+} /* END function __applyStylesToNoteParagraphs */
+
+
+
+
+
+
+
+
+
+
 
 
 /**
@@ -1709,5 +1929,17 @@ function __defLocalizeStrings() {
 		en: "Comment not valid.",
 		de: "Kommentar nicht valide." 
 	};
+
+	_global.textboxesLabel = { 
+		en: "Textboxes",
+		de: "Textboxen" 
+	};
+
+	_global.commentValidationErrorMessage = { 
+		en: "Textbox not valid.",
+		de: "Textbox nicht valide." 
+	};
+
+
 
 } /* END function __defLocalizeStrings */

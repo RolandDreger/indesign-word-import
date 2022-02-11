@@ -247,12 +247,12 @@
     <xsl:variable name="image-alt-attribute-name" select="'Beschreibung'"/>
     <xsl:variable name="image-position-attribute-name" select="'Position'"/>
     <xsl:variable name="image-uri-attribute-name" select="'URI'"/>
-    <xsl:variable name="textbox-tag-name" select="'Textbox'"/>
-    <xsl:variable name="textbox-index-attribute-name" select="'Index'"/>
+    <xsl:variable name="textbox-tag-name" select="'textbox'"/>
+    <xsl:variable name="textbox-index-attribute-name" select="'index'"/>
     <xsl:variable name="textbox-style-attribute-name" select="'ostyle'"/>
     <xsl:variable name="textbox-style-attribute-value" select="'Textbox'"/>
-    <xsl:variable name="textbox-name-attribute-name" select="'Name'"/>
-    <xsl:variable name="textbox-alt-attribute-name" select="'Beschreibung'"/>
+    <xsl:variable name="textbox-name-attribute-name" select="'name'"/>
+    <xsl:variable name="textbox-alt-attribute-name" select="'alt'"/>
     <xsl:variable name="shape-tag-name" select="'Vectorform'"/>
     <xsl:variable name="shape-index-attribute-name" select="'Index'"/>
     <xsl:variable name="shape-style-attribute-name" select="'ostyle'"/>
@@ -383,7 +383,7 @@
         <!-- Type -->
         <xsl:attribute name="{$element-type-attribute-name}">
             <xsl:choose>
-                <xsl:when test="parent::w:footnote or parent::w:endnote or parent::w:comment">
+                <xsl:when test="parent::w:footnote or parent::w:endnote or parent::w:comment or parent::w:txbxContent">
                     <xsl:value-of select="'inline'"/>
                 </xsl:when>
                 <xsl:otherwise>
@@ -394,7 +394,7 @@
         <!-- Paragraph Style -->
         <xsl:variable name="style-attribute-name">
             <xsl:choose>
-                <xsl:when test="parent::w:footnote or parent::w:endnote or parent::w:comment">
+                <xsl:when test="parent::w:footnote or parent::w:endnote or parent::w:comment or parent::w:txbxContent">
                     <xsl:value-of select="$paragraph-style-attribute-name"/>
                 </xsl:when>
                 <xsl:otherwise>

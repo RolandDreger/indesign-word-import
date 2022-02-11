@@ -961,14 +961,14 @@
     </xsl:template><!-- Complex Field (handeled in template »transform-complex-field«) --><xsl:template match="w:fldChar">
         <xsl:apply-templates/>
     </xsl:template><xsl:template match="w:fldChar[@w:fldCharType='begin']">
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:comment>
                 <xsl:value-of select="'complex field begin'"/>
             </xsl:comment>
         </xsl:if>
         <xsl:apply-templates/>
     </xsl:template><xsl:template match="w:fldChar[@w:fldCharType='separate']">
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:comment>
                 <xsl:value-of select="'complex field separate'"/>
             </xsl:comment>
@@ -976,7 +976,7 @@
         <xsl:apply-templates/>
     </xsl:template><xsl:template match="w:fldChar[@w:fldCharType='end']">
         <xsl:apply-templates/>
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:comment>
                 <xsl:value-of select="'complex field end'"/>
             </xsl:comment>
@@ -1520,7 +1520,7 @@
             <xsl:apply-templates/>
         <!--</xsl:element>-->
     </xsl:template><!-- Comment Anchor Range Start --><xsl:template match="w:commentRangeStart">
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:variable name="id" select="@w:id"/>
             <xsl:comment>
                 <xsl:value-of select="concat('comment ', $id ,' range start')"/>
@@ -1529,7 +1529,7 @@
         <xsl:apply-templates/>
     </xsl:template><!-- Comment Anchor Range End --><xsl:template match="w:commentRangeEnd">
         <xsl:apply-templates/>
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:variable name="id" select="@w:id"/>
             <xsl:comment>
                 <xsl:value-of select="concat('comment ', $id ,' range end')"/>
@@ -1538,7 +1538,7 @@
     </xsl:template><!-- Bookmark Start --><xsl:template match="w:bookmarkStart">
         <xsl:variable name="id" select="@w:id"/>
         <xsl:variable name="name" select="@w:name"/>
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:comment>
                 <xsl:value-of select="concat('bookmark ', $id , ' ', $name, ' start')"/>
             </xsl:comment>
@@ -1597,7 +1597,7 @@
         </xsl:choose>
     </xsl:template><!-- Bookmark End --><xsl:template match="w:bookmarkEnd">
         <xsl:apply-templates/>
-        <xsl:if test="$is-comment-to-be-inserted">
+        <xsl:if test="$is-comment-inserted">
             <xsl:variable name="id" select="@w:id"/>
             <xsl:variable name="name" select="@w:name"/>
             <xsl:comment>
@@ -1670,13 +1670,13 @@
                 <xsl:value-of select="$tab-style-attribute-value"/>
             </xsl:attribute>
             <!-- Comment -->
-            <xsl:if test="$is-comment-to-be-inserted">
+            <xsl:if test="$is-comment-inserted">
                 <xsl:comment>
                     <xsl:text>tab</xsl:text>
                 </xsl:comment>
             </xsl:if>
             <!-- Tab Character -->
-            <xsl:if test="$is-tab-to-be-preserved">
+            <xsl:if test="$is-tab-preserved">
                 <xsl:text>	</xsl:text>
             </xsl:if>
         </xsl:element>
@@ -1708,12 +1708,12 @@
     <xsl:param name="directory-separator" select="'/'"/>
     <xsl:param name="language" select="'en'"/>
     <xsl:param name="max-bookmark-length" select="500"/>
-    <xsl:param name="is-empty-paragraph-to-remove" select="false()"/>
-    <xsl:param name="is-inline-style-to-remove-on-empty-text" select="false()"/>
-    <xsl:param name="is-local-override-without-tag-to-apply" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
-    <xsl:param name="is-comment-to-be-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
-    <xsl:param name="is-tab-to-be-preserved" select="true()"/>  <!-- Tab Character --> 
-    <xsl:param name="is-special-local-override-to-apply" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
+    <xsl:param name="is-empty-paragraph-removed" select="false()"/>
+    <xsl:param name="is-inline-style-on-empty-text-removed" select="false()"/>
+    <xsl:param name="is-local-override-without-tag-applied" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
+    <xsl:param name="is-comment-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
+    <xsl:param name="is-tab-preserved" select="true()"/>  <!-- Tab Character --> 
+    <xsl:param name="is-special-local-override-applied" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
     
     
     <!-- +++++++++ -->
@@ -1852,12 +1852,12 @@
     <xsl:variable name="image-alt-attribute-name" select="'Beschreibung'"/>
     <xsl:variable name="image-position-attribute-name" select="'Position'"/>
     <xsl:variable name="image-uri-attribute-name" select="'URI'"/>
-    <xsl:variable name="textbox-tag-name" select="'Textbox'"/>
-    <xsl:variable name="textbox-index-attribute-name" select="'Index'"/>
+    <xsl:variable name="textbox-tag-name" select="'textbox'"/>
+    <xsl:variable name="textbox-index-attribute-name" select="'index'"/>
     <xsl:variable name="textbox-style-attribute-name" select="'ostyle'"/>
     <xsl:variable name="textbox-style-attribute-value" select="'Textbox'"/>
-    <xsl:variable name="textbox-name-attribute-name" select="'Name'"/>
-    <xsl:variable name="textbox-alt-attribute-name" select="'Beschreibung'"/>
+    <xsl:variable name="textbox-name-attribute-name" select="'name'"/>
+    <xsl:variable name="textbox-alt-attribute-name" select="'alt'"/>
     <xsl:variable name="shape-tag-name" select="'Vectorform'"/>
     <xsl:variable name="shape-index-attribute-name" select="'Index'"/>
     <xsl:variable name="shape-style-attribute-name" select="'ostyle'"/>
@@ -1962,7 +1962,7 @@
     <!-- Paragraph -->
     <xsl:template match="w:p">
         <!-- Check: Remove empty paragraph? -->
-        <xsl:if test="not($is-empty-paragraph-to-remove) or ($is-empty-paragraph-to-remove and boolean(normalize-space(.)))">
+        <xsl:if test="not($is-empty-paragraph-removed) or ($is-empty-paragraph-removed and boolean(normalize-space(.)))">
             <xsl:element name="{$paragraph-tag-name}" namespace="{$ns}">
                 <xsl:call-template name="insert-paragraph-attributes"/>
                 <!-- Structure text runs (e.g. complex fields) -->
@@ -1988,7 +1988,7 @@
         <!-- Type -->
         <xsl:attribute name="{$element-type-attribute-name}">
             <xsl:choose>
-                <xsl:when test="parent::w:footnote or parent::w:endnote or parent::w:comment">
+                <xsl:when test="parent::w:footnote or parent::w:endnote or parent::w:comment or parent::w:txbxContent">
                     <xsl:value-of select="'inline'"/>
                 </xsl:when>
                 <xsl:otherwise>
@@ -1999,7 +1999,7 @@
         <!-- Paragraph Style -->
         <xsl:variable name="style-attribute-name">
             <xsl:choose>
-                <xsl:when test="parent::w:footnote or parent::w:endnote or parent::w:comment">
+                <xsl:when test="parent::w:footnote or parent::w:endnote or parent::w:comment or parent::w:txbxContent">
                     <xsl:value-of select="$paragraph-style-attribute-name"/>
                 </xsl:when>
                 <xsl:otherwise>
@@ -2147,9 +2147,9 @@
         </xsl:choose>
     </xsl:template>
 
-
-
-
+    
+    
+    
     <!-- InDesign Character Style -->
     <xsl:template name="assign-inline-styles">
         <xsl:param name="inline-style-elements"/>
@@ -2159,7 +2159,7 @@
                 <xsl:variable name="target-style-element" select="$inline-style-elements[1]"/>
                 <xsl:choose>
                     <!-- Ignored Character Style -->
-                    <xsl:when test="                         w:footnoteReference or                         w:footnoteRef or                         w:endnoteReference or                         w:endnoteRef or                         w:commentReference or                         w:annotationRef or                         w:instrText or                          $target-style-element[name() = 'w:noProof'] or                          ($is-inline-style-to-remove-on-empty-text and w:t and normalize-space(w:t) = '')                         ">
+                    <xsl:when test="                         w:footnoteReference or                         w:footnoteRef or                         w:endnoteReference or                         w:endnoteRef or                         w:commentReference or                         w:annotationRef or                         w:instrText or                          $target-style-element[name() = 'w:noProof'] or                          ($is-inline-style-on-empty-text-removed and w:t and normalize-space(w:t) = '')                         ">
                         <xsl:call-template name="assign-inline-styles">
                             <xsl:with-param name="inline-style-elements" select="$inline-style-elements[position() != 1]"/>
                             <xsl:with-param name="class-names" select="$class-names"/>
@@ -2173,7 +2173,7 @@
                         </xsl:call-template>
                     </xsl:when>
                     <!-- Attribute: class -->
-                    <xsl:when test="                         $target-style-element[name() = 'w:b'] or                          $target-style-element[name() = 'w:i'] or                         $target-style-element[name() = 'w:u'] or                         $target-style-element[name() = 'w:em'] or                         $target-style-element[name() = 'w:vertAlign'] or                         $target-style-element[name() = 'w:smallCaps'] or                          $target-style-element[name() = 'w:caps'] or                          $target-style-element[name() = 'w:highlight'] or                           $target-style-element[name() = 'w:lang'] or                          ($is-special-local-override-to-apply and                              (                                 $target-style-element[name() = 'w:rFonts'] or                                  $target-style-element[name() = 'w:strike'] or                                  $target-style-element[name() = 'w:dstrike'] or                                  $target-style-element[name() = 'w:outline'] or                                  $target-style-element[name() = 'w:shadow'] or                                  $target-style-element[name() = 'w:emboss'] or                                  $target-style-element[name() = 'w:imprint'] or                                  $target-style-element[name() = 'w:noProof'] or                                  $target-style-element[name() = 'w:snapToGrid'] or                                  $target-style-element[name() = 'w:vanish'] or                                  $target-style-element[name() = 'w:webHidden'] or                                  $target-style-element[name() = 'w:color'] or                                  $target-style-element[name() = 'w:spacing'] or                                  $target-style-element[name() = 'w:w'] or                                  $target-style-element[name() = 'w:kern'] or                                  $target-style-element[name() = 'w:position'] or                                  $target-style-element[name() = 'w:sz'] or                                  $target-style-element[name() = 'w:szCs'] or                                  $target-style-element[name() = 'w:effect'] or                                  $target-style-element[name() = 'w:bdr'] or                                  $target-style-element[name() = 'w:shd'] or                                  $target-style-element[name() = 'w:fitText'] or                                  $target-style-element[name() = 'w:rtl'] or                                  $target-style-element[name() = 'w:cs'] or                                  $target-style-element[name() = 'w:eastAsianLayout'] or                                  $target-style-element[name() = 'w:specVanish'] or                                  $target-style-element[name() = 'w:oMath']                             )                         )                     ">
+                    <xsl:when test="                         $target-style-element[name() = 'w:b'] or                          $target-style-element[name() = 'w:i'] or                         $target-style-element[name() = 'w:u'] or                         $target-style-element[name() = 'w:em'] or                         $target-style-element[name() = 'w:vertAlign'] or                         $target-style-element[name() = 'w:smallCaps'] or                          $target-style-element[name() = 'w:caps'] or                          $target-style-element[name() = 'w:highlight'] or                           $target-style-element[name() = 'w:lang'] or                          ($is-special-local-override-applied and                              (                                 $target-style-element[name() = 'w:rFonts'] or                                  $target-style-element[name() = 'w:strike'] or                                  $target-style-element[name() = 'w:dstrike'] or                                  $target-style-element[name() = 'w:outline'] or                                  $target-style-element[name() = 'w:shadow'] or                                  $target-style-element[name() = 'w:emboss'] or                                  $target-style-element[name() = 'w:imprint'] or                                  $target-style-element[name() = 'w:noProof'] or                                  $target-style-element[name() = 'w:snapToGrid'] or                                  $target-style-element[name() = 'w:vanish'] or                                  $target-style-element[name() = 'w:webHidden'] or                                  $target-style-element[name() = 'w:color'] or                                  $target-style-element[name() = 'w:spacing'] or                                  $target-style-element[name() = 'w:w'] or                                  $target-style-element[name() = 'w:kern'] or                                  $target-style-element[name() = 'w:position'] or                                  $target-style-element[name() = 'w:sz'] or                                  $target-style-element[name() = 'w:szCs'] or                                  $target-style-element[name() = 'w:effect'] or                                  $target-style-element[name() = 'w:bdr'] or                                  $target-style-element[name() = 'w:shd'] or                                  $target-style-element[name() = 'w:fitText'] or                                  $target-style-element[name() = 'w:rtl'] or                                  $target-style-element[name() = 'w:cs'] or                                  $target-style-element[name() = 'w:eastAsianLayout'] or                                  $target-style-element[name() = 'w:specVanish'] or                                  $target-style-element[name() = 'w:oMath']                             )                         )                     ">
                         <xsl:variable name="class-name">
                             <xsl:call-template name="join-attribute-names-and-values">
                                 <xsl:with-param name="local-tag-name" select="local-name($target-style-element)"/>
