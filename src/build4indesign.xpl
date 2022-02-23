@@ -18,7 +18,6 @@
     <p:input port="source">
         <p:document href="docx2indesign.xsl"></p:document>
     </p:input>
-    <p:output port="result"/>
     
     <p:xslt>
         <p:input port="stylesheet">
