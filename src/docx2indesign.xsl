@@ -297,12 +297,12 @@
     <xsl:variable name="carriage-return-tag-name" select="'carriagereturn'"/>
     <xsl:variable name="section-break-tag-name" select="'sectionbreak'"/>
     <xsl:variable name="element-type-attribute-name" select="'Typ'"/>
-    <xsl:variable name="inserted-text-tag-name" select="'Eingefügter_Text'"/>
-    <xsl:variable name="deleted-text-tag-name" select="'Gelöschter_Text'"/>
-    <xsl:variable name="moved-to-text-tag-name" select="'Verschobener_Text'"/>
-    <xsl:variable name="moved-from-text-tag-name" select="'Gelöschter_Text'"/>
-    <xsl:variable name="track-change-author-attribute-name" select="'Autor'"/>
-    <xsl:variable name="track-change-date-attribute-name" select="'Datum'"/>
+    <xsl:variable name="inserted-text-tag-name" select="'insertedtext'"/>
+    <xsl:variable name="deleted-text-tag-name" select="'deletedtext'"/>
+    <xsl:variable name="moved-to-text-tag-name" select="'movedtext'"/>
+    <xsl:variable name="moved-from-text-tag-name" select="'deletedtext'"/>
+    <xsl:variable name="track-change-author-attribute-name" select="'author'"/>
+    <xsl:variable name="track-change-date-attribute-name" select="'date'"/>
     <xsl:variable name="subdocument-tag-name" select="'Teildokument'"/>
     <xsl:variable name="subdocument-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="subdocument-style-attribute-value" select="'Teildokument'"/>

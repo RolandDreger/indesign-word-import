@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: February 11, 2022
+		+ Last modified: February 23, 2022
 		
 		
 		+ Descriptions
@@ -174,6 +174,27 @@ _global["setups"] = {
 		"isRemoved":false,
 		"isMarked":false, 
 		"isCreated":true
+	},
+	"trackChanges":{
+		"insertedText":{
+			"tag":"insertedtext", 
+			"color":[0,255,0]
+		},
+		"deletedText":{
+			"tag":"deletedtext", 
+			"color":[255,0,0]
+		},
+		"movedFromText":{
+			"tag":"deletedtext", 
+			"color":[155,155,255]
+		},
+		"movedToText":{
+			"tag":"movedtext", 
+			"color":[0,255,255]
+		},
+		"isRemoved":false,
+		"isMarked":true, 
+		"isCreated":false
 	}
 	
 };
@@ -727,8 +748,8 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	/* Endnotes */
 	__handleEndnotes(_doc, _wordXMLElement, _setupObj);
 	
-
-
+	/* Track Changes */
+	__handleTrackChanges(_doc, _wordXMLElement, _setupObj);
 
 
 
@@ -1433,7 +1454,6 @@ function __handleTextboxes(_doc, _wordXMLElement, _setupObj) {
 } /* END function __handleTextboxes */
 
 
-
 /**
  * Create Textboxes
  * @param {Document} _doc 
@@ -1569,8 +1589,79 @@ function __applyStylesToTextboxParagraphs(_doc, _textboxXMLElement, _setupObj) {
 } /* END function __applyStylesToNoteParagraphs */
 
 
+/**
+ * Handle Track Changes
+ * @param {Document} _doc  
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __handleTrackChanges(_doc, _wordXMLElement, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
 
+	const INSERTED_TEXT_TAG_NAME = _setupObj["trackChanges"]["insertedText"]["tag"];
+	const INSERTED_TEXT_COLOR_ARRAY = _setupObj["trackChanges"]["insertedText"]["color"];
+	const DELETED_TEXT_TAG_NAME = _setupObj["trackChanges"]["deletedText"]["tag"];
+	const DELETED_TEXT_COLOR_ARRAY = _setupObj["trackChanges"]["deletedText"]["color"];
+	const MOVED_FROM_TEXT_TAG_NAME = _setupObj["trackChanges"]["movedFromText"]["tag"];
+	const MOVED_FROM_TEXT_COLOR_ARRAY = _setupObj["trackChanges"]["movedFromText"]["color"];
+	const MOVED_TO_TEXT_TAG_NAME = _setupObj["trackChanges"]["movedToText"]["tag"];
+	const MOVED_TO_TEXT_COLOR_ARRAY = _setupObj["trackChanges"]["movedToText"]["color"];
 
+	const IS_TRACK_CHANGE_CREATED = _setupObj["trackChanges"]["isCreated"];
+	const IS_TRACK_CHANGE_MARKED = _setupObj["trackChanges"]["isMarked"];
+	const IS_TRACK_CHANGE_REMOVED = _setupObj["trackChanges"]["isRemoved"];
+
+	var _insertedTextXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + INSERTED_TEXT_TAG_NAME);
+	var _deletedTextXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + DELETED_TEXT_TAG_NAME);
+	var _movedFromTextXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + MOVED_FROM_TEXT_TAG_NAME);
+	var _movedToTextXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + MOVED_TO_TEXT_TAG_NAME);
+	
+	if(
+		_insertedTextXMLElementArray.length === 0 && 
+		_deletedTextXMLElementArray.length === 0 && 
+		_movedFromTextXMLElementArray.length === 0 && 
+		_movedToTextXMLElementArray.length === 0
+	) {
+		return true;
+	}
+
+	if(IS_TRACK_CHANGE_REMOVED) {
+		__removeXMLElements(_insertedTextXMLElementArray, localize(_global.insertedTextLabel));
+		__removeXMLElements(_deletedTextXMLElementArray, localize(_global.deletedTextLabel));
+		__removeXMLElements(_movedFromTextXMLElementArray, localize(_global.movedFromTextLabel));
+		__removeXMLElements(_movedToTextXMLElementArray, localize(_global.movedToTextLabel));
+		return true;
+	}
+
+	if(IS_TRACK_CHANGE_MARKED || !_doc.hasOwnProperty("endnoteOptions")) {
+		__markXMLElements(_doc, _insertedTextXMLElementArray, localize(_global.insertedTextLabel), INSERTED_TEXT_COLOR_ARRAY, "USE_UNDERLINE");
+		__markXMLElements(_doc, _deletedTextXMLElementArray, localize(_global.deletedTextLabel), DELETED_TEXT_COLOR_ARRAY, "USE_UNDERLINE");
+		__markXMLElements(_doc, _movedFromTextXMLElementArray, localize(_global.movedFromTextLabel), MOVED_FROM_TEXT_COLOR_ARRAY, "USE_UNDERLINE");
+		__markXMLElements(_doc, _movedToTextXMLElementArray, localize(_global.movedToTextLabel), MOVED_TO_TEXT_COLOR_ARRAY, "USE_UNDERLINE");
+		var _deletedTextCondition = _doc.conditions.itemByName(localize(_global.deletedTextLabel));
+		if(_deletedTextCondition.isValid) {
+			_deletedTextCondition.visible = false;
+		}
+		return true;
+	}
+
+	if(IS_TRACK_CHANGE_CREATED) {
+		
+		return true;
+	} 
+
+	return true;
+} /* END function __handleEndnotes */
 
 
 
@@ -1940,6 +2031,24 @@ function __defLocalizeStrings() {
 		de: "Textbox nicht valide." 
 	};
 
+	_global.insertedTextLabel = { 
+		en: "Inserted Text",
+		de: "Eingefügter Text" 
+	};
 
+	_global.deletedTextLabel = { 
+		en: "Deleted Text",
+		de: "Gelöschter Text" 
+	};
+
+	_global.movedFromTextLabel = { 
+		en: "Deleted Text",
+		de: "Gelöschter Text" 
+	};
+
+	_global.movedToTextLabel = { 
+		en: "Moved Text",
+		de: "Verschobener Text" 
+	};
 
 } /* END function __defLocalizeStrings */

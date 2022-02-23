@@ -46,10 +46,12 @@ function __removeXMLElements(_xmlElementArray, _label) {
  * Mark XML elements with condition
  * @param {Document} _doc
  * @param {Array} _xmlElementArray 
- * @param {String} _conditionName 
+ * @param {String} _label 
+ * @param {Array} _colorArray 
+ * @param {String} _indicatorMethod 
  * @returns Boolean
  */
-function __markXMLElements(_doc, _xmlElementArray, _label, _colorArray) {
+function __markXMLElements(_doc, _xmlElementArray, _label, _colorArray, _indicatorMethod) {
 
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
 		throw new Error("Document as parameter required.");  
@@ -65,7 +67,9 @@ function __markXMLElements(_doc, _xmlElementArray, _label, _colorArray) {
 		_colorArray = [255,255,80];  
 	}
 
-	var _markerCondition = __createCondition(_doc, _label, _colorArray, "USE_HIGHLIGHT");
+	_indicatorMethod = _indicatorMethod || "USE_HIGHLIGHT";
+
+	var _markerCondition = __createCondition(_doc, _label, _colorArray, _indicatorMethod);
 
 	var _counter = 0;
 
