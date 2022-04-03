@@ -239,14 +239,15 @@
     <xsl:variable name="group-tag-name" select="'Gruppe'"/>
     <xsl:variable name="group-style-attribute-name" select="'ostyle'"/>
     <xsl:variable name="group-style-attribute-value" select="'Gruppe'"/>
-    <xsl:variable name="image-tag-name" select="'Bild'"/>
+    <xsl:variable name="image-tag-name" select="'image'"/>
     <xsl:variable name="image-style-attribute-name" select="'ostyle'"/>
-    <xsl:variable name="image-style-attribute-value" select="'Bild_im_Textfluss'"/>
-    <xsl:variable name="image-source-attribute-name" select="'Quelle'"/>
-    <xsl:variable name="image-title-attribute-name" select="'Titel'"/>
-    <xsl:variable name="image-alt-attribute-name" select="'Beschreibung'"/>
-    <xsl:variable name="image-position-attribute-name" select="'Position'"/>
-    <xsl:variable name="image-uri-attribute-name" select="'URI'"/>
+    <xsl:variable name="image-style-anchored-attribute-value" select="'Anchored_Image'"/>
+    <xsl:variable name="image-style-inline-attribute-value" select="'Inline-Image'"/>
+    <xsl:variable name="image-source-attribute-name" select="'source'"/>
+    <xsl:variable name="image-title-attribute-name" select="'title'"/>
+    <xsl:variable name="image-alt-attribute-name" select="'description'"/>
+    <xsl:variable name="image-position-attribute-name" select="'position'"/>
+    <xsl:variable name="image-uri-attribute-name" select="'uri'"/>
     <xsl:variable name="textbox-tag-name" select="'textbox'"/>
     <xsl:variable name="textbox-index-attribute-name" select="'index'"/>
     <xsl:variable name="textbox-style-attribute-name" select="'ostyle'"/>

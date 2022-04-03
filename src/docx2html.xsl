@@ -374,7 +374,8 @@
     <xsl:variable name="group-style-attribute-value" select="'shapegroup'"/>
     <xsl:variable name="image-tag-name" select="'img'"/>
     <xsl:variable name="image-style-attribute-name" select="'class'"/>
-    <xsl:variable name="image-style-attribute-value" select="'image'"/>
+    <xsl:variable name="image-style-anchored-attribute-value" select="'anchored-image'"/>
+    <xsl:variable name="image-style-inline-attribute-value" select="'inline-image'"/>
     <xsl:variable name="image-source-attribute-name" select="'src'"/>
     <xsl:variable name="image-title-attribute-name" select="'title'"/>
     <xsl:variable name="image-alt-attribute-name" select="'alt'"/>
@@ -2345,7 +2346,14 @@
         </xsl:variable>
         <!-- Style -->
         <xsl:attribute name="{$image-style-attribute-name}">
-            <xsl:value-of select="$image-style-attribute-value"/>
+            <xsl:choose>
+                <xsl:when test="ancestor::wp:inline">
+                    <xsl:value-of select="$image-style-inline-attribute-value"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="$image-style-anchored-attribute-value"/>
+                </xsl:otherwise>
+            </xsl:choose>
         </xsl:attribute>
         <!-- Source -->
         <xsl:variable name="source">

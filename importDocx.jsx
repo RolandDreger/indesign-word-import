@@ -2,11 +2,11 @@
 
 /*
 	
-		+ Adobe InDesign Version: CC2018+
+		+ Adobe InDesign Version: CC2021+
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: February 23, 2022
+		+ Last modified: April 3, 2022
 		
 		
 		+ Descriptions
@@ -33,18 +33,21 @@
 			1a) mark with conditional Text
 			2) create InDesign objects
 
-			Sonderzeichen entfernen aus Text
+			Sonderzeichen entfernen aus Text???
 
 			ToDo
 
-			Abschnittsumbruch
-    
-			delete files and foldes off zip package in temp folder
+			– Abschnittsumbruch
+			– delete files and foldes off zip package in temp folder???
+			– Remove if __runMainSequence
     
     # Images
     
-    copy to Link folder or place it from there
+    A folder »Links« is created next to the InDesign file if document path is avaliable (saved document). 
+		Otherwise the image will be embedded in the document.
     
+		Option: Mark Images
+		Image source is inserted as plain text and highlighted with condition.
     
     # Track Changes
     
@@ -105,7 +108,11 @@ _global["setups"] = {
 		"isShown":false
 	},
 	"place":{
-		"isAutoflowing": true /* Value: Boolean; Description: If true, autoflows placed text. (Depends on document settings.) */
+		"isAutoflowing": true /* Description: If true, autoflows placed text. (Depends on document settings.); Value: Boolean; */
+	},
+	"linkFolder":{
+		"name":"Links", /* Description: Folder name for placed images; Value: String; */
+		"path":"" /* Description: Folder path for placed images (optional); Value: String; */
 	},
 	"mount":{},
 	"paragraph":{
@@ -154,8 +161,8 @@ _global["setups"] = {
 	"textbox":{ 
 		"tag":"textbox", 
 		"color":[155,155,255], 
-		"width":"100",
-		"height":"40",
+		"width":"100", /* Default textbox width in mm; Value: String */
+		"height":"40", /* Default textbox height in mm; Value: String */
 		"objectStyleProperties":{
 			"enableAnchoredObjectOptions":true,
 			"anchoredObjectSettings": {
@@ -164,6 +171,7 @@ _global["setups"] = {
 				"horizontalAlignment": HorizontalAlignment.LEFT_ALIGN,
 				"horizontalReferencePoint":AnchoredRelativeTo.TEXT_FRAME,
 				"spineRelative":false,
+				"pinPosition": false,
 				"verticalReferencePoint":VerticallyRelativeTo.LINE_BASELINE
 			},
 			"enableTextWrapAndOthers":true,
@@ -174,6 +182,42 @@ _global["setups"] = {
 		"isRemoved":false,
 		"isMarked":false, 
 		"isCreated":true
+	},
+	"image":{
+		"tag":"image", 
+		"attributes":{
+			"source":"source",
+			"description":"description"
+		},
+		"width":"100", /* Default image width in mm; Value: String */
+		"height":"100", /* Default image height in mm; Value: String */
+		"objectStyleProperties":{
+			"strokeWeight":0,
+			"enableAnchoredObjectOptions":true,
+			"anchoredObjectSettings": {
+				"anchoredPosition":AnchorPosition.ANCHORED,
+				"anchorPoint":AnchorPoint.TOP_LEFT_ANCHOR,
+				"horizontalAlignment": HorizontalAlignment.LEFT_ALIGN,
+				"horizontalReferencePoint":AnchoredRelativeTo.TEXT_FRAME,
+				"spineRelative":false,
+				"pinPosition": false,
+				"verticalReferencePoint":VerticallyRelativeTo.LINE_BASELINE
+			},
+			"enableFrameFittingOptions":true,
+			"frameFittingOptions":{
+				"fittingAlignment":AnchorPoint.TOP_LEFT_ANCHOR,
+				"fittingOnEmptyFrame":EmptyFrameFittingOptions.PROPORTIONALLY
+			},
+			"enableTextWrapAndOthers":true,
+			"textWrapPreferences":{
+				"textWrapMode":TextWrapModes.JUMP_OBJECT_TEXT_WRAP
+			}
+		},
+		"color":[155,255,255], 
+		"isAltTextInserted":true,
+		"isRemoved":false,
+		"isMarked":false,
+		"isPlaced":true
 	},
 	"trackChanges":{
 		"insertedText":{
@@ -732,10 +776,15 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	/* Index */
 	// _doc.indexes[0].topics[0].pageReferences.add(_xmlElement.texts[0], PageReferenceType.CURRENT_PAGE)
 
+
 	/* Hyperlinks */
+
 
 	/* Textboxes */
 	__handleTextboxes(_doc, _wordXMLElement, _setupObj);
+
+	/* Images */
+	__handleImages(_doc, _wordXMLElement, _unpackObj, _setupObj);
 
 	/* 
 		Last in chain. 
@@ -1410,7 +1459,7 @@ function __applyStylesToNoteParagraphs(_doc, _note, _pStyleNameArray) {
  * @param {Document} _doc 
  * @param {XMLElement} _wordXMLElement 
  * @param {Object} _setupObj 
- * @returns 
+ * @returns Boolean
  */
 function __handleTextboxes(_doc, _wordXMLElement, _setupObj) {
 
@@ -1425,7 +1474,7 @@ function __handleTextboxes(_doc, _wordXMLElement, _setupObj) {
 	}
 
 	const TEXTBOX_TAG_NAME = _setupObj["textbox"]["tag"];
-	const COLOR_ARRAY = _setupObj["textbox"]["color"];
+	const TEXTBOX_COLOR_ARRAY = _setupObj["textbox"]["color"];
 	const IS_TEXTBOX_REMOVED = _setupObj["textbox"]["isRemoved"];
 	const IS_TEXTBOX_MARKED = _setupObj["textbox"]["isMarked"];
 	const IS_TEXTBOX_CREATED = _setupObj["textbox"]["isCreated"];
@@ -1441,7 +1490,7 @@ function __handleTextboxes(_doc, _wordXMLElement, _setupObj) {
 	}
 
 	if(IS_TEXTBOX_MARKED) {
-		__markXMLElements(_doc, _textboxXMLElementArray, localize(_global.textboxesLabel), COLOR_ARRAY);
+		__markXMLElements(_doc, _textboxXMLElementArray, localize(_global.textboxesLabel), TEXTBOX_COLOR_ARRAY);
 		return true;
 	}
 
@@ -1475,8 +1524,11 @@ function __createTextboxes(_doc, _textboxXMLElementArray, _setupObj) {
 
 	const OBJECT_STYLE_ATTRIBUTE_NAME = "ostyle";
 	const OBJECT_STYLE_PROPERTIES = _setupObj["textbox"]["objectStyleProperties"];
-	const TEXTBOX_WIDTH = _setupObj["textbox"]["width"];
-	const TEXTBOX_HEIGHT = _setupObj["textbox"]["height"];
+	const TEXTBOX_WIDTH_IN_MM = _setupObj["textbox"]["width"];
+	const TEXTBOX_HEIGHT_IN_MM = _setupObj["textbox"]["height"];
+
+	const TEXTBOX_WIDTH = UnitValue(TEXTBOX_WIDTH_IN_MM, MeasurementUnits.MILLIMETERS).as(_doc.viewPreferences.verticalMeasurementUnits);
+	const TEXTBOX_HEIGHT = UnitValue(TEXTBOX_HEIGHT_IN_MM, MeasurementUnits.MILLIMETERS).as(_doc.viewPreferences.verticalMeasurementUnits);
 
 	var _counter = 0;
 	
@@ -1489,9 +1541,9 @@ function __createTextboxes(_doc, _textboxXMLElementArray, _setupObj) {
 
 		/* Textbox Object Style */
 		var _oStyleName = "";
-		var _oStyleXMLAttrbute = _textboxXMLElement.xmlAttributes.itemByName(OBJECT_STYLE_ATTRIBUTE_NAME);
-		if(_oStyleXMLAttrbute.isValid) {
-			_oStyleName = _oStyleXMLAttrbute.value;
+		var _oStyleXMLAttribute = _textboxXMLElement.xmlAttributes.itemByName(OBJECT_STYLE_ATTRIBUTE_NAME);
+		if(_oStyleXMLAttribute.isValid) {
+			_oStyleName = _oStyleXMLAttribute.value;
 		}
 
 		try {
@@ -1532,6 +1584,7 @@ function __createTextboxes(_doc, _textboxXMLElementArray, _setupObj) {
  * Apply styles to textbox paragraphps
  * @param {Document} _doc 
  * @param {XMLElement} _textboxXMLElement 
+ * @param {Object} _unpackObj
  * @param {Object} _setupObj
  * @returns Boolean
  */
@@ -1587,6 +1640,286 @@ function __applyStylesToTextboxParagraphs(_doc, _textboxXMLElement, _setupObj) {
 
 	return true;
 } /* END function __applyStylesToNoteParagraphs */
+
+
+/**
+ * Handle Images
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _unpackObj 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __handleImages(_doc, _wordXMLElement, _unpackObj, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_unpackObj || !(_unpackObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const IMAGE_TAG_NAME = _setupObj["image"]["tag"];
+	const IMAGE_COLOR_ARRAY = _setupObj["image"]["color"];
+	const IS_IMAGE_REMOVED = _setupObj["image"]["isRemoved"];
+	const IS_IMAGE_MARKED = _setupObj["image"]["isMarked"];
+	const IS_IMAGE_PLACED = _setupObj["image"]["isPlaced"];
+
+	var _imageXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + IMAGE_TAG_NAME);
+	if(_imageXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if(IS_IMAGE_REMOVED) {
+		__removeXMLElements(_imageXMLElementArray, localize(_global.imagesLabel));
+		return true;
+	}
+
+	if(IS_IMAGE_MARKED) {
+		__insertImageSources(_doc, _imageXMLElementArray, _setupObj);
+		__markXMLElements(_doc, _imageXMLElementArray, localize(_global.imagesLabel), IMAGE_COLOR_ARRAY);
+		return true;
+	}
+
+	if(IS_IMAGE_PLACED) {
+		__placeImages(_doc, _imageXMLElementArray, _unpackObj, _setupObj);
+		return true;
+	}
+
+	return true;
+} /* END function __handleImages */
+
+
+/**
+ * Insert image sources as plain text
+ * e.g. {media/image1.jpg}
+ * @param {Document} _doc 
+ * @param {XMLElement} _imageXMLElementArray 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __insertImageSources(_doc, _imageXMLElementArray, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_imageXMLElementArray || !(_imageXMLElementArray instanceof Array)) { 
+		throw new Error("Array as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const SOURCE_ATTRIBUTE_NAME = _setupObj["image"]["attributes"]["source"];
+
+	var _counter = 0;
+	
+	for(var i=_imageXMLElementArray.length-1; i>=0; i-=1) {
+
+		var _imageXMLElement = _imageXMLElementArray[i];
+		if(!_imageXMLElement || !_imageXMLElement.isValid) {
+			continue;
+		}
+
+		var _sourceAttribute = _imageXMLElement.xmlAttributes.itemByName(SOURCE_ATTRIBUTE_NAME);
+		if(!_sourceAttribute.isValid) {
+			continue;
+		}
+
+		try {
+			_imageXMLElement.insertTextAsContent("{" + _sourceAttribute.value + "}", XMLElementPosition.ELEMENT_START);
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.insertImageSourcesMessage, _counter, localize(_global.imageSourcesLabel)));
+	}
+
+	return true;
+} /* END function __insertImageSources */
+
+
+/**
+ * Place images in document
+ * (A folder »Links« is created next to the InDesign file if document path is avaliable.)
+ * @param {Document} _doc 
+ * @param {XMLElement} _imageXMLElementArray 
+ * @param {Object} _unpackObj 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __placeImages(_doc, _imageXMLElementArray, _unpackObj, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_imageXMLElementArray || !(_imageXMLElementArray instanceof Array)) { 
+		throw new Error("Array as parameter required.");
+	}
+	if(!_unpackObj || !(_unpackObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const LINK_FOLDER_PATH = _setupObj["linkFolder"]["path"];
+	const SOURCE_ATTRIBUTE_NAME = _setupObj["image"]["attributes"]["source"];
+	const OBJECT_STYLE_ATTRIBUTE_NAME = "ostyle";
+	const OBJECT_STYLE_PROPERTIES = _setupObj["image"]["objectStyleProperties"];
+	const LINK_FOLDER_NAME = _setupObj["linkFolder"]["name"] || "Links";
+	const IMAGE_WIDTH_IN_MM = _setupObj["image"]["width"];
+	const IMAGE_HEIGHT_IN_MM = _setupObj["image"]["height"];
+	const ALT_TEXT_ATTRIBUTE_NAME = _setupObj["image"]["attributes"]["description"];
+	const IS_ALT_TEXT_INSERTED = _setupObj["image"]["isAltTextInserted"];
+
+	const IMAGE_WIDTH = UnitValue(IMAGE_WIDTH_IN_MM, MeasurementUnits.MILLIMETERS).as(_doc.viewPreferences.verticalMeasurementUnits);
+	const IMAGE_HEIGHT = UnitValue(IMAGE_HEIGHT_IN_MM, MeasurementUnits.MILLIMETERS).as(_doc.viewPreferences.verticalMeasurementUnits);
+
+	/* Links folder */
+	var _linkFolder = Folder(LINK_FOLDER_PATH);
+	if(!_linkFolder.exists) {
+		var _docFilePath = app.activeDocument.properties.fullName;
+		if(_docFilePath !== undefined) {
+			_linkFolder = Folder(_docFilePath.parent.fullName + "/" + LINK_FOLDER_NAME);
+			if(!_linkFolder.exists) {
+				_linkFolder.create(); /* -> hard disk */
+			}
+		}
+	}
+	
+	/* Word folder */
+	var _wordFolder;
+	var _unpackFolder = _unpackObj["folder"];
+	if(_unpackFolder && _unpackFolder instanceof Folder && _unpackFolder.exists) {
+		_wordFolder = Folder(_unpackFolder.fullName + '/word');
+	}
+	if(!!_wordFolder && !_wordFolder.exists) {
+		_global["log"].push(localize(_global.wordFolderValidationMessage));
+		return false;
+	}
+
+	var _counter = 0;
+	
+	for(var i=_imageXMLElementArray.length-1; i>=0; i-=1) {
+
+		var _imageXMLElement = _imageXMLElementArray[i];
+		if(!_imageXMLElement || !_imageXMLElement.isValid) {
+			continue;
+		}
+
+		/* Image source */
+		var _sourceAttribute = _imageXMLElement.xmlAttributes.itemByName(SOURCE_ATTRIBUTE_NAME);
+		if(!_sourceAttribute.isValid) {
+			_global["log"].push(localize(_global.missingImageSourceMessage, SOURCE_ATTRIBUTE_NAME));
+			continue;
+		}
+		var _imageSource = _sourceAttribute.value;
+		if(!_imageSource) {
+			_global["log"].push(localize(_global.missingImageSourceMessage, SOURCE_ATTRIBUTE_NAME));
+			continue;
+		}
+
+		/* Image object style */
+		var _oStyleName;
+		var _oStyleXMLAttribute = _imageXMLElement.xmlAttributes.itemByName(OBJECT_STYLE_ATTRIBUTE_NAME);
+		if(_oStyleXMLAttribute.isValid) {
+			_oStyleName = _oStyleXMLAttribute.value;
+		}
+
+		/* Alternativ text */
+		var _altText;
+		var _altTextXMLAttribute = _imageXMLElement.xmlAttributes.itemByName(ALT_TEXT_ATTRIBUTE_NAME);
+		if(_altTextXMLAttribute.isValid) {
+			_altText = _altTextXMLAttribute.value;
+		}
+
+		/* Image file */
+		var _sourceImageFile = File(_wordFolder.fullName + '/' + _imageSource); /* in Word document embedded images */
+		if(!_sourceImageFile.exists) {
+			_sourceImageFile = File(_imageSource); /* external (linked) images on hard disk */
+		}
+		if(!_sourceImageFile.exists) {
+			_global["log"].push(localize(_global.imageFileValidationMessage, _imageSource));
+			continue;
+		}
+
+		try {
+
+			/* Create anchored frame */
+			_imageXMLElement.placeIntoInlineFrame([IMAGE_WIDTH,IMAGE_HEIGHT]);
+
+			/* Place linked */
+			if(_linkFolder.exists) {
+				var _embedImageFile = File(_linkFolder.fullName + "/" + _sourceImageFile.name);
+				var _isCopied = _sourceImageFile.copy(_embedImageFile); /* -> hard disk */
+				if(_isCopied === true) {
+					_imageXMLElement.setContent(_embedImageFile);
+				}
+			}
+			/* Place embeded (for unsaved documents) */
+			else {
+				_imageXMLElement.setContent(_sourceImageFile);
+			}
+
+			/* Apply object style */
+			if(!!_oStyleName) {
+				var _oStyle = _doc.objectStyles.itemByName(_oStyleName);
+				if(!_oStyle.isValid) {
+					_oStyle = _doc.objectStyles.add({ name:_oStyleName });
+					_oStyle.properties = OBJECT_STYLE_PROPERTIES;
+				}
+				_imageXMLElement.applyObjectStyle(_oStyle, true, true);
+			}
+
+
+			var _placedImage = _imageXMLElement.xmlContent;
+			if(!_placedImage || !_placedImage.isValid) {
+				continue;
+			}
+			/* Fit frame to content */
+			if(_placedImage.hasOwnProperty("fit")) {
+				_placedImage.fit(FitOptions.FRAME_TO_CONTENT);
+			}
+
+			/* Embed image (for unsaved documents) */
+			if(!_linkFolder.exists && _placedImage.hasOwnProperty("itemLink")) {
+				_placedImage.itemLink.unlink();
+			}
+
+			/* Insert alternativ text */
+			if(IS_ALT_TEXT_INSERTED && !!_altText) {
+				var _imageFrame = _placedImage.parent;
+				if(_imageFrame.hasOwnProperty("objectExportOptions")) {
+					_imageFrame.objectExportOptions.altTextSourceType = SourceType.SOURCE_CUSTOM;
+					_imageFrame.objectExportOptions.customAltText = _altText;
+				}
+			}
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.placeImageMessage, _counter, localize(_global.imageLabel)));
+	}
+
+	return true;
+} /* END function __placeImages */
 
 
 /**
@@ -1656,7 +1989,7 @@ function __handleTrackChanges(_doc, _wordXMLElement, _setupObj) {
 	}
 
 	if(IS_TRACK_CHANGE_CREATED) {
-		
+		/* ... */
 		return true;
 	} 
 
@@ -1966,6 +2299,26 @@ function __defLocalizeStrings() {
 		de: "%1 %2 erstellt." 
 	};
 
+	_global.insertImageSourcesMessage = { 
+		en: "%1 %2 inserted as plain text.",
+		de: "%1 %2 als Text eingefügt." 
+	};
+
+	_global.imageSourcesLabel = { 
+		en: "images sources",
+		de: "Bildquellen" 
+	};
+
+	_global.placeImageMessage = { 
+		en: "%1 %2 placed.",
+		de: "%1 %2 plaziert." 
+	};
+
+	_global.imageLabel = { 
+		en: "image",
+		de: "Bild" 
+	};
+
 	_global.footnotesLabel = { 
 		en: "footnotes",
 		de: "Fußnoten" 
@@ -2031,6 +2384,11 @@ function __defLocalizeStrings() {
 		de: "Textbox nicht valide." 
 	};
 
+	_global.imagesLabel = { 
+		en: "Images",
+		de: "Bilder" 
+	};
+
 	_global.insertedTextLabel = { 
 		en: "Inserted Text",
 		de: "Eingefügter Text" 
@@ -2049,6 +2407,21 @@ function __defLocalizeStrings() {
 	_global.movedToTextLabel = { 
 		en: "Moved Text",
 		de: "Verschobener Text" 
+	};
+
+	_global.wordFolderValidationMessage = { 
+		en: "Folder with unzipped Word files could not be found.",
+		de: "Folder mit entpackten Word-Dateien konnte nicht gefunden werden." 
+	};
+
+	_global.imageFileValidationMessage = { 
+		en: "Media file could not be found: [%1]",
+		de: "Medien-Datei konnte nicht gefunden werden: [%1]" 
+	};
+
+	_global.missingImageSourceMessage = { 
+		en: "Media element without source. Attribute: [%1]",
+		de: "Medien-Element ohne Quelle. Attribute: [%1]" 
 	};
 
 } /* END function __defLocalizeStrings */
