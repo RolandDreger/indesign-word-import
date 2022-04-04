@@ -49,6 +49,13 @@
 		Option: Mark Images
 		Image source is inserted as plain text and highlighted with condition.
     
+
+		# Hyperlinks
+
+			Hyperlinks are automatically named by InDesign by default and not renamed by the script. 
+			But the tooltip text from Word is added as a label for later script editing. 
+			Unfortunately alternate text is not accessible via Scripting DOM.
+ 
     # Track Changes
     
     Inserted Text
@@ -76,6 +83,13 @@
         
       mit Querverweise auf Textanker mit Name z.B. Newton, 1743
 			
+
+
+		# Drawbacks of the native docx import
+		
+		- Hyperlinks are not imported (correctly) (see https://indesign.uservoice.com/forums/601021-adobe-indesign-feature-requests/suggestions/32872021-hyperlinks-from-word)
+		- Table header and table styles are not imported
+		- Local style overrides
 */
 
 
@@ -144,19 +158,22 @@ _global["setups"] = {
 		"isMarked":false, 
 		"isCreated":true
 	},
-	"footnote":{ 
-		"tag":"footnote", 
-		"color":[155,255,255], 
-		"isRemoved":false,
-		"isMarked":false, 
-		"isCreated":true 
-	},
-	"endnote":{ 
-		"tag":"endnote", 
-		"color":[255,155,255], 
-		"isRemoved":false,
+	"hyperlinks":{
+		"tag":"hyperlink", 
+		"attributes":{
+			"uri":"uri",
+			"title":"title"
+		}, 
+		"color":[120,190,255], 
 		"isMarked":false, 
 		"isCreated":true
+	},
+	"bookmarks":{
+		"tag":"bookmark",
+		"attributes":{
+			"id":"id"
+		}
+
 	},
 	"textbox":{ 
 		"tag":"textbox", 
@@ -240,13 +257,16 @@ _global["setups"] = {
 		"isMarked":true, 
 		"isCreated":false
 	},
-	"hyperlinks":{
-		"tag":"hyperlink", 
-		"attributes":{
-			"uri":"uri",
-			"title":"title"
-		}, 
-		"color":[155,55,255], 
+	"footnote":{ 
+		"tag":"footnote", 
+		"color":[155,255,255], 
+		"isRemoved":false,
+		"isMarked":false, 
+		"isCreated":true 
+	},
+	"endnote":{ 
+		"tag":"endnote", 
+		"color":[255,155,255], 
 		"isRemoved":false,
 		"isMarked":false, 
 		"isCreated":true
@@ -801,7 +821,7 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	__handleTrackChanges(_doc, _wordXMLElement, _setupObj);
 
 	/* 
-		Last in chain 
+		Last in chain: Footnotes and Endnotes 
 		After XML manipulations (XML elements must be removed from footnotes and endnotes)
 	*/
 
@@ -942,9 +962,9 @@ function __handleComments(_doc, _wordXMLElement, _setupObj) {
 
 	const COMMENT_TAG_NAME = _setupObj["comment"]["tag"];
 	const COLOR_ARRAY = _setupObj["comment"]["color"];
-	const IS_COMMENT_CREATED = _setupObj["comment"]["isCreated"];
-	const IS_COMMENT_MARKED = _setupObj["comment"]["isMarked"];
 	const IS_COMMENT_REMOVED = _setupObj["comment"]["isRemoved"];
+	const IS_COMMENT_MARKED = _setupObj["comment"]["isMarked"];
+	const IS_COMMENT_CREATED = _setupObj["comment"]["isCreated"];
 
 	var _commentXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + COMMENT_TAG_NAME);
 	if(_commentXMLElementArray.length === 0) {
@@ -1089,6 +1109,158 @@ function __getCommentText(_xmlElement, _setupObj) {
 
 	return _textArray.join("\r");
 } /* END function __getCommentText */
+
+
+/**
+ * Handle Hyperlinks
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns 
+ */
+function __handleHyperlinks(_doc, _wordXMLElement, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const HYPERLINK_TAG_NAME = _setupObj["hyperlinks"]["tag"];
+	const COLOR_ARRAY = _setupObj["hyperlinks"]["color"];
+	const IS_HYPERLINK_MARKED = _setupObj["hyperlinks"]["isMarked"];
+	const IS_HYPERLINK_CREATED = _setupObj["hyperlinks"]["isCreated"];
+
+	var _hyperlinkXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + HYPERLINK_TAG_NAME);
+	if(_hyperlinkXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if(IS_HYPERLINK_MARKED) {
+		__markXMLElements(_doc, _hyperlinkXMLElementArray, localize(_global.hyperlinksLabel), COLOR_ARRAY);
+		return true;
+	}
+
+	if(IS_HYPERLINK_CREATED) {
+		__createHyperlinks(_doc, _wordXMLElement, _hyperlinkXMLElementArray, _setupObj);
+		return true;
+	}
+	
+	return true;
+} /* END function __handleHyperlinks */
+
+
+/**
+ * Create Hyperlinks
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {XMLElement} _hyperlinkXMLElementArray 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __createHyperlinks(_doc, _wordXMLElement, _hyperlinkXMLElementArray, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_hyperlinkXMLElementArray || !(_hyperlinkXMLElementArray instanceof Array)) { 
+		throw new Error("Array as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const URI_ATTRIBUTE_NAME = _setupObj["hyperlinks"]["attributes"]["uri"];
+	const TITLE_ATTRIBUTE_NAME = _setupObj["hyperlinks"]["attributes"]["title"];
+	const BOOKMARK_TAG_NAME = _setupObj["bookmarks"]["tag"];
+	const ID_ATTRIBUTE_NAME = _setupObj["bookmarks"]["attributes"]["id"];
+
+	const _anchorOnlyRegExp = new RegExp("^#","");
+	const _urlRegExp = new RegExp("(https?|ftp|mailto):","i");
+	const _clearFilePathRegExp = new RegExp("^(../)+","");
+
+	var _counter = 0;
+	
+	for(var i=_hyperlinkXMLElementArray.length-1; i>=0; i-=1) {
+
+		var _hyperlinkXMLElement = _hyperlinkXMLElementArray[i];
+		if(!_hyperlinkXMLElement || !_hyperlinkXMLElement.isValid) {
+			continue;
+		}
+
+		/* URI */
+		var _uriAttribute = _hyperlinkXMLElement.xmlAttributes.itemByName(URI_ATTRIBUTE_NAME);
+		if(!_uriAttribute.isValid) {
+			_global["log"].push(localize(_global.missingHyperlinkURIMessage, URI_ATTRIBUTE_NAME));
+			continue;
+		}
+		var _uri = decodeURI(_uriAttribute.value);
+		if(!_uri) {
+			_global["log"].push(localize(_global.missingHyperlinkURIMessage, URI_ATTRIBUTE_NAME));
+			continue;
+		}
+
+		/* Title */
+		var _title = "";
+		var _titleAttribute = _hyperlinkXMLElement.xmlAttributes.itemByName(TITLE_ATTRIBUTE_NAME);
+		if(_titleAttribute.isValid) {
+			_title = _titleAttribute.value;
+		}
+
+		try {
+
+			/* Add hyperlink */
+			var _hyperlinkSource = _doc.hyperlinkTextSources.add(_hyperlinkXMLElement.texts[0]);
+			
+			/* Check: Anchor as destination? */
+			var _hyperlinkDestination = null;
+			if(_anchorOnlyRegExp.test(_uri)) {
+				var _bookmarkID = _uri.replace(_anchorOnlyRegExp,'');
+				var _bookmarkXMLElement = _wordXMLElement.evaluateXPathExpression("//" + BOOKMARK_TAG_NAME + "[@" + ID_ATTRIBUTE_NAME + " = '" + _bookmarkID + "']")[0];
+				if(_bookmarkXMLElement && _bookmarkXMLElement.isValid) {
+					_hyperlinkDestination = _doc.hyperlinkTextDestinations.add(_bookmarkXMLElement.texts[0], { hidden: true });
+				}
+			}
+			/* Check: URI/file as destination? */
+			if(!_hyperlinkDestination) {
+				if(!_urlRegExp.test(_uri)) {
+					_uri = "file:" + _uri.replace(_clearFilePathRegExp,"/");
+				}
+				_hyperlinkDestination = _doc.hyperlinkURLDestinations.add(_uri, { hidden: true });
+			}
+			
+			var _hyperlink = _doc.hyperlinks.add(_hyperlinkSource, _hyperlinkDestination);
+			_hyperlink.visible = false;
+
+			/* Add label to hyperlink */
+			if(!!_title) {
+				_hyperlink.label = _title;
+			}
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.hyperlinksLabel)));
+	}
+
+	return true;
+} /* END function __createHyperlinks */
+
+
+
+
 
 
 
@@ -2433,4 +2605,13 @@ function __defLocalizeStrings() {
 		de: "Medien-Element ohne Quelle. Attribute: [%1]" 
 	};
 
+	_global.hyperlinksLabel = { 
+		en: "hyperlinks",
+		de: "Hyperlinks" 
+	};
+
+	_global.missingHyperlinkURIMessage = { 
+		en: "Hyperlink element without URI. Attribute: [%1]",
+		de: "Hyperlink ohne URI. Attribute: [%1]" 
+	};
 } /* END function __defLocalizeStrings */

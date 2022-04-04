@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: February 8, 2022
+    Modified: April 4, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -265,12 +265,12 @@
     <xsl:variable name="embedded-object-style-attribute-value" select="'Eingebettetes_Objekt'"/>
     <xsl:variable name="embedded-object-target-attribute-name" select="'Ziel'"/>
     <xsl:variable name="embedded-object-program-attribute-name" select="'Programm'"/>
-    <xsl:variable name="bookmark-tag-name" select="'Lesezeichen'"/>
-    <xsl:variable name="bookmark-index-attribute-name" select="'Index'"/>
+    <xsl:variable name="bookmark-tag-name" select="'bookmark'"/>
+    <xsl:variable name="bookmark-index-attribute-name" select="'index'"/>
     <xsl:variable name="bookmark-style-attribute-name" select="'cstyle'"/>
-    <xsl:variable name="bookmark-style-attribute-value" select="'Lesezeichen'"/>
-    <xsl:variable name="bookmark-id-attribute-name" select="'ID'"/>
-    <xsl:variable name="bookmark-content-attribute-name" select="'Inhalt'"/>
+    <xsl:variable name="bookmark-style-attribute-value" select="'Bookmark'"/>
+    <xsl:variable name="bookmark-id-attribute-name" select="'id'"/>
+    <xsl:variable name="bookmark-content-attribute-name" select="'content'"/>
     <xsl:variable name="indexmark-tag-name" select="'Indexmarke'"/>
     <xsl:variable name="indexmark-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="indexmark-style-attribute-value" select="'Indexmarke'"/>
@@ -283,9 +283,9 @@
     <xsl:variable name="complex-field-style-attribute-value" select="'Komplexes_Feld'"/>
     <xsl:variable name="complex-field-content-attribute-name" select="'Inhalt'"/>
     <xsl:variable name="complex-field-data-attribute-name" select="'Daten'"/>
-    <xsl:variable name="hyperlink-tag-name" select="'Hyperlink'"/>
-    <xsl:variable name="hyperlink-uri-attribute-name" select="'URI'"/>
-    <xsl:variable name="hyperlink-title-attribute-name" select="'Titel'"/>
+    <xsl:variable name="hyperlink-tag-name" select="'hyperlink'"/>
+    <xsl:variable name="hyperlink-uri-attribute-name" select="'uri'"/>
+    <xsl:variable name="hyperlink-title-attribute-name" select="'title'"/>
     <xsl:variable name="cross-reference-tag-name" select="'Querverweis'"/>
     <xsl:variable name="cross-reference-uri-attribute-name" select="'URI'"/>
     <xsl:variable name="cross-reference-type-attribute-name" select="'Typ'"/>

@@ -5,7 +5,7 @@
     Microsoft Word Document -> HTML
     
     Created: September 30, 2021
-    Modified: February 5, 2022
+    Modified: April 4, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -1593,12 +1593,34 @@
                 <xsl:with-param name="complex-field-content" select="$complex-field-content"/>
             </xsl:call-template>
         </xsl:attribute>
+        <!-- Title -->
+        <xsl:variable name="title">     
+            <xsl:value-of select="substring-before(substring-after($complex-field-content,'\o &quot;'), '&quot;')"/>      
+        </xsl:variable>
+        <xsl:if test="not($title = '')">
+            <xsl:attribute name="{$hyperlink-title-attribute-name}">
+                <xsl:value-of select="$title"/>
+            </xsl:attribute>
+        </xsl:if>
     </xsl:template>
     
     <!-- Value of hyperlink href attribute of complex field -->
     <xsl:template name="get-complex-field-hyperlink-uri">
         <xsl:param name="complex-field-content" select="''"/>
-        <xsl:value-of select="substring-before(substring-after($complex-field-content,'&quot;'), '&quot;')"/>
+        <xsl:variable name="uri">
+            <xsl:value-of select="substring-before(substring-after($complex-field-content,'&quot;'), '&quot;')"/>
+        </xsl:variable>
+        <xsl:variable name="anchor">
+            <xsl:value-of select="substring-before(substring-after($complex-field-content,'\l &quot;'), '&quot;')"/>
+        </xsl:variable>
+        <xsl:choose>
+            <xsl:when test="not($anchor = '')">
+                <xsl:value-of select="concat($uri, '#', $anchor)"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$uri"/>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
     
     <!-- Attributes for cross referenc element -->
@@ -2023,27 +2045,38 @@
     
     <!-- Attributes for hyperlink -->
     <xsl:template name="insert-hyperlink-attribute">
-        <xsl:choose>
-            <!-- href Value from ID Attribute-->
-            <xsl:when test="@r:id">
-                <xsl:attribute name="{$hyperlink-uri-attribute-name}">
+        <!-- URI Attribute -->
+        <xsl:variable name="uri">
+            <xsl:choose>
+                <xsl:when test="@r:id">
                     <xsl:call-template name="get-hyperlink-uri"/>
-                </xsl:attribute>
-            </xsl:when>
-            <!-- href Value anchor Attribute -->
-            <xsl:when test="@w:anchor">
-                <xsl:attribute name="{$hyperlink-uri-attribute-name}">
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text></xsl:text>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <xsl:variable name="anchor">
+            <xsl:choose>
+                <xsl:when test="@w:anchor">
                     <xsl:text>#</xsl:text>
                     <xsl:value-of select="@w:anchor"/>
-                </xsl:attribute>
-            </xsl:when>
-            <!-- href Value from Text Content -->
-            <xsl:otherwise>
-                <xsl:attribute name="{$hyperlink-uri-attribute-name}">
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text></xsl:text>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <xsl:attribute name="{$hyperlink-uri-attribute-name}">
+            <xsl:choose>
+                <xsl:when test="$uri = '' and $anchor = ''">
                     <xsl:value-of select="w:r/w:t"/>
-                </xsl:attribute>
-            </xsl:otherwise>
-        </xsl:choose>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="concat($uri, $anchor)"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:attribute>
         <!-- Title Attribute -->
         <xsl:if test="boolean(@w:tooltip)">
             <xsl:attribute name="{$hyperlink-title-attribute-name}">
