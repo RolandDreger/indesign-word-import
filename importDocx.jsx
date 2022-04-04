@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: April 3, 2022
+		+ Last modified: April 4, 2022
 		
 		
 		+ Descriptions
@@ -239,6 +239,17 @@ _global["setups"] = {
 		"isRemoved":false,
 		"isMarked":true, 
 		"isCreated":false
+	},
+	"hyperlinks":{
+		"tag":"hyperlink", 
+		"attributes":{
+			"uri":"uri",
+			"title":"title"
+		}, 
+		"color":[155,55,255], 
+		"isRemoved":false,
+		"isMarked":false, 
+		"isCreated":true
 	}
 	
 };
@@ -767,44 +778,40 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	/* Breaks */
+	/* 01 Breaks */
 	__insertBreaks(_doc, _wordXMLElement, _setupObj);
 
-	/* Comments */
+	/* 02 Comments */
 	__handleComments(_doc, _wordXMLElement, _setupObj);
 
-	/* Index */
+	/* 03 Index */
 	// _doc.indexes[0].topics[0].pageReferences.add(_xmlElement.texts[0], PageReferenceType.CURRENT_PAGE)
 
 
-	/* Hyperlinks */
+	/* 04 Hyperlinks */
+	__handleHyperlinks(_doc, _wordXMLElement, _setupObj);
 
-
-	/* Textboxes */
+	/* 05 Textboxes */
 	__handleTextboxes(_doc, _wordXMLElement, _setupObj);
 
-	/* Images */
+	/* 06 Images */
 	__handleImages(_doc, _wordXMLElement, _unpackObj, _setupObj);
 
-	/* 
-		Last in chain. 
-		XML elements must be removed from footnotes and endnotes
-	*/
-
-	/* Footnotes */ 
-	__handleFootnotes(_doc, _wordXMLElement, _setupObj);
-	
-	/* Endnotes */
-	__handleEndnotes(_doc, _wordXMLElement, _setupObj);
-	
-	/* Track Changes */
+	/* 07 Track Changes */
 	__handleTrackChanges(_doc, _wordXMLElement, _setupObj);
 
+	/* 
+		Last in chain 
+		After XML manipulations (XML elements must be removed from footnotes and endnotes)
+	*/
 
+	/* 08 Footnotes */ 
+	__handleFootnotes(_doc, _wordXMLElement, _setupObj);
+	
+	/* 09 Endnotes */
+	__handleEndnotes(_doc, _wordXMLElement, _setupObj);	
 
-
-
-
+	
 	return {};
 } /* END function __mountBeforePlaced */
 
@@ -1084,374 +1091,8 @@ function __getCommentText(_xmlElement, _setupObj) {
 } /* END function __getCommentText */
 
 
-/**
- * Handle Footnotes
- * @param {Document} _doc  
- * @param {XMLElement} _wordXMLElement 
- * @param {Object} _setupObj 
- * @returns Boolean
- */
-function __handleFootnotes(_doc, _wordXMLElement, _setupObj) {
-	
-	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
-		throw new Error("Document as parameter required.");
-	}
-	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
-		throw new Error("XMLElement as parameter required."); 
-	}
-	if(!_setupObj || !(_setupObj instanceof Object)) { 
-		throw new Error("Object as parameter required.");
-	}
 
-	const FOOTNOTE_TAG_NAME = _setupObj["footnote"]["tag"];
-	const COLOR_ARRAY = _setupObj["footnote"]["color"];
-	const IS_FOOTNOTE_CREATED = _setupObj["footnote"]["isCreated"];
-	const IS_FOOTNOTE_MARKED = _setupObj["footnote"]["isMarked"];
-	const IS_FOOTNOTE_REMOVED = _setupObj["footnote"]["isRemoved"];
 
-	var _footnoteXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + FOOTNOTE_TAG_NAME);
-	if(_footnoteXMLElementArray.length === 0) {
-		return true;
-	}
-
-	if(IS_FOOTNOTE_REMOVED) {
-		__removeXMLElements(_footnoteXMLElementArray, localize(_global.footnotesLabel));
-		return true;
-	}
-
-	if(IS_FOOTNOTE_MARKED) {
-		__markXMLElements(_doc, _footnoteXMLElementArray, localize(_global.footnotesLabel), COLOR_ARRAY);
-		return true;
-	}
-
-	if(IS_FOOTNOTE_CREATED) {
-		__createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _setupObj);
-		return true;
-	} 
-
-	return true;
-} /* END function __handleFootnotes */
-
-
-/**
- * Create Footnotes
- * @param {Document} _doc 
- * @param {XMLElement} _wordXMLElement 
- * @param {Array} _footnoteXMLElementArray 
- * @param {Object} _setupObj 
- * @returns Boolean
- */
-function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _setupObj) {
-
-	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
-		throw new Error("Document as parameter required.");
-	}
-	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
-		throw new Error("XMLElement as parameter required."); 
-	}
-	if(!_footnoteXMLElementArray || !(_footnoteXMLElementArray instanceof Array)) { 
-		throw new Error("Array as parameter required.");
-	}
-	if(!_setupObj || !(_setupObj instanceof Object)) { 
-		throw new Error("Object as parameter required.");
-	}
-
-	var _wordXMLStory = _wordXMLElement.parentStory;
-	if(!_wordXMLStory || !_wordXMLStory.isValid) {
-		_global["log"].push(localize(_global.xmlStoryValidationError));
-		return false;
-	}
-
-	var _counter = 0;
-
-	for(var i=_footnoteXMLElementArray.length-1; i>=0; i-=1) {
-
-		var _footnoteXMLElement = _footnoteXMLElementArray[i];
-		if(!_footnoteXMLElement || !_footnoteXMLElement.isValid) {
-			continue;
-		}
-
-		/* Get style names of footnote paragraphs */
-		var _pStyleNameArray = __getStylesOfNoteParagraphs(_footnoteXMLElement, _setupObj);
-		if(!_pStyleNameArray) {
-			_pStyleNameArray = [];
-		}
-
-		var _targetIP = _footnoteXMLElement.storyOffset;
-		var _footnote;
-
-		try {
-
-			/* Add footnote */
-			_footnote = _wordXMLStory.footnotes.add(LocationOptions.BEFORE, _targetIP);
-			if(!_footnote || !_footnote.isValid) {
-				_global["log"].push(localize(_global.footnoteValidationErrorMessage));
-				continue;
-			}
-
-			/* Untag foonote XML elemente (InDesign does not allow XML elements in footnotes) */
-			_footnoteXMLElement.xmlElements.everyItem().untag();
-
-			/* Add text to footnote */
-			var _footnoteText = _footnoteXMLElement.texts[0];
-			if(!_footnoteText || !_footnoteText.isValid) {
-				continue;
-			}
-			_footnoteText.move(LocationOptions.AT_END, _footnote.texts[0]);
-
-			/* Remove XML container element */
-			_footnoteXMLElement.remove();
-
-		} catch(_error) {
-			_global["log"].push(_error.message);
-			continue;
-		}
-
-		_counter += 1;
-
-		/* Apply styles to footnote paragraphs */
-		var _isAssignmentCorrect = __applyStylesToNoteParagraphs(_doc, _footnote, _pStyleNameArray);
-		if(!_isAssignmentCorrect) {
-			_global["log"].push(localize(_global.footnoteParagraphStyleErrorMessage, _counter));
-		}
-	}
-
-	if(_global["isLogged"]) {
-		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.footnotesLabel)));
-	}
-
-	return true;
-} /* END function __createFootnotes */
-
-
-/**
- * Handle Endnotes
- * @param {Document} _doc  
- * @param {XMLElement} _wordXMLElement 
- * @param {Object} _setupObj 
- * @returns Boolean
- */
-function __handleEndnotes(_doc, _wordXMLElement, _setupObj) {
-	
-	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
-		throw new Error("Document as parameter required.");
-	}
-	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
-		throw new Error("XMLElement as parameter required."); 
-	}
-	if(!_setupObj || !(_setupObj instanceof Object)) { 
-		throw new Error("Object as parameter required.");
-	}
-
-	const ENDNOTE_TAG_NAME = _setupObj["endnote"]["tag"];
-	const COLOR_ARRAY = _setupObj["endnote"]["color"];
-	const IS_ENDNOTE_CREATED = _setupObj["endnote"]["isCreated"];
-	const IS_ENDNOTE_MARKED = _setupObj["endnote"]["isMarked"];
-	const IS_ENDNOTE_REMOVED = _setupObj["endnote"]["isRemoved"];
-
-	var _endnoteXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + ENDNOTE_TAG_NAME);
-	if(_endnoteXMLElementArray.length === 0) {
-		return true;
-	}
-
-	if(IS_ENDNOTE_REMOVED) {
-		__removeXMLElements(_endnoteXMLElementArray, localize(_global.endnotesLabel));
-		return true;
-	}
-
-	if(IS_ENDNOTE_MARKED || !_doc.hasOwnProperty("endnoteOptions")) {
-		__markXMLElements(_doc, _endnoteXMLElementArray, localize(_global.endnotesLabel), COLOR_ARRAY);
-		return true;
-	}
-
-	if(IS_ENDNOTE_CREATED) {
-		__createEndnotes(_doc, _endnoteXMLElementArray, _setupObj);
-		return true;
-	} 
-
-	return true;
-} /* END function __handleEndnotes */
-
-
-/**
- * Create Endnotes
- * @param {Document} _doc  
- * @param {Array} _endnoteXMLElementArray 
- * @param {Object} _setupObj 
- * @returns Boolean
- */
-function __createEndnotes(_doc, _endnoteXMLElementArray, _setupObj) {
-
-	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
-		throw new Error("Document as parameter required.");
-	}
-	if(!_endnoteXMLElementArray || !(_endnoteXMLElementArray instanceof Array)) { 
-		throw new Error("Array as parameter required.");
-	}
-	if(!_setupObj || !(_setupObj instanceof Object)) { 
-		throw new Error("Object as parameter required.");
-	}
-
-	var _counter = 0;
-
-	for(var i=_endnoteXMLElementArray.length-1; i>=0; i-=1) {
-
-		var _endnoteXMLElement = _endnoteXMLElementArray[i];
-		if(!_endnoteXMLElement || !_endnoteXMLElement.isValid) {
-			continue;
-		}
-
-		/* Get style names of endnote paragraphs */
-		var _pStyleNameArray = __getStylesOfNoteParagraphs(_endnoteXMLElement, _setupObj);
-		if(!_pStyleNameArray) {
-			_pStyleNameArray = [];
-		}
-
-		var _targetIP = _endnoteXMLElement.storyOffset;
-		var _endnote;
-
-		try {
-
-			/* Add endtnote */
-			_endnote = _targetIP.createEndnote();
-			if(!_endnote || !_endnote.isValid) {
-				_global["log"].push(localize(_global.endnoteValidationErrorMessage));
-				continue;
-			}
-			
-			/* Untag foonote XML elemente (InDesign does not allow XML elements in endnotes) */
-			_endnoteXMLElement.xmlElements.everyItem().untag();
-
-			/* Add text to endnote */
-			var _endnoteText = _endnoteXMLElement.texts[0];
-			if(!_endnoteText || !_endnoteText.isValid) {
-				continue;
-			}
-			_endnoteText.move(LocationOptions.AT_END, _endnote.texts[0]);
-
-			/* Remove XML container element */
-			_endnoteXMLElement.remove();
-
-		} catch(_error) {
-			_global["log"].push(_error.message);
-			continue;
-		}
-
-		_counter += 1;
-
-		/* Apply styles to endnote paragraphs */
-		var _isAssignmentCorrect = __applyStylesToNoteParagraphs(_doc, _endnote, _pStyleNameArray);
-		if(!_isAssignmentCorrect) {
-			_global["log"].push(localize(_global.endnoteParagraphStyleErrorMessage, _counter));
-		}
-	}
-
-	if(_global["isLogged"]) {
-		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.endnotesLabel)));
-	}
-
-	return true;
-} /* END function __createEndnotes */
-
-
-/**
- * Get style names of footnote or endnote paragraphs 
- * (defined in attribute »pstyle«)
- * @param {XMLElement} _containerXMLElement 
- * @param {Object} _setupObj
- * @returns Array
- */
-function __getStylesOfNoteParagraphs(_containerXMLElement, _setupObj) {
-
-	if(!_containerXMLElement || !(_containerXMLElement instanceof XMLElement) || !_containerXMLElement.isValid) { return false; }
-	if(!_setupObj || !(_setupObj instanceof Object)) { return false; }
-
-	const PARAGRAPH_TAG_NAME = _setupObj["paragraph"]["tag"];
-	const STYLE_ATTRIBUTE_NAME = "pstyle";
-
-	var _pStyleNameArray = [];
-
-	var _paragraphXMLElementArray = _containerXMLElement.evaluateXPathExpression(PARAGRAPH_TAG_NAME);
-	
-	for(var i=0; i<_paragraphXMLElementArray.length; i+=1) {
-
-		var _paragraphXMLElement = _paragraphXMLElementArray[i];
-		if(!_paragraphXMLElement || !_paragraphXMLElement.isValid) {
-			_pStyleNameArray.push("");
-			continue;
-		}
-
-		var _pStyleAttribute = _paragraphXMLElement.xmlAttributes.itemByName(STYLE_ATTRIBUTE_NAME);
-		if(!_pStyleAttribute.isValid) {
-			_pStyleNameArray.push("");
-			continue;
-		}
-
-		_pStyleNameArray.push(_pStyleAttribute.value);
-	}
-
-	return _pStyleNameArray;
-} /* END function __getStylesOfNoteParagraphs */
-
-
-/**
- * Apply styles to footnote or endnote paragraphps
- * @param {Document} _doc 
- * @param {Footnote|Endnote} _note 
- * @param {Array} _pStyleNameArray 
- * @returns Boolean
- */
-function __applyStylesToNoteParagraphs(_doc, _note, _pStyleNameArray) {
-
-	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return false; }
-	if(!_note || !_note.hasOwnProperty("texts") || !_note.isValid) { return false; }
-	if(!_pStyleNameArray || !(_pStyleNameArray instanceof Array)) { return false; }
-
-	var _isAssignmentCorrect = true;
-
-	var _noteTexts = _note.texts.everyItem().getElements();
-	if(!_noteTexts || _noteTexts.length === 0) {
-		return false;
-	}
-
-	var _noteParagraphArray = _note.texts[0].paragraphs.everyItem().getElements();
-
-	for(var i=0; i<_noteParagraphArray.length; i+=1) {
-
-		var _noteParagraph = _noteParagraphArray[i];
-		if(!_noteParagraph || !_noteParagraph.isValid) {
-			_isAssignmentCorrect = false;
-			continue;
-		}
-
-		var _pStyleName = _pStyleNameArray[i];
-		if(!_pStyleName) {
-			_isAssignmentCorrect = false;
-			continue;
-		}
-
-		var _pStyle = _doc.paragraphStyles.itemByName(_pStyleName);
-		if(!_pStyle.isValid) {
-			_pStyle = _doc.paragraphStyles.add({ 
-				name:_pStyleName 
-			});
-		}
-
-		try {
-			_noteParagraph.applyParagraphStyle(_pStyle, true);
-		} catch(_error) {
-			_global["log"].push(_error.message);
-			_isAssignmentCorrect = false;
-			continue;
-		}
-	}
-	
-	if(!_isAssignmentCorrect || _pStyleNameArray.length !== _noteParagraphArray.length) {
-		return false;
-	}
-
-	return true;
-} /* END function __applyStylesToNoteParagraphs */
 
 
 /**
@@ -1997,7 +1638,374 @@ function __handleTrackChanges(_doc, _wordXMLElement, _setupObj) {
 } /* END function __handleEndnotes */
 
 
+/**
+ * Handle Footnotes
+ * @param {Document} _doc  
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __handleFootnotes(_doc, _wordXMLElement, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
 
+	const FOOTNOTE_TAG_NAME = _setupObj["footnote"]["tag"];
+	const COLOR_ARRAY = _setupObj["footnote"]["color"];
+	const IS_FOOTNOTE_CREATED = _setupObj["footnote"]["isCreated"];
+	const IS_FOOTNOTE_MARKED = _setupObj["footnote"]["isMarked"];
+	const IS_FOOTNOTE_REMOVED = _setupObj["footnote"]["isRemoved"];
+
+	var _footnoteXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + FOOTNOTE_TAG_NAME);
+	if(_footnoteXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if(IS_FOOTNOTE_REMOVED) {
+		__removeXMLElements(_footnoteXMLElementArray, localize(_global.footnotesLabel));
+		return true;
+	}
+
+	if(IS_FOOTNOTE_MARKED) {
+		__markXMLElements(_doc, _footnoteXMLElementArray, localize(_global.footnotesLabel), COLOR_ARRAY);
+		return true;
+	}
+
+	if(IS_FOOTNOTE_CREATED) {
+		__createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _setupObj);
+		return true;
+	} 
+
+	return true;
+} /* END function __handleFootnotes */
+
+
+/**
+ * Create Footnotes
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Array} _footnoteXMLElementArray 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_footnoteXMLElementArray || !(_footnoteXMLElementArray instanceof Array)) { 
+		throw new Error("Array as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	var _wordXMLStory = _wordXMLElement.parentStory;
+	if(!_wordXMLStory || !_wordXMLStory.isValid) {
+		_global["log"].push(localize(_global.xmlStoryValidationError));
+		return false;
+	}
+
+	var _counter = 0;
+
+	for(var i=_footnoteXMLElementArray.length-1; i>=0; i-=1) {
+
+		var _footnoteXMLElement = _footnoteXMLElementArray[i];
+		if(!_footnoteXMLElement || !_footnoteXMLElement.isValid) {
+			continue;
+		}
+
+		/* Get style names of footnote paragraphs */
+		var _pStyleNameArray = __getStylesOfNoteParagraphs(_footnoteXMLElement, _setupObj);
+		if(!_pStyleNameArray) {
+			_pStyleNameArray = [];
+		}
+
+		var _targetIP = _footnoteXMLElement.storyOffset;
+		var _footnote;
+
+		try {
+
+			/* Add footnote */
+			_footnote = _wordXMLStory.footnotes.add(LocationOptions.BEFORE, _targetIP);
+			if(!_footnote || !_footnote.isValid) {
+				_global["log"].push(localize(_global.footnoteValidationErrorMessage));
+				continue;
+			}
+
+			/* Untag foonote XML elemente (InDesign does not allow XML elements in footnotes) */
+			_footnoteXMLElement.xmlElements.everyItem().untag();
+
+			/* Add text to footnote */
+			var _footnoteText = _footnoteXMLElement.texts[0];
+			if(!_footnoteText || !_footnoteText.isValid) {
+				continue;
+			}
+			_footnoteText.move(LocationOptions.AT_END, _footnote.texts[0]);
+
+			/* Remove XML container element */
+			_footnoteXMLElement.remove();
+
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+
+		_counter += 1;
+
+		/* Apply styles to footnote paragraphs */
+		var _isAssignmentCorrect = __applyStylesToNoteParagraphs(_doc, _footnote, _pStyleNameArray);
+		if(!_isAssignmentCorrect) {
+			_global["log"].push(localize(_global.footnoteParagraphStyleErrorMessage, _counter));
+		}
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.footnotesLabel)));
+	}
+
+	return true;
+} /* END function __createFootnotes */
+
+
+/**
+ * Handle Endnotes
+ * @param {Document} _doc  
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __handleEndnotes(_doc, _wordXMLElement, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const ENDNOTE_TAG_NAME = _setupObj["endnote"]["tag"];
+	const COLOR_ARRAY = _setupObj["endnote"]["color"];
+	const IS_ENDNOTE_CREATED = _setupObj["endnote"]["isCreated"];
+	const IS_ENDNOTE_MARKED = _setupObj["endnote"]["isMarked"];
+	const IS_ENDNOTE_REMOVED = _setupObj["endnote"]["isRemoved"];
+
+	var _endnoteXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + ENDNOTE_TAG_NAME);
+	if(_endnoteXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if(IS_ENDNOTE_REMOVED) {
+		__removeXMLElements(_endnoteXMLElementArray, localize(_global.endnotesLabel));
+		return true;
+	}
+
+	if(IS_ENDNOTE_MARKED || !_doc.hasOwnProperty("endnoteOptions")) {
+		__markXMLElements(_doc, _endnoteXMLElementArray, localize(_global.endnotesLabel), COLOR_ARRAY);
+		return true;
+	}
+
+	if(IS_ENDNOTE_CREATED) {
+		__createEndnotes(_doc, _endnoteXMLElementArray, _setupObj);
+		return true;
+	} 
+
+	return true;
+} /* END function __handleEndnotes */
+
+
+/**
+ * Create Endnotes
+ * @param {Document} _doc  
+ * @param {Array} _endnoteXMLElementArray 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __createEndnotes(_doc, _endnoteXMLElementArray, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_endnoteXMLElementArray || !(_endnoteXMLElementArray instanceof Array)) { 
+		throw new Error("Array as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	var _counter = 0;
+
+	for(var i=_endnoteXMLElementArray.length-1; i>=0; i-=1) {
+
+		var _endnoteXMLElement = _endnoteXMLElementArray[i];
+		if(!_endnoteXMLElement || !_endnoteXMLElement.isValid) {
+			continue;
+		}
+
+		/* Get style names of endnote paragraphs */
+		var _pStyleNameArray = __getStylesOfNoteParagraphs(_endnoteXMLElement, _setupObj);
+		if(!_pStyleNameArray) {
+			_pStyleNameArray = [];
+		}
+
+		var _targetIP = _endnoteXMLElement.storyOffset;
+		var _endnote;
+
+		try {
+
+			/* Add endtnote */
+			_endnote = _targetIP.createEndnote();
+			if(!_endnote || !_endnote.isValid) {
+				_global["log"].push(localize(_global.endnoteValidationErrorMessage));
+				continue;
+			}
+			
+			/* Untag foonote XML elemente (InDesign does not allow XML elements in endnotes) */
+			_endnoteXMLElement.xmlElements.everyItem().untag();
+
+			/* Add text to endnote */
+			var _endnoteText = _endnoteXMLElement.texts[0];
+			if(!_endnoteText || !_endnoteText.isValid) {
+				continue;
+			}
+			_endnoteText.move(LocationOptions.AT_END, _endnote.texts[0]);
+
+			/* Remove XML container element */
+			_endnoteXMLElement.remove();
+
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+
+		_counter += 1;
+
+		/* Apply styles to endnote paragraphs */
+		var _isAssignmentCorrect = __applyStylesToNoteParagraphs(_doc, _endnote, _pStyleNameArray);
+		if(!_isAssignmentCorrect) {
+			_global["log"].push(localize(_global.endnoteParagraphStyleErrorMessage, _counter));
+		}
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.endnotesLabel)));
+	}
+
+	return true;
+} /* END function __createEndnotes */
+
+
+/**
+ * Get style names of footnote or endnote paragraphs 
+ * (defined in attribute »pstyle«)
+ * @param {XMLElement} _containerXMLElement 
+ * @param {Object} _setupObj
+ * @returns Array
+ */
+function __getStylesOfNoteParagraphs(_containerXMLElement, _setupObj) {
+
+	if(!_containerXMLElement || !(_containerXMLElement instanceof XMLElement) || !_containerXMLElement.isValid) { return false; }
+	if(!_setupObj || !(_setupObj instanceof Object)) { return false; }
+
+	const PARAGRAPH_TAG_NAME = _setupObj["paragraph"]["tag"];
+	const STYLE_ATTRIBUTE_NAME = "pstyle";
+
+	var _pStyleNameArray = [];
+
+	var _paragraphXMLElementArray = _containerXMLElement.evaluateXPathExpression(PARAGRAPH_TAG_NAME);
+	
+	for(var i=0; i<_paragraphXMLElementArray.length; i+=1) {
+
+		var _paragraphXMLElement = _paragraphXMLElementArray[i];
+		if(!_paragraphXMLElement || !_paragraphXMLElement.isValid) {
+			_pStyleNameArray.push("");
+			continue;
+		}
+
+		var _pStyleAttribute = _paragraphXMLElement.xmlAttributes.itemByName(STYLE_ATTRIBUTE_NAME);
+		if(!_pStyleAttribute.isValid) {
+			_pStyleNameArray.push("");
+			continue;
+		}
+
+		_pStyleNameArray.push(_pStyleAttribute.value);
+	}
+
+	return _pStyleNameArray;
+} /* END function __getStylesOfNoteParagraphs */
+
+
+/**
+ * Apply styles to footnote or endnote paragraphps
+ * @param {Document} _doc 
+ * @param {Footnote|Endnote} _note 
+ * @param {Array} _pStyleNameArray 
+ * @returns Boolean
+ */
+function __applyStylesToNoteParagraphs(_doc, _note, _pStyleNameArray) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return false; }
+	if(!_note || !_note.hasOwnProperty("texts") || !_note.isValid) { return false; }
+	if(!_pStyleNameArray || !(_pStyleNameArray instanceof Array)) { return false; }
+
+	var _isAssignmentCorrect = true;
+
+	var _noteTexts = _note.texts.everyItem().getElements();
+	if(!_noteTexts || _noteTexts.length === 0) {
+		return false;
+	}
+
+	var _noteParagraphArray = _note.texts[0].paragraphs.everyItem().getElements();
+
+	for(var i=0; i<_noteParagraphArray.length; i+=1) {
+
+		var _noteParagraph = _noteParagraphArray[i];
+		if(!_noteParagraph || !_noteParagraph.isValid) {
+			_isAssignmentCorrect = false;
+			continue;
+		}
+
+		var _pStyleName = _pStyleNameArray[i];
+		if(!_pStyleName) {
+			_isAssignmentCorrect = false;
+			continue;
+		}
+
+		var _pStyle = _doc.paragraphStyles.itemByName(_pStyleName);
+		if(!_pStyle.isValid) {
+			_pStyle = _doc.paragraphStyles.add({ 
+				name:_pStyleName 
+			});
+		}
+
+		try {
+			_noteParagraph.applyParagraphStyle(_pStyle, true);
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			_isAssignmentCorrect = false;
+			continue;
+		}
+	}
+	
+	if(!_isAssignmentCorrect || _pStyleNameArray.length !== _noteParagraphArray.length) {
+		return false;
+	}
+
+	return true;
+} /* END function __applyStylesToNoteParagraphs */
 
 
 
@@ -2100,6 +2108,7 @@ function __getTargetPage(_doc, _isAutoflowing) {
 	
 	return _targetPage;
 } /* END function __getTargetPage */
+
 
 
 
