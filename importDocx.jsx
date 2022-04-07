@@ -72,7 +72,7 @@
     app.selection[0].parentStory.trackChanges = false
     
     
-    # Symbol mit Unicode
+    # Symbole mit Unicode
     
     # Listen für Listenabsätze beim Import erstellen
       (Wenn gleiches Absatzformat aber unterschiedliche Liste, 
@@ -90,6 +90,11 @@
 		- Hyperlinks are not imported (correctly) (see https://indesign.uservoice.com/forums/601021-adobe-indesign-feature-requests/suggestions/32872021-hyperlinks-from-word)
 		- Table header and table styles are not imported
 		- Local style overrides
+
+
+		# Known Issues
+
+		Hyperlinks über mehrere Absätze. Nur der Teil im ersten Absatz wird zu einem aktiven Hyperlink.
 */
 
 
@@ -822,7 +827,7 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 
 	/* 
 		Last in chain: Footnotes and Endnotes 
-		After XML manipulations (XML elements must be removed from footnotes and endnotes)
+		(After all XML manipulations, since XML elements must be removed from footnotes and endnotes)
 	*/
 
 	/* 08 Footnotes */ 
