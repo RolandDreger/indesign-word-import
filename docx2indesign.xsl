@@ -4,7 +4,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: April 4, 2022
+    Modified: April 7, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -1931,10 +1931,10 @@
     <xsl:variable name="hyperlink-tag-name" select="'hyperlink'"/>
     <xsl:variable name="hyperlink-uri-attribute-name" select="'uri'"/>
     <xsl:variable name="hyperlink-title-attribute-name" select="'title'"/>
-    <xsl:variable name="cross-reference-tag-name" select="'Querverweis'"/>
-    <xsl:variable name="cross-reference-uri-attribute-name" select="'URI'"/>
-    <xsl:variable name="cross-reference-type-attribute-name" select="'Typ'"/>
-    <xsl:variable name="cross-reference-format-attribute-name" select="'Format'"/>
+    <xsl:variable name="cross-reference-tag-name" select="'cross-reference'"/>
+    <xsl:variable name="cross-reference-uri-attribute-name" select="'uri'"/>
+    <xsl:variable name="cross-reference-type-attribute-name" select="'type'"/>
+    <xsl:variable name="cross-reference-format-attribute-name" select="'format'"/>
     <xsl:variable name="inline-style-tag-name" select="'Zeichenformat'"/>
     <xsl:variable name="inline-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="page-break-tag-name" select="'pagebreak'"/>
