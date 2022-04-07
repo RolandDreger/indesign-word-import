@@ -28,5 +28,10 @@
 
 	// $.writeln("afterPlaced");
 
+	/* Update Cross-reference sources */
+	if(_doc.crossReferenceSources.length > 0) {
+		_doc.crossReferenceSources.everyItem().update();
+	}
+	
 	return {};
 } /* END method afterPlaced */
