@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: April 4, 2022
+		+ Last modified: April 7, 2022
 		
 		
 		+ Descriptions
@@ -163,7 +163,7 @@ _global["setups"] = {
 		"isMarked":false, 
 		"isCreated":true
 	},
-	"hyperlinks":{
+	"hyperlink":{
 		"tag":"hyperlink", 
 		"attributes":{
 			"uri":"uri",
@@ -173,7 +173,18 @@ _global["setups"] = {
 		"isMarked":false, 
 		"isCreated":true
 	},
-	"bookmarks":{
+	"crossReference":{
+		"tag":"cross-reference", 
+		"attributes":{
+			"uri":"uri",
+			"title":"type",
+			"format":"format"
+		}, 
+		"color":[120,190,255], 
+		"isMarked":false, 
+		"isCreated":true
+	},
+	"bookmark":{
 		"tag":"bookmark",
 		"attributes":{
 			"id":"id"
@@ -1135,10 +1146,10 @@ function __handleHyperlinks(_doc, _wordXMLElement, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	const HYPERLINK_TAG_NAME = _setupObj["hyperlinks"]["tag"];
-	const COLOR_ARRAY = _setupObj["hyperlinks"]["color"];
-	const IS_HYPERLINK_MARKED = _setupObj["hyperlinks"]["isMarked"];
-	const IS_HYPERLINK_CREATED = _setupObj["hyperlinks"]["isCreated"];
+	const HYPERLINK_TAG_NAME = _setupObj["hyperlink"]["tag"];
+	const COLOR_ARRAY = _setupObj["hyperlink"]["color"];
+	const IS_HYPERLINK_MARKED = _setupObj["hyperlink"]["isMarked"];
+	const IS_HYPERLINK_CREATED = _setupObj["hyperlink"]["isCreated"];
 
 	var _hyperlinkXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + HYPERLINK_TAG_NAME);
 	if(_hyperlinkXMLElementArray.length === 0) {
@@ -1182,10 +1193,10 @@ function __createHyperlinks(_doc, _wordXMLElement, _hyperlinkXMLElementArray, _s
 		throw new Error("Object as parameter required.");
 	}
 
-	const URI_ATTRIBUTE_NAME = _setupObj["hyperlinks"]["attributes"]["uri"];
-	const TITLE_ATTRIBUTE_NAME = _setupObj["hyperlinks"]["attributes"]["title"];
-	const BOOKMARK_TAG_NAME = _setupObj["bookmarks"]["tag"];
-	const ID_ATTRIBUTE_NAME = _setupObj["bookmarks"]["attributes"]["id"];
+	const URI_ATTRIBUTE_NAME = _setupObj["hyperlink"]["attributes"]["uri"];
+	const TITLE_ATTRIBUTE_NAME = _setupObj["hyperlink"]["attributes"]["title"];
+	const BOOKMARK_TAG_NAME = _setupObj["bookmark"]["tag"];
+	const ID_ATTRIBUTE_NAME = _setupObj["bookmark"]["attributes"]["id"];
 
 	const _anchorOnlyRegExp = new RegExp("^#","");
 	const _urlRegExp = new RegExp("(https?|ftp|mailto):","i");
