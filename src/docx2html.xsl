@@ -5,7 +5,7 @@
     Microsoft Word Document -> HTML
     
     Created: September 30, 2021
-    Modified: April 4, 2022
+    Modified: April 8, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -2779,11 +2779,16 @@
             <xsl:value-of select="@w:name"/>
         </xsl:attribute>
         <!-- Content -->
-        <xsl:attribute name="{$bookmark-content-attribute-name}">
+        <xsl:variable name="content">
             <xsl:call-template name="get-bookmark-content">
                 <xsl:with-param name="following-elements" select="following::w:r|following::w:bookmarkEnd[@w:id = $id]"/>
             </xsl:call-template>
-        </xsl:attribute>
+        </xsl:variable>
+        <xsl:if test="not($content = '')">
+            <xsl:attribute name="{$bookmark-content-attribute-name}">
+                <xsl:value-of select="$content"/>
+            </xsl:attribute>
+        </xsl:if>
     </xsl:template>
     
     <!-- Get content of bookmark -->

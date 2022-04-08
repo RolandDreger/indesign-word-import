@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: April 7, 2022
+		+ Last modified: April 8, 2022
 		
 		
 		+ Descriptions
@@ -1280,11 +1280,13 @@ function __createHyperlinks(_doc, _wordXMLElement, _hyperlinkXMLElementArray, _s
 			_hyperlink.visible = false;
 
 			/* Add label to hyperlink */
-			if(!!_title) {
+			if(_title && _title !== "") {
 				_hyperlink.label = _title;
 			}
 		} catch(_error) {
+
 			_global["log"].push(_error.message);
+
 			/* Clean up */
 			if(_hyperlinkSource && _hyperlinkSource.isValid) {
 				_hyperlinkSource.remove(); /* This also automatically removes hyperlink and hyperlink destination */
@@ -1450,43 +1452,52 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 		}
 
 		var _formatID;
-		var _customText;
 		var _destName;
 		var _blockTypeArray = [];
+
 		switch (_type) {
 			/* Page */
 			case "PAGEREF" :
+				/* Page label + Page number */
+				if(/\bp\b/i.test(_format)) {
+					_formatID = localize(_global.pageLabel) + " " + localize(_global.pageNumberCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
+					_blockTypeArray.push({"type":BuildingBlockTypes.CUSTOM_STRING_BUILDING_BLOCK, "text":(localize(_global.pageLabel) + " ")});
+					_blockTypeArray.push({"type":BuildingBlockTypes.PAGE_NUMBER_BUILDING_BLOCK});
+				} 
 				/* Page number */
-				_formatID = localize(_global.pageNumberCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
-				_blockTypeArray.push(BuildingBlockTypes.PAGE_NUMBER_BUILDING_BLOCK);
+				else {
+					_formatID = localize(_global.pageNumberCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
+					_blockTypeArray.push({"type":BuildingBlockTypes.PAGE_NUMBER_BUILDING_BLOCK});
+				}
 				break;
+			/* Footnote/Endnote */
 			case "NOTEREF" :
-				
-
+				/* Footnote/Endnote number */
+				/* (Unfortunately, InDesign does not support this type of cross-references to footnotes or endnotes.) */
+				continue xmlElementLoop;
 				break;
 			/* Paragraph */
 			case "REF":
 				/* r: Paragraph number, n: Paragraph number without context, w: Paragraph number with full context */
 				if(/\b(r|n|w)\b/i.test(_format)) {
 					_formatID = localize(_global.paragraphNumberCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
-					_blockTypeArray.push(BuildingBlockTypes.PARAGRAPH_NUMBER_BUILDING_BLOCK);
+					_blockTypeArray.push({"type":BuildingBlockTypes.PARAGRAPH_NUMBER_BUILDING_BLOCK});
 				}
 				/* Custom text (above/below) */
 				else if(/\bp\b/i.test(_format)) {
-					_customText = _crossRefContent;
-					_formatID = _customText + localize(_global.crossReferenceFormatWordImportLabel);
-					_blockTypeArray.push(BuildingBlockTypes.CUSTOM_STRING_BUILDING_BLOCK);
+					_formatID = _crossRefContent + localize(_global.crossReferenceFormatWordImportLabel);
+					_blockTypeArray.push({"type":BuildingBlockTypes.CUSTOM_STRING_BUILDING_BLOCK, "text":_crossRefContent});
 				}
 				/* Text Anchor Name */
-				else if(_crossRefContent === _bookmarkContent) {
-					_destName = _bookmarkContent;
+				else if(_bookmarkContent !== "" && _bookmarkContent === _crossRefContent) {
+					_destName = __getUniqueHyperlinkName(_doc, _bookmarkContent);
 					_formatID = localize(_global.textAnchorNameCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
-					_blockTypeArray.push(BuildingBlockTypes.BOOKMARK_NAME_BUILDING_BLOCK);
+					_blockTypeArray.push({"type":BuildingBlockTypes.BOOKMARK_NAME_BUILDING_BLOCK});
 				}
 				/* Paragraph Number + Text */
 				else {
 					_formatID = localize(_global.paragraphTextCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
-					_blockTypeArray.push(BuildingBlockTypes.PARAGRAPH_TEXT_BUILDING_BLOCK);
+					_blockTypeArray.push({"type":BuildingBlockTypes.PARAGRAPH_TEXT_BUILDING_BLOCK});
 				}
 				break;
 			default:
@@ -1495,30 +1506,36 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 		}
 		
 		/* Cross-reference Format */
-		var _crossRefFormat = __createCrossReferenceFormat(_doc, _formatID, _blockTypeArray, _customText, _cStyle);
+		var _crossRefFormat = __createCrossReferenceFormat(_doc, _formatID, _blockTypeArray, _cStyle);
 		if(!_crossRefFormat || !_crossRefFormat.isValid) {
 			_global["log"].push(localize(_global.crossReferenceValidationMessage, _type, _format));
 			continue xmlElementLoop;
+		}
+
+		/* Cross-references destination properties */
+		var _crossRefDestinationProps;
+		if(_destName && _destName !== "") {
+			_crossRefDestinationProps = { name: _destName, hidden: false };
+		} else {
+			_crossRefDestinationProps = { hidden: true };
 		}
 
 		var _crossRefDestination;
 		var _crossRefSource;
 
 		try {
+
 			/* Cross-reference Destination */
-			_crossRefDestination = _doc.hyperlinkTextDestinations.add(_bookmarkXMLElement.texts[0], { hidden: true }); /* -> DOC */
-			if(!!_destName) {
-				// __checkHyperlinkName oder mit try-catch
-				_crossRefDestination.name = _destName;
-			}
-			
+			_crossRefDestination = _doc.hyperlinkTextDestinations.add(_bookmarkXMLElement.texts[0], _crossRefDestinationProps); /* -> DOC */
 			/* Cross-reference source */
 			_crossRefSource = _doc.crossReferenceSources.add(_crossRefXMLElement.texts[0],_crossRefFormat); /* -> DOC */
-
 			/* Add Cross-reference */
 			_doc.hyperlinks.add(_crossRefSource, _crossRefDestination); /* -> DOC */
+
 		} catch(_error) {
+
 			_global["log"].push(_error.message);
+
 			/* Clean up */
 			if(_crossRefSource && _crossRefSource.isValid) {
 				_crossRefSource.remove(); /* This also automatically removes hyperlink and hyperlink destination */
@@ -1545,11 +1562,10 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
  * @param {Document} _doc 
  * @param {Number|String} _crossRefFormatId 
  * @param {Array} _buildingBlockTypeArray 
- * @param {String} _customText (optional)
  * @param {CharacterStyle} _cStyle (optional)
  * @returns CrossReferenceFormat
  */
-function __createCrossReferenceFormat(_doc, _crossRefFormatId, _buildingBlockTypeArray, _customText, _cStyle) {
+function __createCrossReferenceFormat(_doc, _crossRefFormatId, _buildingBlockTypeArray, _cStyle) {
 	
 	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return null; }
 	if(_crossRefFormatId === null || _crossRefFormatId === undefined || !(_crossRefFormatId.constructor === Number || _crossRefFormatId.constructor === String) || _crossRefFormatId === "") { return null; }
@@ -1570,14 +1586,23 @@ function __createCrossReferenceFormat(_doc, _crossRefFormatId, _buildingBlockTyp
 		if(!_crossRefFormat || !_crossRefFormat.isValid) {
 			_crossRefFormat = _doc.crossReferenceFormats.add(_crossRefFormatId.toString()); /* -> DOC */
 			for(var i=0; i<_buildingBlockTypeArray.length; i+=1) {
-				var _buildingBlockType = _buildingBlockTypeArray[i];
-				if(!_buildingBlockType || !BuildingBlockTypes.hasOwnProperty(_buildingBlockType)) {
+				var _buildingBlockTypeObj = _buildingBlockTypeArray[i];
+				if(!_buildingBlockTypeObj.hasOwnProperty("type")) {
+					continue;
+				}
+				var _buildingBlockType = _buildingBlockTypeObj["type"];
+				if(!BuildingBlockTypes.hasOwnProperty(_buildingBlockType)) {
 					continue;
 				}
 				var _buildingBlock = _crossRefFormat.buildingBlocks.add(_buildingBlockType);
-				if(_buildingBlock.blockType === BuildingBlockTypes.CUSTOM_STRING_BUILDING_BLOCK) {
-					_buildingBlock.customText = (_customText && _customText.toString()) || "";
+				if(_buildingBlock.blockType !== BuildingBlockTypes.CUSTOM_STRING_BUILDING_BLOCK) {
+					continue;
 				}
+				var _customText = _buildingBlockTypeObj["text"];
+				if(!_customText || _customText.constructor !== String) {
+					continue;
+				}
+				_buildingBlock.customText = _customText;
 			}
 			if(_cStyle && _cStyle instanceof CharacterStyle && _cStyle.isValid) {
 				_crossRefFormat.appliedCharacterStyle = _cStyle;
@@ -1592,9 +1617,64 @@ function __createCrossReferenceFormat(_doc, _crossRefFormatId, _buildingBlockTyp
 } /* END function __createCrossReferenceFormat */
 
 
+/**
+ * Get unique hyperlink destination name 
+ * @param {Document} _doc 
+ * @param {String} _curName 
+ * @returns String
+ */
+function __getUniqueHyperlinkName(_doc, _curName) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return ""; }
+	if(!_curName ||_curName.constructor !== String) { return ""; }
+	
+	const MAX_NAME_LENGTH = 75;
+	const DELIMITER = "-";
+	
+	const _specialCharRegExp = new RegExp("[\x00-\x02\x03\x04\x05-\x06\x07\x08\x09\x0A-\x15\x16\x17\x18\x19\x1A-\x1F\uFEFF\uFFFC\uFFFE\u000A\u000D\u2028\u2029\u200B-\u200F\u2063\u202A-\u202E\u00AD]","ig");
+	const _trimWhitespaceRegExp = new RegExp("(^\\s+)|(\\s+$)","g");
+	const _contractWhitespaceRegExp = new RegExp("\\s+","g");
+	const _counterRegExp = new RegExp(DELIMITER + "\\d+$","i");
+	
+	var _hyperlinkNameArray = _doc.hyperlinks.everyItem().name;
+	var _hyperlinkTextSourcesNameArray = _doc.hyperlinkTextSources.everyItem().name;
+	var _hyperlinkTextDestNameArray = _doc.hyperlinkTextDestinations.everyItem().name;
+	var _nameArray = _hyperlinkNameArray.concat(_hyperlinkTextSourcesNameArray, _hyperlinkTextDestNameArray);
+	
+	_curName = _curName.replace(_specialCharRegExp,"").replace(_trimWhitespaceRegExp,"").replace(_contractWhitespaceRegExp, " ");
+	_curName = _curName.substring(0, MAX_NAME_LENGTH);
+	
+	var _newName = _curName;
+	var _counter = 0;
+	
+	while(isInArray(_newName, _nameArray)) {
+		_counter += 1;
+		_newName = _curName + DELIMITER + _counter;
+	}
+
+	return _newName;
+} /* END function __getUniqueHyperlinkName */
 
 
+/**
+ * Check: Is item in Array?
+ * @param {Any} _item 
+ * @param {Array} _array 
+ * @returns Boolean
+ */
+function isInArray(_item, _array) {
 
+	if (_item === null || _item === undefined) { return false; }
+	if (!_array || !(_array instanceof Array) || _array.length === 0) { return false; }
+
+	for (var i = 0; i < _array.length; i += 1) {
+		if (_array[i] === _item) {
+			return true;
+		}
+	}
+
+	return false;
+} /* END function isInArray */
 
 
 
@@ -3002,5 +3082,13 @@ function __defLocalizeStrings() {
 	_global.textAnchorNameCrossReferenceFormatName = { 
 		en: "Text Anchor Name",
 		de: "Name des Textankers" 
+	};
+
+	_global.pageLabel = { 
+		en: "Page",
+		de: "Seite",
+		fr: "Page",
+		es: "Página",
+		it: "Pagina" 
 	};
 } /* END function __defLocalizeStrings */
