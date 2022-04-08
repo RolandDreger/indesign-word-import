@@ -197,3 +197,24 @@ function __padZeros(_number, _numOfPlaces) {
 
 	return _string;
 } /* END function __padZeros */
+
+
+/**
+ * Check: Is item in Array?
+ * @param {Any} _item 
+ * @param {Array} _array 
+ * @returns Boolean
+ */
+ function isInArray(_item, _array) {
+
+	if (_item === null || _item === undefined) { return false; }
+	if (!_array || !(_array instanceof Array) || _array.length === 0) { return false; }
+
+	for (var i = 0; i < _array.length; i += 1) {
+		if (_array[i] === _item) {
+			return true;
+		}
+	}
+
+	return false;
+} /* END function isInArray */

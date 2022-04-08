@@ -2797,7 +2797,7 @@
         <xsl:param name="bookmark-text" select="''"/>
         <xsl:variable name="target-element" select="$following-elements[1]"/>
         <xsl:variable name="target-element-text">
-            <xsl:value-of select="$target-element"/>
+            <xsl:apply-templates select="$target-element/w:t"/>
         </xsl:variable>
         <xsl:choose>
             <xsl:when test="$target-element and not($target-element[name() = 'w:bookmarkEnd']) and string-length($bookmark-text) &lt; $max-bookmark-length">

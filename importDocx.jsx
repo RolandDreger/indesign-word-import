@@ -83,6 +83,13 @@
         
       mit Querverweise auf Textanker mit Name z.B. Newton, 1743
 			
+		# Querverweise
+
+		  Vorsicht bei Querverweisen.Einige Querverweistypen sind nicht in InDesign 1:1 darstellbar. Etwa ein Verweis auf »oben/unten«, Fuß-/Endnoten-Nummer,
+			oder auf Textmarkeninhalt.
+			Bitte nach dem Import kontrollieren, ob diese den Wünschen entsprechen. Sonst beim Import deaktivieren. Die Informationen bleiben in 
+			der XML-Struktur vorhanden (außer in Fußnotentext, da ist keine XML erlaubt.) Mit diesen Informationen können die Querverweise an die
+			eignen Bedürfnise angepasst werden.
 
 
 		# Drawbacks of the native docx import
@@ -1451,13 +1458,13 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 			_bookmarkContent = _rawBookmarkContent.replace(_trimWhitespaceRegExp,"");
 		}
 
-		var _formatID;
-		var _destName;
+		var _formatID = "";
+		var _destName = "";
 		var _blockTypeArray = [];
 
-		switch (_type) {
+		switch(_type) {
 			/* Page */
-			case "PAGEREF" :
+			case "PAGEREF":
 				/* Page label + Page number */
 				if(/\bp\b/i.test(_format)) {
 					_formatID = localize(_global.pageLabel) + " " + localize(_global.pageNumberCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
@@ -1471,7 +1478,7 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 				}
 				break;
 			/* Footnote/Endnote */
-			case "NOTEREF" :
+			case "NOTEREF":
 				/* Footnote/Endnote number */
 				/* (Unfortunately, InDesign does not support this type of cross-references to footnotes or endnotes.) */
 				continue xmlElementLoop;
@@ -1488,12 +1495,12 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 					_formatID = _crossRefContent + localize(_global.crossReferenceFormatWordImportLabel);
 					_blockTypeArray.push({"type":BuildingBlockTypes.CUSTOM_STRING_BUILDING_BLOCK, "text":_crossRefContent});
 				}
-				/* Text Anchor Name */
-				else if(_bookmarkContent !== "" && _bookmarkContent === _crossRefContent) {
-					_destName = __getUniqueHyperlinkName(_doc, _bookmarkContent);
-					_formatID = localize(_global.textAnchorNameCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
-					_blockTypeArray.push({"type":BuildingBlockTypes.BOOKMARK_NAME_BUILDING_BLOCK});
-				}
+				/* Text Anchor Content (Problems with cross-reference to table, formula or image captions) */
+				// else if(_bookmarkContent !== "" && _bookmarkContent === _crossRefContent) {
+				// 	_destName = __getUniqueHyperlinkName(_doc, _bookmarkContent);
+				// 	_formatID = localize(_global.textAnchorNameCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
+				// 	_blockTypeArray.push({"type":BuildingBlockTypes.BOOKMARK_NAME_BUILDING_BLOCK});
+				// }
 				/* Paragraph Number + Text */
 				else {
 					_formatID = localize(_global.paragraphTextCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
@@ -1509,7 +1516,7 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 		var _crossRefFormat = __createCrossReferenceFormat(_doc, _formatID, _blockTypeArray, _cStyle);
 		if(!_crossRefFormat || !_crossRefFormat.isValid) {
 			_global["log"].push(localize(_global.crossReferenceValidationMessage, _type, _format));
-			continue xmlElementLoop;
+			continue;
 		}
 
 		/* Cross-references destination properties */
@@ -1524,18 +1531,14 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 		var _crossRefSource;
 
 		try {
-
 			/* Cross-reference Destination */
 			_crossRefDestination = _doc.hyperlinkTextDestinations.add(_bookmarkXMLElement.texts[0], _crossRefDestinationProps); /* -> DOC */
 			/* Cross-reference source */
 			_crossRefSource = _doc.crossReferenceSources.add(_crossRefXMLElement.texts[0],_crossRefFormat); /* -> DOC */
 			/* Add Cross-reference */
 			_doc.hyperlinks.add(_crossRefSource, _crossRefDestination); /* -> DOC */
-
 		} catch(_error) {
-
 			_global["log"].push(_error.message);
-
 			/* Clean up */
 			if(_crossRefSource && _crossRefSource.isValid) {
 				_crossRefSource.remove(); /* This also automatically removes hyperlink and hyperlink destination */
@@ -1654,30 +1657,6 @@ function __getUniqueHyperlinkName(_doc, _curName) {
 
 	return _newName;
 } /* END function __getUniqueHyperlinkName */
-
-
-/**
- * Check: Is item in Array?
- * @param {Any} _item 
- * @param {Array} _array 
- * @returns Boolean
- */
-function isInArray(_item, _array) {
-
-	if (_item === null || _item === undefined) { return false; }
-	if (!_array || !(_array instanceof Array) || _array.length === 0) { return false; }
-
-	for (var i = 0; i < _array.length; i += 1) {
-		if (_array[i] === _item) {
-			return true;
-		}
-	}
-
-	return false;
-} /* END function isInArray */
-
-
-
 
 
 /**
