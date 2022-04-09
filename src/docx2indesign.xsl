@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: April 8, 2022
+    Modified: April 9, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     

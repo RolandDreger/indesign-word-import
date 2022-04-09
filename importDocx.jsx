@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: April 8, 2022
+		+ Last modified: April 9, 2022
 		
 		
 		+ Descriptions
@@ -191,6 +191,7 @@ _global["setups"] = {
 		}, 
 		"color":[120,190,255],
 		"characterStyleName":"Cross_Reference",
+		"isAnchorHidden":true,
 		"isCharacterStyleAdded":true, 
 		"isMarked":false, 
 		"isCreated":true
@@ -1385,10 +1386,11 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 	const TYPE_ATTRIBUTE_NAME = _setupObj["crossReference"]["attributes"]["type"];
 	const FORMAT_ATTRIBUTE_NAME = _setupObj["crossReference"]["attributes"]["format"];
 	const CHARACTER_STYLE_NAME = _setupObj["crossReference"]["characterStyleName"];
+	const IS_ANCHOR_HIDDEN = _setupObj["crossReference"]["isAnchorHidden"];
 	const IS_CHARACTER_STYLE_ADDED = _setupObj["crossReference"]["isCharacterStyleAdded"];
+
 	const BOOKMARK_TAG_NAME = _setupObj["bookmark"]["tag"];
 	const BOOKMARK_ID_ATTRIBUTE_NAME = _setupObj["bookmark"]["attributes"]["id"];
-	const BOOKMARK_CONTENT_ATTRIBUTE_NAME = _setupObj["bookmark"]["attributes"]["content"];
 
 	const _anchorRegExp = new RegExp("^#","");
 	const _trimWhitespaceRegExp = new RegExp("(^\\s+)|(\\s+$)","g");
@@ -1450,16 +1452,7 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 			continue;
 		}
 
-		/* Bookmark content */
-		var _bookmarkContent = "";
-		var _bookmarkContentAttribute = _bookmarkXMLElement.xmlAttributes.itemByName(BOOKMARK_CONTENT_ATTRIBUTE_NAME);
-		if(_bookmarkContentAttribute.isValid) {
-			var _rawBookmarkContent = _bookmarkContentAttribute.value;
-			_bookmarkContent = _rawBookmarkContent.replace(_trimWhitespaceRegExp,"");
-		}
-
-		var _formatID = "";
-		var _destName = "";
+		var _formatID = ""; /* String (Format name) or Number (Format index) */
 		var _blockTypeArray = [];
 
 		switch(_type) {
@@ -1495,12 +1488,6 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 					_formatID = _crossRefContent + localize(_global.crossReferenceFormatWordImportLabel);
 					_blockTypeArray.push({"type":BuildingBlockTypes.CUSTOM_STRING_BUILDING_BLOCK, "text":_crossRefContent});
 				}
-				/* Text Anchor Content (Problems with cross-reference to table, formula or image captions) */
-				// else if(_bookmarkContent !== "" && _bookmarkContent === _crossRefContent) {
-				// 	_destName = __getUniqueHyperlinkName(_doc, _bookmarkContent);
-				// 	_formatID = localize(_global.textAnchorNameCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
-				// 	_blockTypeArray.push({"type":BuildingBlockTypes.BOOKMARK_NAME_BUILDING_BLOCK});
-				// }
 				/* Paragraph Number + Text */
 				else {
 					_formatID = localize(_global.paragraphTextCrossReferenceFormatName) + localize(_global.crossReferenceFormatWordImportLabel);
@@ -1520,12 +1507,9 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 		}
 
 		/* Cross-references destination properties */
-		var _crossRefDestinationProps;
-		if(_destName && _destName !== "") {
-			_crossRefDestinationProps = { name: _destName, hidden: false };
-		} else {
-			_crossRefDestinationProps = { hidden: true };
-		}
+		var _crossRefDestinationProps = { 
+			hidden: IS_ANCHOR_HIDDEN 
+		};
 
 		var _crossRefDestination;
 		var _crossRefSource;
@@ -1548,7 +1532,7 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 			}
 			continue;
 		}
-
+		
 		_counter += 1;
 	}
 
@@ -1576,40 +1560,45 @@ function __createCrossReferenceFormat(_doc, _crossRefFormatId, _buildingBlockTyp
 	
 	var _crossRefFormat;
 
+	if(_crossRefFormatId.constructor === Number) {
+		_crossRefFormat = _doc.crossReferenceFormats.item(_crossRefFormatId);
+	} 
+	else if(_crossRefFormatId.constructor === String) {
+		_crossRefFormat = _doc.crossReferenceFormats.itemByName(_crossRefFormatId);
+	} 
+	else {
+		return null;
+	}
+
+	if(_crossRefFormat && _crossRefFormat.isValid) {
+		return _crossRefFormat;
+	}
+
 	try {
-		if(_crossRefFormatId.constructor === Number) {
-			_crossRefFormat = _doc.crossReferenceFormats.item(_crossRefFormatId);
-		} 
-		else if(_crossRefFormatId.constructor === String) {
-			_crossRefFormat = _doc.crossReferenceFormats.itemByName(_crossRefFormatId);
-		} 
-		else {
-			return null;
+		/* Add cross-reference format */
+		_crossRefFormat = _doc.crossReferenceFormats.add(_crossRefFormatId.toString()); /* -> DOC */
+		for(var i=0; i<_buildingBlockTypeArray.length; i+=1) {
+			var _buildingBlockTypeObj = _buildingBlockTypeArray[i];
+			if(!_buildingBlockTypeObj.hasOwnProperty("type")) {
+				continue;
+			}
+			var _buildingBlockType = _buildingBlockTypeObj["type"];
+			if(!BuildingBlockTypes.hasOwnProperty(_buildingBlockType)) {
+				continue;
+			}
+			var _buildingBlock = _crossRefFormat.buildingBlocks.add(_buildingBlockType);
+			if(_buildingBlock.blockType !== BuildingBlockTypes.CUSTOM_STRING_BUILDING_BLOCK) {
+				continue;
+			}
+			var _customText = _buildingBlockTypeObj["text"];
+			if(!_customText || _customText.constructor !== String) {
+				continue;
+			}
+			_buildingBlock.customText = _customText;
 		}
-		if(!_crossRefFormat || !_crossRefFormat.isValid) {
-			_crossRefFormat = _doc.crossReferenceFormats.add(_crossRefFormatId.toString()); /* -> DOC */
-			for(var i=0; i<_buildingBlockTypeArray.length; i+=1) {
-				var _buildingBlockTypeObj = _buildingBlockTypeArray[i];
-				if(!_buildingBlockTypeObj.hasOwnProperty("type")) {
-					continue;
-				}
-				var _buildingBlockType = _buildingBlockTypeObj["type"];
-				if(!BuildingBlockTypes.hasOwnProperty(_buildingBlockType)) {
-					continue;
-				}
-				var _buildingBlock = _crossRefFormat.buildingBlocks.add(_buildingBlockType);
-				if(_buildingBlock.blockType !== BuildingBlockTypes.CUSTOM_STRING_BUILDING_BLOCK) {
-					continue;
-				}
-				var _customText = _buildingBlockTypeObj["text"];
-				if(!_customText || _customText.constructor !== String) {
-					continue;
-				}
-				_buildingBlock.customText = _customText;
-			}
-			if(_cStyle && _cStyle instanceof CharacterStyle && _cStyle.isValid) {
-				_crossRefFormat.appliedCharacterStyle = _cStyle;
-			}
+		/* Add character style */
+		if(_cStyle && _cStyle instanceof CharacterStyle && _cStyle.isValid) {
+			_crossRefFormat.appliedCharacterStyle = _cStyle;
 		}
 	} catch(_error) {
 		_global["log"].push(_error.message);

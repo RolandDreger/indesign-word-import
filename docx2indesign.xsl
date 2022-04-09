@@ -4,7 +4,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: April 8, 2022
+    Modified: April 9, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -1627,7 +1627,7 @@
         <xsl:param name="bookmark-text" select="''"/>
         <xsl:variable name="target-element" select="$following-elements[1]"/>
         <xsl:variable name="target-element-text">
-            <xsl:apply-templates select="$target-element/w:t"/>
+            <xsl:apply-templates select="$target-element/w:t/text()"/>
         </xsl:variable>
         <xsl:choose>
             <xsl:when test="$target-element and not($target-element[name() = 'w:bookmarkEnd']) and string-length($bookmark-text) &lt; $max-bookmark-length">
