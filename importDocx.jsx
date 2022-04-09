@@ -12,7 +12,7 @@
 		+ Descriptions
 			
 			Alternative import for Microsoft Word documents
-		
+			for clean and sematically structured content
 
 		+ Hints
 		
@@ -97,6 +97,7 @@
 		- Hyperlinks are not imported (correctly) (see https://indesign.uservoice.com/forums/601021-adobe-indesign-feature-requests/suggestions/32872021-hyperlinks-from-word)
 		- Table header and table styles are not imported
 		- Local style overrides
+		- Import images as embedded images
 
 
 		# Known Issues
@@ -677,7 +678,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 		_transformParams.push(["core-props-file-path", "../docProps/core.xml"]);
 	}
 	if(File(_unpackFolderPath + "/" + "word/_rels/document.xml.rels").exists) {
-		_transformParams.push(["document-relationships-file-path", "../word/_rels/document.xml.rels"]);
+		_transformParams.push(["document-relationships-file-path", "_rels/document.xml.rels"]);
 	}
 	if(File(_unpackFolderPath + "/" + "word/endnotes.xml").exists) {
 		_transformParams.push(["endnotes-file-path", "endnotes.xml"]);
@@ -1532,7 +1533,7 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 			}
 			continue;
 		}
-		
+
 		_counter += 1;
 	}
 

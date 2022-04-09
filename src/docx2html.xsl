@@ -301,10 +301,13 @@
                 <xsl:variable name="relationships-document" select="document(concat($package-base-uri, $directory-separator, $document-relationships-file-path))"/>
                 <xsl:for-each select="$relationships-document/rel:Relationships/rel:Relationship">
                     <xsl:if test="contains(@Type, 'customXml')">
-                        <xsl:variable name="custom-xml-file-path" select="concat($package-base-uri, $directory-separator, substring-after(@Target, '../'))"/>
-                        <xsl:variable name="sources-element" select="document($custom-xml-file-path)/b:Sources"/>
-                        <xsl:if test="$sources-element and namespace-uri($sources-element) = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography'">
-                            <xsl:copy-of select="document($custom-xml-file-path)/b:Sources"/>
+                        <xsl:variable name="custom-xml-relative-file-path" select="substring-after(@Target, '../')"/>
+                        <xsl:if test="not($custom-xml-relative-file-path = '') and starts-with($custom-xml-relative-file-path, 'customXml')">
+                            <xsl:variable name="custom-xml-file-path" select="concat($package-base-uri, $directory-separator, $custom-xml-relative-file-path)"/>
+                            <xsl:variable name="sources-element" select="document($custom-xml-file-path)/b:Sources"/>
+                            <xsl:if test="$sources-element and namespace-uri($sources-element) = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography'">
+                                <xsl:copy-of select="document($custom-xml-file-path)/b:Sources"/>
+                            </xsl:if>
                         </xsl:if>
                     </xsl:if>
                 </xsl:for-each>  
