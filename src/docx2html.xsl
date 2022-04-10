@@ -5,7 +5,7 @@
     Microsoft Word Document -> HTML
     
     Created: September 30, 2021
-    Modified: April 9, 2022
+    Modified: April 10, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -115,7 +115,10 @@
     xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
     xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
     xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
-    xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" 
+    xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+    xmlns:extp="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
+    xmlns:cusp="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" 
+    xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"
     xmlns:dc="http://purl.org/dc/elements/1.1/" 
     xmlns:dcterms="http://purl.org/dc/terms/" 
     xmlns:dcmitype="http://purl.org/dc/dcmitype/" 
@@ -124,7 +127,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:b="http://schemas.openxmlformats.org/officeDocument/2006/bibliography"
     xmlns:rd="http://www.rolanddreger.net"
-    exclude-result-prefixes="rd pkg wpc cx cx1 cx2 cx3 cx4 cx5 cx6 cx7 cx8 mc aink am3d o r rel m v wp14 wp w10 w w14 w15 w16cex w16cid w16 w16sdtdh w16se wpg wpi wne wps cp dc dcterms dcmitype dcmitype a pic xsi b"
+    exclude-result-prefixes="rd pkg wpc cx cx1 cx2 cx3 cx4 cx5 cx6 cx7 cx8 mc aink am3d o r rel m v wp14 wp w10 w w14 w15 w16cex w16cid w16 w16sdtdh w16se wpg wpi wne wps cp extp cusp vt dc dcterms dcmitype dcmitype a pic xsi b"
     version="1.0"
 >
     

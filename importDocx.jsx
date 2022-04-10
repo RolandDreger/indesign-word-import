@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: April 9, 2022
+		+ Last modified: April 10, 2022
 		
 		
 		+ Descriptions
@@ -674,8 +674,14 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 	if(File(_unpackFolderPath + "/" + "word/comments.xml").exists) {
 		_transformParams.push(["comments-file-path", "comments.xml"]);
 	}
+	if(File(_unpackFolderPath + "/" + "docProps/app.xml").exists) {
+		_transformParams.push(["app-props-file-path", "../docProps/app.xml"]);
+	}
 	if(File(_unpackFolderPath + "/" + "docProps/core.xml").exists) {
 		_transformParams.push(["core-props-file-path", "../docProps/core.xml"]);
+	}
+	if(File(_unpackFolderPath + "/" + "docProps/custom.xml").exists) {
+		_transformParams.push(["custom-props-file-path", "../docProps/custom.xml"]);
 	}
 	if(File(_unpackFolderPath + "/" + "word/_rels/document.xml.rels").exists) {
 		_transformParams.push(["document-relationships-file-path", "_rels/document.xml.rels"]);

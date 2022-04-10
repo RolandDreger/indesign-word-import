@@ -4,7 +4,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: April 9, 2022
+    Modified: April 10, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -21,13 +21,13 @@
     with multiple paragraphs. (&#x0d;)
     
     
-    ## Document Ressources
+    ## Document Resources
     
     InDesign sometimes crashes with copy-of therefore the construct
     document($document-file-name) that always exits instead of 
     xsl:choose and xsl:copy-of for global paramerters
     
---><xsl:transform xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:aid="http://ns.adobe.com/AdobeInDesign/4.0/" xmlns:aid5="http://ns.adobe.com/AdobeInDesign/5.0/" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:b="http://schemas.openxmlformats.org/officeDocument/2006/bibliography" xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:rd="http://www.rolanddreger.net" xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" exclude-result-prefixes="rd pkg wpc cx cx1 cx2 cx3 cx4 cx5 cx6 cx7 cx8 mc aink am3d o r rel m v wp14 wp w10 w w14 w15 w16cex w16cid w16 w16sdtdh w16se wpg wpi wne wps cp dc dcterms dcmitype dcmitype a pic xsi b" version="1.0">
+--><xsl:transform xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:aid="http://ns.adobe.com/AdobeInDesign/4.0/" xmlns:aid5="http://ns.adobe.com/AdobeInDesign/5.0/" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:b="http://schemas.openxmlformats.org/officeDocument/2006/bibliography" xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:cusp="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:extp="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:rd="http://www.rolanddreger.net" xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" exclude-result-prefixes="rd pkg wpc cx cx1 cx2 cx3 cx4 cx5 cx6 cx7 cx8 mc aink am3d o r rel m v wp14 wp w10 w w14 w15 w16cex w16cid w16 w16sdtdh w16se wpg wpi wne wps cp extp cusp vt dc dcterms dcmitype dcmitype a pic xsi b" version="1.0">
     
     
     <!-- ++++++++++++ --><!-- + Settings + --><!-- ++++++++++++ --><!-- Document Namespace --><!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  --><!-- Comments for Complex Fields, Tab, ... --><!-- Tab Character --><!-- Heading Style Map --><xsl:param name="h1-paragraph-style-names" select="''"/><!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' --><xsl:param name="h2-paragraph-style-names" select="''"/><!-- e.g. 'Custom_Name_2' --><xsl:param name="h3-paragraph-style-names" select="''"/><xsl:param name="h4-paragraph-style-names" select="''"/><xsl:param name="h5-paragraph-style-names" select="''"/><xsl:param name="h6-paragraph-style-names" select="''"/><!-- Heading Marker --><xsl:variable name="heading-marker" select="'-Heading-'"/><!-- Heading Font Sizes --><xsl:param name="h1-font-size" select="0"/><!-- e.g. 28 or 28.5 or 0   --><xsl:param name="h2-font-size" select="0"/><xsl:param name="h3-font-size" select="0"/><xsl:param name="h4-font-size" select="0"/><xsl:param name="h5-font-size" select="0"/><xsl:param name="h6-font-size" select="0"/><!-- Case conversion --><xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿžšœ'"/><xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸŽŠŒ'"/><!-- +++++++++ --><!-- + INPUT + --><!-- +++++++++ --><!-- Folder and File Paths --><!-- an empty string is passed if input is a Word-XML-Document. --><!-- document.xml or name of Word-XML-Document --><!-- If image folder path is defined, all images get the path according to this pattern: $image-folder-path + '/' + $image-name  --><!-- docProps/core.xml --><!-- word/styles.xml --><!-- word/numbering.xml --><!-- word/footnotes.xml --><!-- word/endnotes.xml --><!-- word/comments.xml --><!-- word/_rels/document.xml.rels --><!-- word/_rels/footnotes.xml.rels --><!-- word/_rels/endnotes.xml.rels --><!-- Core Properties (Metadata) --><!-- Styles --><!-- Numbering --><!-- Document Relationships (e.g. Hyperlinks) --><!-- Footnotes --><!-- Footnote Relationships --><!-- Endnotes --><!-- Endnote Relationships --><!-- Comments --><!-- Citations --><!-- ++++++++++ --><!-- + OUTPUT + --><!-- ++++++++++ --><!-- Output tag and attribute names --><xsl:variable name="heading-tag-name" select="'h'"/><xsl:variable name="list-item-tag-name" select="'li'"/><xsl:variable name="table-column-group-tag-name" select="'colgroup'"/><xsl:variable name="table-column-tag-name" select="'col'"/><xsl:variable name="table-row-tag-name" select="'tr'"/><xsl:variable name="table-cell-column-span-attribute-name" select="'colspan'"/><xsl:variable name="table-cell-row-span-attribute-name" select="'rowspan'"/><xsl:variable name="table-header-cell-tag-name" select="'th'"/><xsl:variable name="table-header-cell-scope-attribute-name" select="'scope'"/><xsl:variable name="bold-tag-name" select="'strong'"/><xsl:variable name="italics-tag-name" select="'i'"/><xsl:variable name="emphasis-mark-tag-name" select="'em'"/><xsl:variable name="underline-tag-name" select="'u'"/><xsl:variable name="subscript-tag-name" select="'sub'"/><xsl:variable name="superscript-tag-name" select="'sup'"/><xsl:variable name="section-break-type-attribute-name" select="'data-wrap-type'"/><!-- Spaces --><!-- +++++++++++++ --><!-- + Templates + --><!-- +++++++++++++ --><!-- Head --><xsl:template name="create-head-section">
@@ -1769,7 +1769,9 @@
     <xsl:param name="package-base-uri" select="''"/> <!-- for Word-XML-Document an empty string -->
     <xsl:param name="document-file-name" select="'document.xml'"/> <!-- document.xml or name of Word-XML-Document -->
     <xsl:param name="image-folder-path" select="''"/> <!-- If image folder path is defined, all images get the path according to this pattern: $image-folder-path + '/' + $image-name  -->
+    <xsl:param name="app-props-file-path" select="$document-file-name"/> <!-- ../docProps/app.xml -->
     <xsl:param name="core-props-file-path" select="$document-file-name"/> <!-- ../docProps/core.xml -->
+    <xsl:param name="custom-props-file-path" select="$document-file-name"/> <!-- ../docProps/custom.xml -->
     <xsl:param name="styles-file-path" select="$document-file-name"/> <!-- styles.xml --> 
     <xsl:param name="numbering-file-path" select="$document-file-name"/> <!-- numbering.xml -->
     <xsl:param name="footnotes-file-path" select="$document-file-name"/> <!-- footnotes.xml --> 
@@ -1779,8 +1781,14 @@
     <xsl:param name="footnotes-relationships-file-path" select="$document-file-name"/> <!-- _rels/footnotes.xml.rels --> 
     <xsl:param name="endnotes-relationships-file-path" select="$document-file-name"/> <!-- _rels/endnotes.xml.rels --> 
     
+    <!-- App Properties (Metadata) -->
+    <xsl:variable name="app-props" select="document($app-props-file-path)/extp:Properties | /pkg:package/pkg:part[@pkg:name = '/docProps/app.xml']/pkg:xmlData/extp:Properties"/>
+    
     <!-- Core Properties (Metadata) -->
     <xsl:variable name="core-props" select="document($core-props-file-path)/cp:coreProperties | /pkg:package/pkg:part[@pkg:name = '/docProps/core.xml']/pkg:xmlData/cp:coreProperties"/>
+    
+    <!-- Custom Properties (Metadata) -->
+    <xsl:variable name="custom-props" select="document($custom-props-file-path)/cusp:Properties | /pkg:package/pkg:part[@pkg:name = '/docProps/custom.xml']/pkg:xmlData/cusp:Properties"/>
     
     <!-- Styles -->
     <xsl:variable name="styles" select="document($styles-file-path)/w:styles | /pkg:package/pkg:part[@pkg:name = '/word/styles.xml']/pkg:xmlData/w:styles"/>
@@ -1995,9 +2003,53 @@
     <!-- Root -->
     <xsl:template match="/">
         <xsl:element name="{$root-tag-name}" namespace="{$ns}">
+            <xsl:call-template name="insert-metadata-attributes"/>
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
+    
+    <!-- Attributs for Root Element -->
+    <xsl:template name="insert-metadata-attributes">
+        <xsl:attribute name="title">
+            <xsl:value-of select="$core-props/dc:title"/>
+        </xsl:attribute>
+        <xsl:attribute name="subject">
+            <xsl:value-of select="$core-props/dc:subject"/>
+        </xsl:attribute>
+        <xsl:attribute name="author">
+            <xsl:value-of select="$core-props/dc:creator"/>
+        </xsl:attribute>
+        <xsl:attribute name="keywords">
+            <xsl:value-of select="$core-props/cp:keywords"/>
+        </xsl:attribute>
+        <xsl:attribute name="category">
+            <xsl:value-of select="$core-props/cp:category"/>
+        </xsl:attribute>
+        <xsl:attribute name="description">
+            <xsl:value-of select="$core-props/dc:description"/>
+        </xsl:attribute>
+        <xsl:attribute name="created">
+            <xsl:value-of select="$core-props/dcterms:created"/>
+        </xsl:attribute>
+        <xsl:attribute name="modified">
+            <xsl:value-of select="$core-props/dcterms:modified"/>
+        </xsl:attribute>
+        <xsl:attribute name="application">
+            <xsl:value-of select="$app-props/extp:Application"/>
+        </xsl:attribute>
+        <xsl:attribute name="app-version">
+            <xsl:value-of select="$app-props/extp:AppVersion"/>
+        </xsl:attribute>
+        <xsl:for-each select="$custom-props/cusp:property">
+            <xsl:if test="@name">
+                <xsl:attribute name="{@name}">
+                    <xsl:value-of select="vt:lpwstr"/>
+                </xsl:attribute>
+            </xsl:if>
+        </xsl:for-each>
+    </xsl:template>
+
+
 
 
     <!-- Body -->
