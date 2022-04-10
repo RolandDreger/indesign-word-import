@@ -2119,7 +2119,7 @@ function __placeImages(_doc, _imageXMLElementArray, _unpackObj, _setupObj) {
 	if(_unpackFolder && _unpackFolder instanceof Folder && _unpackFolder.exists) {
 		_wordFolder = Folder(_unpackFolder.fullName + '/word');
 	}
-	if(!!_wordFolder && !_wordFolder.exists) {
+	if(!_wordFolder || !_wordFolder.exists) {
 		_global["log"].push(localize(_global.wordFolderValidationMessage));
 		return false;
 	}
