@@ -205,7 +205,7 @@ function __padZeros(_number, _numOfPlaces) {
  * @param {Array} _array 
  * @returns Boolean
  */
- function isInArray(_item, _array) {
+function __isInArray(_item, _array) {
 
 	if (_item === null || _item === undefined) { return false; }
 	if (!_array || !(_array instanceof Array) || _array.length === 0) { return false; }
@@ -217,4 +217,68 @@ function __padZeros(_number, _numOfPlaces) {
 	}
 
 	return false;
-} /* END function isInArray */
+} /* END function __isInArray */
+
+
+/**
+ * Clean up string from special Indesign characters and unwanted whitespaces 
+ * @param {String} _rawString 
+ * @param {Boolean} _areSpacesTrimmed (optional)
+ * @param {Boolean} _areSpacesMerged (optional)
+ * @returns String
+ */
+function __cleanUpString(_rawString, _areSpacesTrimmed, _areSpacesMerged) {
+
+	if(!_rawString || _rawString.constructor !== String) { return ""; }
+
+	const _specialCharRegExp = new RegExp("[\x00-\x02\x03\x04\x05-\x06\x07\x08\x09\x0A-\x15\x16\x17\x18\x19\x1A-\x1F\uFEFF\uFFFC\uFFFE\u000A\u000D\u2028\u2029\u200B-\u200F\u2063\u202A-\u202E\u00AD]","ig");
+	const _trimWhitespaceRegExp = new RegExp("(^\\s+)|(\\s+$)","g");
+	const _contractWhitespaceRegExp = new RegExp("\\s+","g");
+	
+	var _cleanedString = _rawString.replace(_specialCharRegExp,"");
+
+	if(_areSpacesTrimmed === true) {
+		_cleanedString = _cleanedString.replace(_trimWhitespaceRegExp,"");
+	}
+	if(_areSpacesMerged === true) {
+		_cleanedString = _cleanedString.replace(_contractWhitespaceRegExp, " ");
+	}
+	
+	return _cleanedString;
+} /* END __cleanUpString */
+
+
+
+/**
+ * Get unique hyperlink destination name 
+ * @param {Document} _doc 
+ * @param {String} _curName 
+ * @returns String
+ */
+function __getUniqueHyperlinkName(_doc, _curName) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return ""; }
+	if(!_curName ||_curName.constructor !== String) { return ""; }
+	
+	const MAX_NAME_LENGTH = 75;
+	const DELIMITER = "-";
+	
+	const _counterRegExp = new RegExp(DELIMITER + "\\d+$","i");
+	
+	var _hyperlinkNameArray = _doc.hyperlinks.everyItem().name;
+	var _hyperlinkTextSourcesNameArray = _doc.hyperlinkTextSources.everyItem().name;
+	var _hyperlinkTextDestNameArray = _doc.hyperlinkTextDestinations.everyItem().name;
+	var _nameArray = _hyperlinkNameArray.concat(_hyperlinkTextSourcesNameArray, _hyperlinkTextDestNameArray);
+	
+	_curName = __cleanUpString(_curName, true, true);
+
+	var _newName = _curName.substring(0, MAX_NAME_LENGTH);
+	var _counter = 0;
+	
+	while(__isInArray(_newName, _nameArray)) {
+		_counter += 1;
+		_newName = _curName + DELIMITER + _counter;
+	}
+
+	return _newName;
+} /* END function __getUniqueHyperlinkName */

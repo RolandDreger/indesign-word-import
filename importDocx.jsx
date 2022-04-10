@@ -201,8 +201,13 @@ _global["setups"] = {
 		"tag":"bookmark",
 		"attributes":{
 			"id":"id",
+			"index":"index",
 			"content":"content"
-		}
+		},
+		"marker":"", /* Marker as a prefix of the content to identify bookmarks to be included. Value: String. Example: #My_bookmark_name -> Marker: # */
+		"isMarkerRemoved":true,
+		"isAnchorHidden":true,
+		"isCreated":false
 	},
 	"textbox":{ 
 		"tag":"textbox", 
@@ -849,13 +854,16 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	/* 05 Cross-references */
 	__handleCrossReferences(_doc, _wordXMLElement, _setupObj);
 
-	/* 05 Textboxes */
+	/* 06 Bookmarks */
+	__handleBookmarks(_doc, _wordXMLElement, _setupObj);
+	
+	/* 07 Textboxes */
 	__handleTextboxes(_doc, _wordXMLElement, _setupObj);
 
-	/* 06 Images */
+	/* 08 Images */
 	__handleImages(_doc, _wordXMLElement, _unpackObj, _setupObj);
 
-	/* 07 Track Changes */
+	/* 09 Track Changes */
 	__handleTrackChanges(_doc, _wordXMLElement, _setupObj);
 
 	/* 
@@ -863,10 +871,10 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 		(After all XML manipulations, since XML elements must be removed from footnotes and endnotes)
 	*/
 
-	/* 08 Footnotes */ 
+	/* 10 Footnotes */ 
 	__handleFootnotes(_doc, _wordXMLElement, _setupObj);
 	
-	/* 09 Endnotes */
+	/* 11 Endnotes */
 	__handleEndnotes(_doc, _wordXMLElement, _setupObj);	
 
 	
@@ -1154,7 +1162,7 @@ function __getCommentText(_xmlElement, _setupObj) {
  * @param {Document} _doc 
  * @param {XMLElement} _wordXMLElement 
  * @param {Object} _setupObj 
- * @returns 
+ * @returns Boolean
  */
 function __handleHyperlinks(_doc, _wordXMLElement, _setupObj) {
 
@@ -1219,6 +1227,7 @@ function __createHyperlinks(_doc, _wordXMLElement, _hyperlinkXMLElementArray, _s
 	const TITLE_ATTRIBUTE_NAME = _setupObj["hyperlink"]["attributes"]["title"];
 	const CHARACTER_STYLE_NAME = _setupObj["hyperlink"]["characterStyleName"];
 	const IS_CHARACTER_STYLE_ADDED = _setupObj["hyperlink"]["isCharacterStyleAdded"];
+
 	const BOOKMARK_TAG_NAME = _setupObj["bookmark"]["tag"];
 	const BOOKMARK_ID_ATTRIBUTE_NAME = _setupObj["bookmark"]["attributes"]["id"];
 
@@ -1329,7 +1338,7 @@ function __createHyperlinks(_doc, _wordXMLElement, _hyperlinkXMLElementArray, _s
  * @param {Document} _doc 
  * @param {XMLElement} _wordXMLElement 
  * @param {Object} _setupObj 
- * @returns 
+ * @returns Boolean
  */
 function __handleCrossReferences(_doc, _wordXMLElement, _setupObj) {
 
@@ -1369,6 +1378,7 @@ function __handleCrossReferences(_doc, _wordXMLElement, _setupObj) {
 
 /**
  * Create Cross-references
+ * (possible helper function __getUniqueHyperlinkName)
  * @param {Document} _doc 
  * @param {XMLElement} _wordXMLElement 
  * @param {XMLElement} _crossRefXMLElementArray 
@@ -1618,42 +1628,146 @@ function __createCrossReferenceFormat(_doc, _crossRefFormatId, _buildingBlockTyp
 
 
 /**
- * Get unique hyperlink destination name 
+ * Handle Bookmarks 
+ * (Text anchors with content in Word document)
  * @param {Document} _doc 
- * @param {String} _curName 
- * @returns String
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns Boolean
  */
-function __getUniqueHyperlinkName(_doc, _curName) {
-	
-	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return ""; }
-	if(!_curName ||_curName.constructor !== String) { return ""; }
-	
-	const MAX_NAME_LENGTH = 75;
-	const DELIMITER = "-";
-	
-	const _specialCharRegExp = new RegExp("[\x00-\x02\x03\x04\x05-\x06\x07\x08\x09\x0A-\x15\x16\x17\x18\x19\x1A-\x1F\uFEFF\uFFFC\uFFFE\u000A\u000D\u2028\u2029\u200B-\u200F\u2063\u202A-\u202E\u00AD]","ig");
-	const _trimWhitespaceRegExp = new RegExp("(^\\s+)|(\\s+$)","g");
-	const _contractWhitespaceRegExp = new RegExp("\\s+","g");
-	const _counterRegExp = new RegExp(DELIMITER + "\\d+$","i");
-	
-	var _hyperlinkNameArray = _doc.hyperlinks.everyItem().name;
-	var _hyperlinkTextSourcesNameArray = _doc.hyperlinkTextSources.everyItem().name;
-	var _hyperlinkTextDestNameArray = _doc.hyperlinkTextDestinations.everyItem().name;
-	var _nameArray = _hyperlinkNameArray.concat(_hyperlinkTextSourcesNameArray, _hyperlinkTextDestNameArray);
-	
-	_curName = _curName.replace(_specialCharRegExp,"").replace(_trimWhitespaceRegExp,"").replace(_contractWhitespaceRegExp, " ");
-	_curName = _curName.substring(0, MAX_NAME_LENGTH);
-	
-	var _newName = _curName;
-	var _counter = 0;
-	
-	while(isInArray(_newName, _nameArray)) {
-		_counter += 1;
-		_newName = _curName + DELIMITER + _counter;
+function __handleBookmarks(_doc, _wordXMLElement, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
 	}
 
-	return _newName;
-} /* END function __getUniqueHyperlinkName */
+	const BOOKMARK_TAG_NAME = _setupObj["bookmark"]["tag"];
+	const IS_BOOKMARK_CREATED = _setupObj["bookmark"]["isCreated"];
+
+	var _bookmarkXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + BOOKMARK_TAG_NAME);
+	if(_bookmarkXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if(IS_BOOKMARK_CREATED) {
+		__createBookmarks(_doc, _wordXMLElement, _bookmarkXMLElementArray, _setupObj);
+		return true;
+	}
+
+	return true;
+} /* END function __handleBookmarks */
+
+
+/**
+ * Create Bookmarks
+ * (possible helper function __getUniqueHyperlinkName)
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {XMLElement} _bookmarkXMLElementArray 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __createBookmarks(_doc, _wordXMLElement, _bookmarkXMLElementArray, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_bookmarkXMLElementArray || !(_bookmarkXMLElementArray instanceof Array)) { 
+		throw new Error("Array as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const CONTENT_ATTRIBUTE_NAME = _setupObj["bookmark"]["attributes"]["content"];
+	const MARKER = _setupObj["bookmark"]["marker"];
+	const IS_MARKER_REMOVED = _setupObj["bookmark"]["isMarkerRemoved"];
+	const IS_ANCHOR_HIDDEN = _setupObj["bookmark"]["isAnchorHidden"];
+	
+	const MAX_NAME_LENGTH = 100;
+	const _markerRegExp = new RegExp("^" + MARKER + "\\s*", "");
+
+	var _counter = 0;
+	
+	for(var i=_bookmarkXMLElementArray.length-1; i>=0; i-=1) {
+
+		var _bookmarkXMLElement = _bookmarkXMLElementArray[i];
+		if(!_bookmarkXMLElement || !_bookmarkXMLElement.isValid) {
+			continue;
+		}
+
+		/* Content */
+		var _contentAttribute = _bookmarkXMLElement.xmlAttributes.itemByName(CONTENT_ATTRIBUTE_NAME);
+		if(!_contentAttribute.isValid) {
+			continue;
+		}
+
+		var _content = __cleanUpString(_contentAttribute.value, true, true);
+		if(!_content) {
+			continue;
+		}
+
+		/* Check: Marker available? */
+		if(MARKER) {
+			if(!_markerRegExp.test(_content)) {
+				continue;
+			}
+			if(IS_MARKER_REMOVED) {
+				_content = _content.replace(_markerRegExp, "");
+			}
+		}
+		
+		var _bookmarkName = _content.substring(0, MAX_NAME_LENGTH);
+
+		/* Bookmark destination properties */
+		var _bookmarkDestinationProps = { 
+			hidden: IS_ANCHOR_HIDDEN 
+		};
+
+		var _bookmarkDestination;
+		var _bookmark;
+
+		try {
+
+			/* Bookmark Destination */
+			_bookmarkDestination = _doc.hyperlinkTextDestinations.add(_bookmarkXMLElement.texts[0], _bookmarkDestinationProps); /* -> DOC */
+
+			/* Add Bookmark */
+			_bookmark = _doc.bookmarks.add(_bookmarkDestination); /* -> DOC */
+
+			_bookmark.move(LocationOptions.AT_BEGINNING, _doc);
+			_bookmark.name = _bookmarkName;
+			
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			/* Clean up */
+			if(_bookmark && _bookmark.isValid) {
+				_bookmark.remove();
+			}
+			if(_bookmarkDestination && _bookmarkDestination.isValid) {
+				_bookmarkDestination.remove();
+			}
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.bookmarksLabel)));
+	}
+
+	return true;
+} /* END function __createBookmarks */
 
 
 /**
@@ -3066,5 +3180,10 @@ function __defLocalizeStrings() {
 		fr: "Page",
 		es: "Página",
 		it: "Pagina" 
+	};
+
+	_global.bookmarksLabel = { 
+		en: "Bookmarks",
+		de: "Lesezeichen" 
 	};
 } /* END function __defLocalizeStrings */
