@@ -708,7 +708,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 	var _userXMLImportPreferences = _doc.xmlImportPreferences.properties;
 
 	try {
-
+		/* XML Import Preferences */
 		_doc.xmlImportPreferences.properties = {
 			importStyle:XMLImportStyles.APPEND_IMPORT,
 			allowTransform:true,
@@ -724,6 +724,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 			removeUnmatchedExisting:false
 		};
 
+		/* Import XML File */
 		_doc.importXML(_wordXMLFile);
 
 	} catch(_error) {
