@@ -1257,10 +1257,19 @@
         <xsl:attribute name="{$group-style-attribute-name}">
             <xsl:value-of select="$group-style-attribute-value"/>
         </xsl:attribute>
-    </xsl:template><!-- Drawing --><xsl:template match="w:drawing">
-        <xsl:apply-templates/> <!-- includes Graphics, ... -->
-    </xsl:template><!-- Graphic --><xsl:template match="a:graphic">
-        <xsl:apply-templates/> <!-- includes Groups, Shapes, Images, Textboxes ... -->
+    </xsl:template><!-- Drawing (includes Graphics, ...) --><xsl:template match="w:drawing">
+        <xsl:apply-templates/>
+    </xsl:template><!-- Anchored/Inline Graphic --><xsl:template match="wp:anchor | wp:inline">
+        <xsl:apply-templates>
+            <!-- Alt-text for graphic -->
+            <xsl:with-param name="graphic-description" select="wp:docPr/@descr"/>
+        </xsl:apply-templates>
+    </xsl:template><!-- Graphic (includes Groups, Shapes, Images, Textboxes) --><xsl:template match="a:graphic">
+        <xsl:param name="graphic-description" select="''"/>
+        <xsl:apply-templates>
+            <!-- Description (alt text for image) -->
+            <xsl:with-param name="graphic-description" select="$graphic-description"/>
+        </xsl:apply-templates>
     </xsl:template><!-- Graphic horizontal position --><xsl:template match="wp:positionH">
         <!-- Skip position value -->
     </xsl:template><!-- Graphic vertical position --><xsl:template match="wp:positionV">
@@ -1270,11 +1279,15 @@
     </xsl:template><!-- Graphic relative width vertical --><xsl:template match="wp14:sizeRelV">
         <!-- Skip width value -->
     </xsl:template><!-- Image --><xsl:template match="pic:pic">
+        <xsl:param name="graphic-description" select="''"/>
         <xsl:element name="{$image-tag-name}" namespace="{$ns}">
-            <xsl:call-template name="insert-image-attributes"/>
+            <xsl:call-template name="insert-image-attributes">
+                <xsl:with-param name="graphic-description" select="$graphic-description"/>
+            </xsl:call-template>
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template><!-- Attributes for Image --><xsl:template name="insert-image-attributes">
+        <xsl:param name="graphic-description" select="''"/>
         <xsl:variable name="image-id" select="pic:blipFill/a:blip/@r:embed | pic:blipFill/a:blip/@r:link"/>
         <xsl:variable name="image-rel" select="$document-relationships/rel:Relationship[@Id = $image-id]"/>
         <xsl:variable name="image-target" select="$image-rel/@Target"/>
@@ -1321,10 +1334,19 @@
             </xsl:attribute>
         </xsl:if>
         <!-- Description (alt text) -->
-        <xsl:variable name="descr" select="normalize-space(pic:nvPicPr/pic:cNvPr/@descr)"/>
-        <xsl:if test="$descr">
+        <xsl:variable name="pic-description">
+            <xsl:choose>
+                <xsl:when test="not($graphic-description = '')">
+                    <xsl:value-of select="normalize-space($graphic-description)"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="normalize-space(pic:nvPicPr/pic:cNvPr/@descr)"/>
+                </xsl:otherwise>
+            </xsl:choose>  
+        </xsl:variable>
+        <xsl:if test="not($pic-description = '')">
             <xsl:attribute name="{$image-alt-attribute-name}">
-                <xsl:value-of select="$descr"/>
+                <xsl:value-of select="$pic-description"/>
             </xsl:attribute>
         </xsl:if>
         <!-- Position (inline or anchored) -->
