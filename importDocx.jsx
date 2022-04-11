@@ -207,7 +207,7 @@ _global["setups"] = {
 		"marker":"", /* Marker as a prefix of the content to identify bookmarks to be included. Value: String. Example: #My_bookmark_name -> Marker: # */
 		"isMarkerRemoved":true,
 		"isAnchorHidden":true,
-		"isCreated":false
+		"isCreated":true
 	},
 	"textbox":{ 
 		"tag":"textbox", 
@@ -2439,7 +2439,7 @@ function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _set
 		/* Apply styles to footnote paragraphs */
 		var _isAssignmentCorrect = __applyStylesToNoteParagraphs(_doc, _footnote, _pStyleNameArray);
 		if(!_isAssignmentCorrect) {
-			_global["log"].push(localize(_global.footnoteParagraphStyleErrorMessage, _counter));
+			_global["log"].push(localize(_global.footnoteParagraphStyleErrorMessage, i+1));
 		}
 	}
 
@@ -2569,7 +2569,7 @@ function __createEndnotes(_doc, _endnoteXMLElementArray, _setupObj) {
 		/* Apply styles to endnote paragraphs */
 		var _isAssignmentCorrect = __applyStylesToNoteParagraphs(_doc, _endnote, _pStyleNameArray);
 		if(!_isAssignmentCorrect) {
-			_global["log"].push(localize(_global.endnoteParagraphStyleErrorMessage, _counter));
+			_global["log"].push(localize(_global.endnoteParagraphStyleErrorMessage, i+1));
 		}
 	}
 

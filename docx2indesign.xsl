@@ -2082,6 +2082,20 @@
         <xsl:variable name="p-style-id" select="w:pPr/w:pStyle/@w:val"/>
         <xsl:variable name="list-id" select="w:pPr/w:numPr/w:numId/@w:val"/>
         <xsl:variable name="list-item-level" select="w:pPr/w:numPr/w:ilvl/@w:val"/>
+        <xsl:variable name="p-style-alias" select="$styles/w:style[@w:styleId = $p-style-id]/w:aliases/@w:val"/>
+        <xsl:variable name="p-style-name">
+            <xsl:choose>
+                <xsl:when test="boolean($p-style-alias) and contains($p-style-alias, ',')">
+                    <xsl:value-of select="substring-before($p-style-alias,',')"/>
+                </xsl:when>
+                <xsl:when test="boolean($p-style-alias)">
+                    <xsl:value-of select="$p-style-alias"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="$p-style-id"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
         <!-- ID -->
         <xsl:attribute name="{$paragraph-id-attribute-name}">
             <xsl:value-of select="@w14:paraId"/>
@@ -2110,15 +2124,15 @@
         </xsl:variable>
         <xsl:attribute name="{$style-attribute-name}">
             <xsl:choose>
-                <xsl:when test="boolean($p-style-id)">
+                <xsl:when test="boolean($p-style-name)">
                     <xsl:choose>
                         <!-- Registered Style Name + List Item Level -->
                         <xsl:when test="boolean(number($list-item-level))">
-                            <xsl:value-of select="concat($p-style-id, '-', $list-item-level)"/>
+                            <xsl:value-of select="concat($p-style-name, '-', $list-item-level)"/>
                         </xsl:when>
                         <!-- Registered Style Name -->
                         <xsl:otherwise>
-                            <xsl:value-of select="$p-style-id"/>
+                            <xsl:value-of select="$p-style-name"/>
                         </xsl:otherwise>
                     </xsl:choose>
                 </xsl:when>
