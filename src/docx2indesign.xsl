@@ -268,35 +268,35 @@
     <xsl:variable name="textbox-style-attribute-value" select="'Textbox'"/>
     <xsl:variable name="textbox-name-attribute-name" select="'name'"/>
     <xsl:variable name="textbox-alt-attribute-name" select="'alt'"/>
-    <xsl:variable name="shape-tag-name" select="'Vectorform'"/>
+    <xsl:variable name="shape-tag-name" select="'shape'"/>
     <xsl:variable name="shape-index-attribute-name" select="'Index'"/>
     <xsl:variable name="shape-style-attribute-name" select="'ostyle'"/>
-    <xsl:variable name="shape-style-attribute-value" select="'Vectorform'"/>
-    <xsl:variable name="shape-name-attribute-name" select="'Name'"/>
-    <xsl:variable name="shape-alt-attribute-name" select="'Beschreibung'"/>
-    <xsl:variable name="embedded-object-tag-name" select="'Eingebettetes_Objekt'"/>
+    <xsl:variable name="shape-style-attribute-value" select="'Shape'"/>
+    <xsl:variable name="shape-name-attribute-name" select="'name'"/>
+    <xsl:variable name="shape-alt-attribute-name" select="'description'"/>
+    <xsl:variable name="embedded-object-tag-name" select="'embedded-object'"/>
     <xsl:variable name="embedded-object-style-attribute-name" select="'ostyle'"/>
     <xsl:variable name="embedded-object-style-attribute-value" select="'Embedded_Object'"/>
-    <xsl:variable name="embedded-object-target-attribute-name" select="'Ziel'"/>
-    <xsl:variable name="embedded-object-program-attribute-name" select="'Programm'"/>
+    <xsl:variable name="embedded-object-target-attribute-name" select="'target'"/>
+    <xsl:variable name="embedded-object-program-attribute-name" select="'application'"/>
     <xsl:variable name="bookmark-tag-name" select="'bookmark'"/>
     <xsl:variable name="bookmark-index-attribute-name" select="'index'"/>
     <xsl:variable name="bookmark-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="bookmark-style-attribute-value" select="'Bookmark'"/>
     <xsl:variable name="bookmark-id-attribute-name" select="'id'"/>
     <xsl:variable name="bookmark-content-attribute-name" select="'content'"/>
-    <xsl:variable name="indexmark-tag-name" select="'Indexmarke'"/>
+    <xsl:variable name="indexmark-tag-name" select="'indexmark'"/>
     <xsl:variable name="indexmark-style-attribute-name" select="'cstyle'"/>
-    <xsl:variable name="indexmark-style-attribute-value" select="'Indexmarke'"/>
-    <xsl:variable name="indexmark-type-attribute-name" select="'Typ'"/>
-    <xsl:variable name="indexmark-format-attribute-name" select="'Format'"/>
-    <xsl:variable name="indexmark-entry-attribute-name" select="'Inhalt'"/>
-    <xsl:variable name="indexmark-target-attribute-name" select="'Ziel'"/>
-    <xsl:variable name="complex-field-tag-name" select="'Komplexes_Feld'"/>
+    <xsl:variable name="indexmark-style-attribute-value" select="'Indexmark'"/>
+    <xsl:variable name="indexmark-type-attribute-name" select="'type'"/>
+    <xsl:variable name="indexmark-format-attribute-name" select="'format'"/>
+    <xsl:variable name="indexmark-entry-attribute-name" select="'entry'"/>
+    <xsl:variable name="indexmark-target-attribute-name" select="'target'"/>
+    <xsl:variable name="complex-field-tag-name" select="'complex-field'"/>
     <xsl:variable name="complex-field-style-attribute-name" select="'cstyle'"/>
-    <xsl:variable name="complex-field-style-attribute-value" select="'Komplex_Feld'"/>
-    <xsl:variable name="complex-field-content-attribute-name" select="'Inhalt'"/>
-    <xsl:variable name="complex-field-data-attribute-name" select="'Daten'"/>
+    <xsl:variable name="complex-field-style-attribute-value" select="'Complex_Field'"/>
+    <xsl:variable name="complex-field-content-attribute-name" select="'content'"/>
+    <xsl:variable name="complex-field-data-attribute-name" select="'data'"/>
     <xsl:variable name="hyperlink-tag-name" select="'hyperlink'"/>
     <xsl:variable name="hyperlink-uri-attribute-name" select="'uri'"/>
     <xsl:variable name="hyperlink-title-attribute-name" select="'title'"/>
@@ -318,24 +318,24 @@
     <xsl:variable name="moved-from-text-tag-name" select="'deletedtext'"/>
     <xsl:variable name="track-change-author-attribute-name" select="'author'"/>
     <xsl:variable name="track-change-date-attribute-name" select="'date'"/>
-    <xsl:variable name="subdocument-tag-name" select="'Teildokument'"/>
+    <xsl:variable name="subdocument-tag-name" select="'subdocument'"/>
     <xsl:variable name="subdocument-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="subdocument-style-attribute-value" select="'Subdocument'"/>
-    <xsl:variable name="subdocument-uri-attribute-name" select="'URI'"/>
-    <xsl:variable name="equation-tag-name" select="'Mathematische_Gleichung'"/>
+    <xsl:variable name="subdocument-uri-attribute-name" select="'uri'"/>
+    <xsl:variable name="equation-tag-name" select="'equation'"/>
     <xsl:variable name="equation-style-attribute-name" select="'cstyle'"/>
-    <xsl:variable name="equation-style-attribute-value" select="'Mathematical_Equation'"/>
-    <xsl:variable name="time-tag-name" select="'Zeitangabe'"/>
-    <xsl:variable name="time-format-attribute-name" select="'Format'"/>
-    <xsl:variable name="time-type-attribute-name" select="'Typ'"/>
-    <xsl:variable name="data-tag-name" select="'Daten'"/>
-    <xsl:variable name="data-value-attribute-name" select="'Wert'"/>
-    <xsl:variable name="symbol-tag-name" select="'Symbol'"/>
+    <xsl:variable name="equation-style-attribute-value" select="'Equation'"/>
+    <xsl:variable name="time-tag-name" select="'time'"/>
+    <xsl:variable name="time-format-attribute-name" select="'format'"/>
+    <xsl:variable name="time-type-attribute-name" select="'type'"/>
+    <xsl:variable name="data-tag-name" select="'data'"/>
+    <xsl:variable name="data-value-attribute-name" select="'value'"/>
+    <xsl:variable name="symbol-tag-name" select="'symbol'"/>
     <xsl:variable name="symbol-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="symbol-style-attribute-value" select="'Symbol'"/>
-    <xsl:variable name="symbol-font-attribute-name" select="'Schrift'"/>
-    <xsl:variable name="symbol-code-attribute-name" select="'Unicode'"/>
-    <xsl:variable name="tab-tag-name" select="'Tabulator'"/>
+    <xsl:variable name="symbol-font-attribute-name" select="'font'"/>
+    <xsl:variable name="symbol-code-attribute-name" select="'unicode'"/>
+    <xsl:variable name="tab-tag-name" select="'tab'"/>
     <xsl:variable name="tab-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="tab-style-attribute-value" select="'Tabulator'"/>
     
