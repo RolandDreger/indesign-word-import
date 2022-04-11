@@ -210,15 +210,15 @@
     <xsl:variable name="paragraph-tag-name" select="'paragraph'"/>
     <xsl:variable name="paragraph-id-attribute-name" select="'ID'"/>
     <xsl:variable name="paragraph-style-attribute-name" select="'pstyle'"/>
-    <xsl:variable name="list-item-level-attribute-name" select="'Ebene'"/>
-    <xsl:variable name="list-id-attribute-name" select="'Liste'"/>
-    <xsl:variable name="table-tag-name" select="'Tabelle'"/>
-    <xsl:variable name="table-index-attribute-name" select="'Index'"/>
+    <xsl:variable name="list-item-level-attribute-name" select="'level'"/>
+    <xsl:variable name="list-id-attribute-name" select="'liste'"/>
+    <xsl:variable name="table-tag-name" select="'table'"/>
+    <xsl:variable name="table-index-attribute-name" select="'index'"/>
     <xsl:variable name="table-style-attribute-name" select="'tablestyle'"/>
     <xsl:variable name="table-marker-attribute-name" select="'table'"/>
     <xsl:variable name="table-rows-attribute-name" select="'trows'"/>
     <xsl:variable name="table-columns-attribute-name" select="'tcols'"/>
-    <xsl:variable name="table-cell-tag-name" select="'Zelle'"/>
+    <xsl:variable name="table-cell-tag-name" select="'cell'"/>
     <xsl:variable name="table-header-attribute-name" select="'theader'"/>
     <xsl:variable name="table-column-number-attribute-name" select="'ccols'"/>
     <xsl:variable name="table-row-number-attribute-name" select="'crows'"/>
@@ -235,7 +235,7 @@
     <xsl:variable name="comment-tag-name" select="'comment'"/>
     <xsl:variable name="comment-reference-tag-name" select="'commentref'"/>
     <xsl:variable name="comment-style-attribute-name" select="'pstyle'"/>
-    <xsl:variable name="comment-style-attribute-value" select="'comment'"/>
+    <xsl:variable name="comment-style-attribute-value" select="'Comment'"/>
     <xsl:variable name="comment-index-attribute-name" select="'index'"/>
     <xsl:variable name="comment-date-attribute-name" select="'date'"/>
     <xsl:variable name="comment-initials-attribute-name" select="'initials'"/>
@@ -244,7 +244,7 @@
     <xsl:variable name="citation-call-tag-name" select="'Zitataufruf'"/>
     <xsl:variable name="citation-source-tag-name" select="'Zitatquelle'"/>
     <xsl:variable name="citation-style-attribute-name" select="'class'"/>
-    <xsl:variable name="citation-style-attribute-value" select="'citation'"/>
+    <xsl:variable name="citation-style-attribute-value" select="'Citation'"/>
     <xsl:variable name="citation-style-type-attribute-name" select="'Formattyp'"/>
     <xsl:variable name="citation-style-name-attribute-name" select="'Formatname'"/>
     <xsl:variable name="citation-version-attribute-name" select="'Version'"/>
@@ -276,7 +276,7 @@
     <xsl:variable name="shape-alt-attribute-name" select="'Beschreibung'"/>
     <xsl:variable name="embedded-object-tag-name" select="'Eingebettetes_Objekt'"/>
     <xsl:variable name="embedded-object-style-attribute-name" select="'ostyle'"/>
-    <xsl:variable name="embedded-object-style-attribute-value" select="'Eingebettetes_Objekt'"/>
+    <xsl:variable name="embedded-object-style-attribute-value" select="'Embedded_Object'"/>
     <xsl:variable name="embedded-object-target-attribute-name" select="'Ziel'"/>
     <xsl:variable name="embedded-object-program-attribute-name" select="'Programm'"/>
     <xsl:variable name="bookmark-tag-name" select="'bookmark'"/>
@@ -294,7 +294,7 @@
     <xsl:variable name="indexmark-target-attribute-name" select="'Ziel'"/>
     <xsl:variable name="complex-field-tag-name" select="'Komplexes_Feld'"/>
     <xsl:variable name="complex-field-style-attribute-name" select="'cstyle'"/>
-    <xsl:variable name="complex-field-style-attribute-value" select="'Komplexes_Feld'"/>
+    <xsl:variable name="complex-field-style-attribute-value" select="'Komplex_Feld'"/>
     <xsl:variable name="complex-field-content-attribute-name" select="'Inhalt'"/>
     <xsl:variable name="complex-field-data-attribute-name" select="'Daten'"/>
     <xsl:variable name="hyperlink-tag-name" select="'hyperlink'"/>
@@ -304,7 +304,7 @@
     <xsl:variable name="cross-reference-uri-attribute-name" select="'uri'"/>
     <xsl:variable name="cross-reference-type-attribute-name" select="'type'"/>
     <xsl:variable name="cross-reference-format-attribute-name" select="'format'"/>
-    <xsl:variable name="inline-style-tag-name" select="'Zeichenformat'"/>
+    <xsl:variable name="inline-style-tag-name" select="'character-style'"/>
     <xsl:variable name="inline-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="page-break-tag-name" select="'pagebreak'"/>
     <xsl:variable name="column-break-tag-name" select="'columnbreak'"/>
@@ -320,11 +320,11 @@
     <xsl:variable name="track-change-date-attribute-name" select="'date'"/>
     <xsl:variable name="subdocument-tag-name" select="'Teildokument'"/>
     <xsl:variable name="subdocument-style-attribute-name" select="'cstyle'"/>
-    <xsl:variable name="subdocument-style-attribute-value" select="'Teildokument'"/>
+    <xsl:variable name="subdocument-style-attribute-value" select="'Subdocument'"/>
     <xsl:variable name="subdocument-uri-attribute-name" select="'URI'"/>
     <xsl:variable name="equation-tag-name" select="'Mathematische_Gleichung'"/>
     <xsl:variable name="equation-style-attribute-name" select="'cstyle'"/>
-    <xsl:variable name="equation-style-attribute-value" select="'Mathematische_Gleichung'"/>
+    <xsl:variable name="equation-style-attribute-value" select="'Mathematical_Equation'"/>
     <xsl:variable name="time-tag-name" select="'Zeitangabe'"/>
     <xsl:variable name="time-format-attribute-name" select="'Format'"/>
     <xsl:variable name="time-type-attribute-name" select="'Typ'"/>
