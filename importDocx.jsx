@@ -1111,7 +1111,7 @@ function __createComments(_doc, _wordXMLElement, _commentXMLElementArray, _setup
 /**
  * Get content text of comment
  * @param {XMLElement} _xmlElement 
- * @param {Obejct} _setupObj 
+ * @param {Object} _setupObj 
  * @returns String
  */
 function __getCommentText(_xmlElement, _setupObj) {
