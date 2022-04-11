@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: April 10, 2022
+    Modified: April 11, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -256,7 +256,7 @@
     <xsl:variable name="image-tag-name" select="'image'"/>
     <xsl:variable name="image-style-attribute-name" select="'ostyle'"/>
     <xsl:variable name="image-style-anchored-attribute-value" select="'Anchored_Image'"/>
-    <xsl:variable name="image-style-inline-attribute-value" select="'Inline-Image'"/>
+    <xsl:variable name="image-style-inline-attribute-value" select="'Inline_Image'"/>
     <xsl:variable name="image-source-attribute-name" select="'source'"/>
     <xsl:variable name="image-title-attribute-name" select="'title'"/>
     <xsl:variable name="image-alt-attribute-name" select="'description'"/>
