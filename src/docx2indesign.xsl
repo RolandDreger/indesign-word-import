@@ -435,24 +435,6 @@
 
     <!-- Attributes for Paragraph -->
     <xsl:template name="insert-paragraph-attributes">
-        <xsl:variable name="p-style-id" select="w:pPr/w:pStyle/@w:val"/>
-        <xsl:variable name="list-id" select="w:pPr/w:numPr/w:numId/@w:val"/>
-        <xsl:variable name="list-item-level" select="w:pPr/w:numPr/w:ilvl/@w:val"/>
-        <xsl:variable name="p-style-alias" select="$styles/w:style[@w:styleId = $p-style-id]/w:aliases/@w:val"/>
-        <xsl:variable name="p-style-name">
-            <xsl:choose>
-                <xsl:when test="boolean($p-style-alias) and contains($p-style-alias, ',')">
-                    <xsl:value-of select="substring-before($p-style-alias,',')"/>
-                </xsl:when>
-                <xsl:when test="boolean($p-style-alias)">
-                    <xsl:value-of select="$p-style-alias"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="$p-style-id"/>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-        <xsl:variable name="normalized-p-style-name" select="normalize-space($p-style-name)"/>
         <!-- ID -->
         <xsl:attribute name="{$paragraph-id-attribute-name}">
             <xsl:value-of select="@w14:paraId"/>
@@ -469,6 +451,24 @@
             </xsl:choose>
         </xsl:attribute>
         <!-- Paragraph Style -->
+        <xsl:variable name="p-style-id" select="w:pPr/w:pStyle/@w:val"/>
+        <xsl:variable name="list-id" select="w:pPr/w:numPr/w:numId/@w:val"/>
+        <xsl:variable name="list-item-level" select="w:pPr/w:numPr/w:ilvl/@w:val"/>
+        <xsl:variable name="p-style-alias" select="$styles/w:style[@w:styleId = $p-style-id]/w:aliases/@w:val"/>
+        <xsl:variable name="raw-p-style-name">
+            <xsl:choose>
+                <xsl:when test="boolean($p-style-alias) and contains($p-style-alias, ',')">
+                    <xsl:value-of select="substring-before($p-style-alias,',')"/>
+                </xsl:when>
+                <xsl:when test="boolean($p-style-alias)">
+                    <xsl:value-of select="$p-style-alias"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="$p-style-id"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <xsl:variable name="p-style-name" select="normalize-space($raw-p-style-name)"/>
         <xsl:variable name="style-attribute-name">
             <xsl:choose>
                 <xsl:when test="parent::w:footnote or parent::w:endnote or parent::w:comment or parent::w:txbxContent">
@@ -481,15 +481,15 @@
         </xsl:variable>
         <xsl:attribute name="{$style-attribute-name}">
             <xsl:choose>
-                <xsl:when test="boolean($normalized-p-style-name)">
+                <xsl:when test="boolean($p-style-name)">
                     <xsl:choose>
                         <!-- Registered Style Name + List Item Level -->
                         <xsl:when test="boolean(number($list-item-level))">
-                            <xsl:value-of select="concat($normalized-p-style-name, '-', $list-item-level)"/>
+                            <xsl:value-of select="concat($p-style-name, '-', $list-item-level)"/>
                         </xsl:when>
                         <!-- Registered Style Name -->
                         <xsl:otherwise>
-                            <xsl:value-of select="$normalized-p-style-name"/>
+                            <xsl:value-of select="$p-style-name"/>
                         </xsl:otherwise>
                     </xsl:choose>
                 </xsl:when>
