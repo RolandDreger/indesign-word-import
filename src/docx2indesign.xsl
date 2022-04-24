@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: April 11, 2022
+    Modified: April 24, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -220,8 +220,9 @@
     <xsl:variable name="table-columns-attribute-name" select="'tcols'"/>
     <xsl:variable name="table-cell-tag-name" select="'cell'"/>
     <xsl:variable name="table-header-attribute-name" select="'theader'"/>
-    <xsl:variable name="table-column-number-attribute-name" select="'ccols'"/>
     <xsl:variable name="table-row-number-attribute-name" select="'crows'"/>
+    <xsl:variable name="table-column-number-attribute-name" select="'ccols'"/>
+    <xsl:variable name="table-column-width-attribute-name" select="'ccolwidth'"/>
     <xsl:variable name="footnote-tag-name" select="'footnote'"/>
     <xsl:variable name="footnote-reference-tag-name" select="'footnoteref'"/>
     <xsl:variable name="footnote-index-attribute-name" select="'index'"/>
@@ -393,13 +394,15 @@
         <xsl:attribute name="app-version">
             <xsl:value-of select="$app-props/extp:AppVersion"/>
         </xsl:attribute>
-        <xsl:for-each select="$custom-props/cusp:property">
-            <xsl:if test="@name">
-                <xsl:attribute name="{@name}">
-                    <xsl:value-of select="vt:lpwstr"/>
-                </xsl:attribute>
-            </xsl:if>
-        </xsl:for-each>
+        <xsl:if test="$custom-props">
+            <xsl:for-each select="$custom-props/cusp:property">
+                <xsl:if test="@name">
+                    <xsl:attribute name="{@name}">
+                        <xsl:value-of select="vt:lpwstr"/>
+                    </xsl:attribute>
+                </xsl:if>
+            </xsl:for-each>
+        </xsl:if>
     </xsl:template>
 
 
@@ -449,6 +452,7 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
+        <xsl:variable name="normalized-p-style-name" select="normalize-space($p-style-name)"/>
         <!-- ID -->
         <xsl:attribute name="{$paragraph-id-attribute-name}">
             <xsl:value-of select="@w14:paraId"/>
@@ -477,15 +481,15 @@
         </xsl:variable>
         <xsl:attribute name="{$style-attribute-name}">
             <xsl:choose>
-                <xsl:when test="boolean($p-style-name)">
+                <xsl:when test="boolean($normalized-p-style-name)">
                     <xsl:choose>
                         <!-- Registered Style Name + List Item Level -->
                         <xsl:when test="boolean(number($list-item-level))">
-                            <xsl:value-of select="concat($p-style-name, '-', $list-item-level)"/>
+                            <xsl:value-of select="concat($normalized-p-style-name, '-', $list-item-level)"/>
                         </xsl:when>
                         <!-- Registered Style Name -->
                         <xsl:otherwise>
-                            <xsl:value-of select="$p-style-name"/>
+                            <xsl:value-of select="$normalized-p-style-name"/>
                         </xsl:otherwise>
                     </xsl:choose>
                 </xsl:when>
@@ -613,10 +617,18 @@
                 </xsl:attribute>
             </xsl:otherwise>
         </xsl:choose>
+        <!-- Column Width -->
+        <xsl:choose>
+            <xsl:when test="w:tcPr/w:tcW/@w:type = 'dxa'">
+                <xsl:variable name="column-width" select="number(w:tcPr/w:tcW/@w:w) div 20"/>
+                <xsl:attribute name="{concat('aid',':',$table-column-width-attribute-name)}">
+                    <xsl:value-of select="$column-width"/>
+                </xsl:attribute>
+            </xsl:when>
+        </xsl:choose>
     </xsl:template>
 
-    
-    
+
     
     <!-- InDesign Character Style -->
     <xsl:template name="assign-inline-styles">
