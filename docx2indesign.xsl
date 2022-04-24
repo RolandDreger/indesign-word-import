@@ -2287,8 +2287,9 @@
             </xsl:otherwise>
         </xsl:choose>
         <!-- Column Width -->
+        <!-- dxa (twentieths of a point), pct (fiftieths of a percent, not available in InDesign) -->
         <xsl:choose>
-            <xsl:when test="w:tcPr/w:tcW/@w:type = 'dxa'">
+            <xsl:when test="w:tcPr/w:tcW/@w:type = 'dxa' or w:tcPr/w:tcW/@w:type = 'pct'">
                 <xsl:variable name="column-width" select="number(w:tcPr/w:tcW/@w:w) div 20"/>
                 <xsl:attribute name="{concat('aid',':',$table-column-width-attribute-name)}">
                     <xsl:value-of select="$column-width"/>
