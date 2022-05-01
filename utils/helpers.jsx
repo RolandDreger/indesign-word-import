@@ -1,5 +1,49 @@
 ﻿/**
- * Remove XML elements
+ * Untag XML elements (Content remains)
+ * @param {Array} _xmlElementArray 
+ * @param {String} _label 
+ * @returns Boolean
+ */
+function __untagXMLElements(_xmlElementArray, _label) {
+
+	if(!_xmlElementArray || !(_xmlElementArray instanceof Array)) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+
+	if(_label === null || _label === undefined || _label.constructor !== String) {
+		_label = "";
+	}
+
+	var _counter = 0;
+
+	for(var i=0; i<_xmlElementArray.length; i+=1) {
+
+		var _xmlElement = _xmlElementArray[i];
+		if(!_xmlElement || !_xmlElement.hasOwnProperty("untag") || !_xmlElement.isValid) {
+			continue;
+		}
+
+		try {
+			_xmlElement.untag();
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.removeXMLElementsMessage, _counter, _label));
+	}
+
+	return true;
+} /* END function __removeXMLElements */
+
+
+
+/**
+ * Remove XML elements (Content is deleted)
  * @param {Array} _xmlElementArray 
  * @param {String} _label 
  * @returns Boolean

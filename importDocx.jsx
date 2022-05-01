@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: April 24, 2022
+		+ Last modified: Mai 1, 2022
 		
 		
 		+ Descriptions
@@ -95,14 +95,14 @@
 		# Drawbacks of the native docx import
 		
 		- Hyperlinks are not imported (correctly) (see https://indesign.uservoice.com/forums/601021-adobe-indesign-feature-requests/suggestions/32872021-hyperlinks-from-word)
-		- Table header and table styles are not imported
+		- Table table styles are not imported
 		- Local style overrides
 		- Import images as embedded images
 
 
 		# Known Issues
 
-		Hyperlinks über mehrere Absätze. Nur der Teil im ersten Absatz wird zu einem aktiven Hyperlink.
+		  Hyperlinks über mehrere Absätze. Nur der Teil im ersten Absatz wird zu einem aktiven Hyperlink.
 */
 
 
@@ -170,6 +170,16 @@ _global["setups"] = {
 		"isRemoved":false,
 		"isMarked":false, 
 		"isCreated":true
+	},
+	"index":{
+		"tag":"indexmark", 
+		"attributes":{
+			"type":"type",
+			"format":"format",
+			"entry":"entry",
+			"target":"target"
+		},  
+		"isCreated":false
 	},
 	"hyperlink":{
 		"tag":"hyperlink", 
@@ -2283,10 +2293,10 @@ function __handleTrackChanges(_doc, _wordXMLElement, _setupObj) {
 	}
 
 	if(IS_TRACK_CHANGE_REMOVED) {
-		__removeXMLElements(_insertedTextXMLElementArray, localize(_global.insertedTextLabel));
+		__untagXMLElements(_insertedTextXMLElementArray, localize(_global.insertedTextLabel));
 		__removeXMLElements(_deletedTextXMLElementArray, localize(_global.deletedTextLabel));
 		__removeXMLElements(_movedFromTextXMLElementArray, localize(_global.movedFromTextLabel));
-		__removeXMLElements(_movedToTextXMLElementArray, localize(_global.movedToTextLabel));
+		__untagXMLElements(_movedToTextXMLElementArray, localize(_global.movedToTextLabel));
 		return true;
 	}
 
@@ -2962,6 +2972,11 @@ function __defLocalizeStrings() {
 	_global.xmlStoryValidationError = { 
 		en: "Story of XML element not valid.",
 		de: "Textabschnitt des XML-Elements nicht valide." 
+	};
+
+	_global.removeXMLElementsMessage = { 
+		en: "%1 %2 untaged.",
+		de: "%1 %2 Tags entfernt." 
 	};
 
 	_global.removeXMLElementsMessage = { 
