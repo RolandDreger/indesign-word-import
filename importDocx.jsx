@@ -171,15 +171,17 @@ _global["setups"] = {
 		"isMarked":false, 
 		"isCreated":true
 	},
-	"index":{
+	"indexmark":{
 		"tag":"indexmark", 
 		"attributes":{
 			"type":"type",
 			"format":"format",
 			"entry":"entry",
 			"target":"target"
-		},  
-		"isCreated":false
+		},
+		"entrySeparator": ":",
+		"isRemoved":false,
+		"isCreated":true
 	},
 	"hyperlink":{
 		"tag":"hyperlink", 
@@ -217,7 +219,7 @@ _global["setups"] = {
 		"marker":"", /* Marker as a prefix of the content to identify bookmarks to be included. Value: String. Example: #My_bookmark_name -> Marker: # */
 		"isMarkerRemoved":true,
 		"isAnchorHidden":true,
-		"isCreated":true
+		"isCreated":false
 	},
 	"textbox":{ 
 		"tag":"textbox", 
@@ -588,6 +590,10 @@ function __getPackageData(_packageFile) {
 		if(!_tempFolder.exists) {
 			_tempFolder.create();
 		}
+		if(!_tempFolder.exists) {
+			_global["log"].push(localize(_global.createFolderErrorMessage, _tempFolderPath));
+			return null;
+		}
 		_packageFolderPath = _tempFolder.fullName + "/package_" + _timestamp;
 		_packageFolder = Folder(_packageFolderPath);
 	} catch(_error) {
@@ -595,10 +601,6 @@ function __getPackageData(_packageFile) {
 		return null;
 	}
 
-	if(!_tempFolder || !(_tempFolder instanceof Folder) || !_tempFolder.exists) {
-		_global["log"].push(localize(_global.createFolderErrorMessage, _tempFolderPath));
-		return null;
-	}
 	if(!_packageFolder || !(_packageFolder instanceof Folder)) {
 		_global["log"].push(localize(_global.createFolderErrorMessage, _packageFolderPath));
 		return null;
@@ -856,8 +858,8 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	__handleComments(_doc, _wordXMLElement, _setupObj);
 
 	/* 03 Index */
-	// _doc.indexes[0].topics[0].pageReferences.add(_xmlElement.texts[0], PageReferenceType.CURRENT_PAGE) /* -> DOC */
-
+	__handleIndexmarks(_doc, _wordXMLElement, _setupObj);
+	
 	/* 04 Hyperlinks */
 	__handleHyperlinks(_doc, _wordXMLElement, _setupObj);
 
@@ -1079,13 +1081,13 @@ function __createComments(_doc, _wordXMLElement, _commentXMLElementArray, _setup
 	
 	for(var i=_commentXMLElementArray.length-1; i>=0; i-=1) {
 
-		var _commmentXMLElement = _commentXMLElementArray[i];
-		if(!_commmentXMLElement || !_commmentXMLElement.isValid) {
+		var _commentXMLElement = _commentXMLElementArray[i];
+		if(!_commentXMLElement || !_commentXMLElement.isValid) {
 			continue;
 		}
 
-		var _commentText = __getCommentText(_commmentXMLElement, _setupObj);
-		var _targetIP = _commmentXMLElement.storyOffset;
+		var _commentText = __getCommentText(_commentXMLElement, _setupObj);
+		var _targetIP = _commentXMLElement.storyOffset;
 
 		try {
 
@@ -1100,7 +1102,7 @@ function __createComments(_doc, _wordXMLElement, _commentXMLElementArray, _setup
 			_comment.texts[0].contents = _commentText;
 
 			/* Remove XML container element */
-			_commmentXMLElement.remove();
+			_commentXMLElement.remove();
 
 		} catch(_error) {
 			_global["log"].push(_error.message);
@@ -1165,6 +1167,227 @@ function __getCommentText(_xmlElement, _setupObj) {
 
 	return _textArray.join("\r");
 } /* END function __getCommentText */
+
+
+/**
+ * Handle Indexmarks
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns 
+ */
+function __handleIndexmarks(_doc, _wordXMLElement, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const INDEXMARK_TAG_NAME = _setupObj["indexmark"]["tag"];
+	const IS_INDEXMARK_REMOVED = _setupObj["indexmark"]["isRemoved"];
+	const IS_INDEXMARK_CREATED = _setupObj["indexmark"]["isCreated"];
+
+	var _indexmarkXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + INDEXMARK_TAG_NAME);
+	if(_indexmarkXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if(IS_INDEXMARK_REMOVED) {
+		__removeXMLElements(_indexmarkXMLElementArray, localize(_global.indexmarksLabel));
+		return true;
+	}
+
+	if(IS_INDEXMARK_CREATED) {
+		__createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _setupObj);
+		return true;
+	}
+	
+	return true;
+} /* END function __handleIndexmarks */
+
+
+/**
+ * Create Indexmarks
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {XMLElement} _indexmarkXMLElementArray 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_indexmarkXMLElementArray || !(_indexmarkXMLElementArray instanceof Array)) { 
+		throw new Error("Array as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+
+	const TYPE_ATTRIBUTE_NAME = _setupObj["indexmark"]["attributes"]["type"];
+	const FORMAT_ATTRIBUTE_NAME = _setupObj["indexmark"]["attributes"]["format"];
+	const ENTRY_ATTRIBUTE_NAME = _setupObj["indexmark"]["attributes"]["entry"];
+	const TARGET_ATTRIBUTE_NAME = _setupObj["indexmark"]["attributes"]["target"];
+	const ENTRY_SEPARATOR = _setupObj["indexmark"]["entrySeparator"];
+
+	var _wordXMLStory = _wordXMLElement.parentStory;
+	if(!_wordXMLStory || !_wordXMLStory.isValid) {
+		_global["log"].push(localize(_global.xmlStoryValidationError));
+		return false;
+	}
+
+	var _index = _doc.indexes.firstItem();
+	if(!_index.isValid) {
+		_index = _doc.indexes.add();
+	}
+
+	var _counter = 0;
+	
+	indexmarkLoop: for(var i=_indexmarkXMLElementArray.length-1; i>=0; i-=1) {
+
+		var _indexmarkXMLElement = _indexmarkXMLElementArray[i];
+		if(!_indexmarkXMLElement || !_indexmarkXMLElement.isValid) {
+			continue;
+		}
+
+		/* Type */
+		var _typeAttribute = _indexmarkXMLElement.xmlAttributes.itemByName(TYPE_ATTRIBUTE_NAME);
+		if(!_typeAttribute.isValid) {
+			_global["log"].push(localize(_global.missingIndexmarkTypeMessage, TYPE_ATTRIBUTE_NAME));
+			continue;
+		}
+		var _type = _typeAttribute.value;
+
+		/* Format */
+		var _formatAttribute = _indexmarkXMLElement.xmlAttributes.itemByName(FORMAT_ATTRIBUTE_NAME);
+		if(!_formatAttribute.isValid) {
+			_global["log"].push(localize(_global.missingIndexmarkFormatMessage, FORMAT_ATTRIBUTE_NAME));
+			continue;
+		}
+		var _format = _formatAttribute.value;
+
+		/* Entry */
+		var _entryAttribute = _indexmarkXMLElement.xmlAttributes.itemByName(ENTRY_ATTRIBUTE_NAME);
+		if(!_entryAttribute.isValid) {
+			_global["log"].push(localize(_global.missingIndexmarkEntryMessage, ENTRY_ATTRIBUTE_NAME));
+			continue;
+		}
+		var _entryValue = _entryAttribute.value;
+		var _topicNameArray = _entryValue.split(ENTRY_SEPARATOR);
+		if(_topicNameArray.length > 4) {
+			_global["log"].push(localize(_global.maximumTopicLevelsErrorMessage, ENTRY_ATTRIBUTE_NAME, ENTRY_SEPARATOR));
+			continue;
+		}
+
+		/* Target */
+		var _targetAttribute = _indexmarkXMLElement.xmlAttributes.itemByName(TARGET_ATTRIBUTE_NAME);
+		if(!_targetAttribute.isValid) {
+			_global["log"].push(localize(_global.missingIndexmarkEntryMessage, TARGET_ATTRIBUTE_NAME));
+			continue;
+		}
+		var _target = _targetAttribute.value;
+
+		try {
+
+			/* Style (overrides default number style) */
+			var _numberOverrideStyle = null;
+			if(_format !== "") {
+				_numberOverrideStyle = _doc.characterStyles.itemByName(_format);
+				if(!_numberOverrideStyle.isValid) {
+					_numberOverrideStyle = _doc.characterStyles.add({ name:_format }); /* -> DOC */
+				}
+			}
+
+			/* Get/Create Topic */
+			var _entryTopic = __getTopic(_index, _topicNameArray);
+			if(!_entryTopic) {
+				_global["log"].push(localize(_global.createTopicErrorMessage, _entryValue));
+				continue;
+			}
+
+			switch(_type) {
+				case "r":
+					continue indexmarkLoop; /* ToDo: entfernen */
+					break;
+				case "t":
+					/* Add index cross-reference */
+					continue indexmarkLoop; /* ToDo: entfernen */
+					break;
+				case "x":
+					/* Add Page Reference */
+					_entryTopic.pageReferences.add(_indexmarkXMLElement.texts[0], PageReferenceType.CURRENT_PAGE, undefined, _numberOverrideStyle); /* -> DOC */
+					break;
+				default:
+					_global["log"].push(localize(_global.indexmarkTypeErrorMessage, _type));
+					continue indexmarkLoop;
+			}
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.indexmarksLabel)));
+	}
+
+	return true;
+} /* END function __createIndexmarks */
+
+
+/**
+ * Get topic 
+ * If the topic does not exist, one will be created.
+ * @param {Index|Topic} _inputTopic Document index.
+ * @param {Array} _inputTopicNameArray Array with names of topics.
+ */
+function __getTopic(_inputTopic, _inputTopicNameArray) {
+
+	if(!_inputTopic || !(_inputTopic instanceof Index || _inputTopic instanceof Topic) || !_inputTopic.isValid) {
+		return null;
+	}
+	if(!_inputTopicNameArray || !(_inputTopicNameArray instanceof Array) || _inputTopicNameArray.length === 0) {
+		return null;
+	}
+
+	const _trimWhitespaceRegExp = new RegExp("(^\\s+)|(\\s+$)","g"); 
+
+	var _rawCurTopicName = _inputTopicNameArray[0];
+	if(!_rawCurTopicName) {
+		return null;
+	}
+
+	var _curTopicName = _rawCurTopicName.toString().replace(_trimWhitespaceRegExp, "");
+	if(_curTopicName === "") {
+		return null;
+	}
+
+	var _curTopic = _inputTopic.topics.itemByName(_curTopicName);
+	if(!_curTopic.isValid) {
+		_curTopic = _inputTopic.topics.add(_curTopicName);
+	}
+	
+	var _outputTopic = _curTopic;
+
+	var _childTopicArray = _inputTopicNameArray.slice(1, _inputTopicNameArray.length);
+	if(_childTopicArray.length !== 0) {
+		_outputTopic = __getTopic(_curTopic, _childTopicArray);
+	}
+
+	return _outputTopic;
+} /* END function __getTopic */
 
 
 /**
@@ -2974,7 +3197,7 @@ function __defLocalizeStrings() {
 		de: "Textabschnitt des XML-Elements nicht valide." 
 	};
 
-	_global.removeXMLElementsMessage = { 
+	_global.untagXMLElementsMessage = { 
 		en: "%1 %2 untaged.",
 		de: "%1 %2 Tags entfernt." 
 	};
@@ -3059,6 +3282,51 @@ function __defLocalizeStrings() {
 		de: "%1 Sonderzeichen [%2] eingefügt." 
 	};
 
+	_global.indexmarksLabel = { 
+		en: "Indexmarks",
+		de: "Indexmarken" 
+	};
+
+	_global.indexmarkValidationErrorMessage = { 
+		en: "Indexmark not valid.",
+		de: "Indexmarke nicht valide." 
+	};
+
+	_global.missingIndexmarkTypeMessage = { 
+		en: "Indexmark element without type. Attribute [%1]",
+		de: "Indexmarker-Element ohne Typ. Attribut [%1]" 
+	};
+
+	_global.missingIndexmarkEntryMessage = { 
+		en: "Indexmark element without entry. Attribute [%1]",
+		de: "Indexmarker-Element ohne Eintrag. Attribut [%1]" 
+	};
+
+	_global.missingIndexmarkFormatMessage = { 
+		en: "Indexmark element without format. Attribute [%1]",
+		de: "Indexmarker-Element ohne Format. Attribut [%1]" 
+	};
+
+	_global.missingIndexmarkTargetMessage = { 
+		en: "Indexmark element without target. Attribute [%1]",
+		de: "Indexmarker-Element ohne Ziel. Attribut [%1]" 
+	};
+
+	_global.createTopicErrorMessage = { 
+		en: "Topic for index could not be found. Entry [%1]",
+		de: "Thema für Index konnte nicht erstellt werden. Eintrag [%1]" 
+	};
+
+	_global.maximumTopicLevelsErrorMessage = { 
+		en: "A maximum of 4 topic levels are allowed. Determined via topic separator [%2]. Entry [%1]",
+		de: "Es sind maximal 4 Themenebenen erlaubt. Ermittelt über Thementrenner [%2]. Eintrag [%1]" 
+	};
+
+	_global.indexmarkTypeErrorMessage = { 
+		en: "Type for index entry not defined or incorrect. Type [%1]",
+		de: "Typ für Indexeintrag nicht definiert oder fehlerhaft. Typ [%1]" 
+	};
+
 	_global.commentsLabel = { 
 		en: "Comments",
 		de: "Kommentare" 
@@ -3116,7 +3384,7 @@ function __defLocalizeStrings() {
 
 	_global.missingImageSourceMessage = { 
 		en: "Media element without source. Attribute [%1]",
-		de: "Medien-Element ohne Quelle. Attribute [%1]" 
+		de: "Medien-Element ohne Quelle. Attribut [%1]" 
 	};
 
 	_global.hyperlinksLabel = { 
@@ -3126,7 +3394,7 @@ function __defLocalizeStrings() {
 
 	_global.missingHyperlinkURIMessage = { 
 		en: "Hyperlink element without URI. Attribute [%1]",
-		de: "Hyperlink-Element ohne URI. Attribute [%1]" 
+		de: "Hyperlink-Element ohne URI. Attribut [%1]" 
 	};
 
 	_global.crossReferencesLabel = { 
@@ -3136,17 +3404,17 @@ function __defLocalizeStrings() {
 
 	_global.missingCrossReferenceURIMessage = { 
 		en: "Cross-reference element without URI. Attribute [%1]",
-		de: "Querverweis-Element ohne URI. Attribute [%1]" 
+		de: "Querverweis-Element ohne URI. Attribut [%1]" 
 	};
 
 	_global.missingCrossReferenceTypeMessage = { 
 		en: "Cross-reference element without type. Attribute [%1]",
-		de: "Querverweis-Element ohne Typ-Definition. Attribute [%1]" 
+		de: "Querverweis-Element ohne Typ-Definition. Attribut [%1]" 
 	};
 
 	_global.missingCrossReferenceFormatMessage = { 
 		en: "Cross-reference element without format. Attribute [%1]",
-		de: "Querverweis-Element ohne Format-Definition. Attribute [%1]" 
+		de: "Querverweis-Element ohne Format-Definition. Attribut [%1]" 
 	};
 
 	_global.noMatchingCrossReferenceTypeMessage = { 

@@ -4,7 +4,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: April 24, 2022
+    Modified: May 1, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -813,6 +813,11 @@
                     <xsl:value-of select="'x'"/>
                 </xsl:attribute>
             </xsl:when>
+            <xsl:otherwise>
+                <xsl:attribute name="{$indexmark-type-attribute-name}">
+                    <xsl:value-of select="''"/>
+                </xsl:attribute>
+            </xsl:otherwise>
         </xsl:choose>
         <!-- Styling -->
         <xsl:choose>
@@ -831,14 +836,19 @@
                     <xsl:value-of select="'i'"/>
                 </xsl:attribute>
             </xsl:when>
+            <xsl:otherwise>
+                <xsl:attribute name="{$indexmark-format-attribute-name}">
+                    <xsl:value-of select="''"/>
+                </xsl:attribute>
+            </xsl:otherwise>
         </xsl:choose>
         <!-- Entry (e.g. »Animal:Cat« for entry with subentry) -->
         <xsl:attribute name="{$indexmark-entry-attribute-name}">
-            <xsl:value-of select="substring-before(substring-after($complex-field-content,'&#34;'), '&#34;')"/>
+            <xsl:value-of select="normalize-space(substring-before(substring-after($complex-field-content,'&#34;'), '&#34;'))"/>
         </xsl:attribute>
         <!-- Target (page range or see here entry, e.g. name of the textmark/bookmark or see here entry) -->
         <xsl:attribute name="{$indexmark-target-attribute-name}">
-            <xsl:value-of select="substring-before(substring-after(substring-after(substring-after($complex-field-content,'&#34;'), '&#34;'), '&#34;'), '&#34;')"/>
+            <xsl:value-of select="normalize-space(substring-before(substring-after(substring-after(substring-after($complex-field-content,'&#34;'), '&#34;'), '&#34;'), '&#34;'))"/>
         </xsl:attribute>
     </xsl:template><!-- Attributes for complex field hyperlink --><xsl:template name="insert-complex-field-hyperlink-attributes">
         <xsl:param name="complex-field-content" select="''"/>

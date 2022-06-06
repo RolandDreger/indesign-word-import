@@ -34,11 +34,11 @@ function __untagXMLElements(_xmlElementArray, _label) {
 	}
 
 	if(_global["isLogged"]) {
-		_global["log"].push(localize(_global.removeXMLElementsMessage, _counter, _label));
+		_global["log"].push(localize(_global.untagXMLElementsMessage, _counter, _label));
 	}
 
 	return true;
-} /* END function __removeXMLElements */
+} /* END function __untagXMLElements */
 
 
 
