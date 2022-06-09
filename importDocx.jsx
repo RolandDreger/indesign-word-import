@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: Mai 1, 2022
+		+ Last modified: June 8, 2022
 		
 		
 		+ Descriptions
@@ -90,6 +90,20 @@
 			Bitte nach dem Import kontrollieren, ob diese den Wünschen entsprechen. Sonst beim Import deaktivieren. Die Informationen bleiben in 
 			der XML-Struktur vorhanden (außer in Fußnotentext, da ist keine XML erlaubt.) Mit diesen Informationen können die Querverweise an die
 			eignen Bedürfnise angepasst werden.
+		
+		# Index
+
+			Themen-Querverweise:
+
+			Themen:
+			Verschachtelte Themen können in Word im Feld Querverweis (Indexeintrag markieren > Optionen > Querverweis) mit Doppelpunkt als Trenner eingegeben werden, z.B. "Tiere: Katze".
+			
+			Präfix:
+			in den Skripteinstellungen können neben den Standardwerten auch individuelle Präfixen definiert werden. 
+			z.B.:
+			{"de":"x", "en":"x", "fr":"x"}  Eintrag im Word cross-reference field dann e.g. "x Topic0: Topic1"
+			Wird für Benutzerdefinierter Querverweis kein Eintrag gefunden, wird für customTextString ein non-joiner whitespace (\x{200B}) eingesetzt. (InDesign setzt in dem Falle beim
+			Word-Import ein \uFEFF Zeichen, was aber beim Zuweisen durch JavaScript die XML-Struktur zerstört.)
 
 
 		# Drawbacks of the native docx import
@@ -181,7 +195,19 @@ _global["setups"] = {
 		},
 		"entrySeparator": ":",
 		"isRemoved":false,
-		"isCreated":true
+		"isCreated":true,
+		"crossReference":{
+			"prefixes":[
+				{"de":"Siehe [auch]", "en":"See [also]", "fr":"Voir [aussi]"}, /* English key "en" and value "See [also]" is required as a minimum. Do not modify the value. */
+				{"de":"Siehe auch hier", "en":"See also herein", "fr":"Voir aussi ici"}, /* English key "en" and value "See also herein" is required as a minimum. Do not modify the value. */
+				{"de":"Siehe auch", "en":"See also", "fr":"Voir aussi"}, /* English key "en" and value "See also" is required as a minimum. Do not modify the value. */
+				{"de":"Siehe hier", "en":"See herein", "fr":"Voir ici"}, /* English key "en" and value "See herein" is required as a minimum. Do not modify the value. */
+				{"de":"Siehe", "en":"See", "fr":"Voir"}, /* English key "en" and value "See" is required as a minimum. Do not modify the value. */
+				/* more objects can be added -> CrossReferenceType.CUSTOM_CROSS_REFERENCE */
+				{"de":"x", "en":"x", "fr":"x"} /* Word cross-reference field: e.g. x Topic0: Topic1 */
+			],
+			"noMatchCustomTypeString": "\u200B" /* Default: zero-width whitespace; If an empty string, the prefix "See [also]" is used.  */
+		}
 	},
 	"hyperlink":{
 		"tag":"hyperlink", 
@@ -1308,8 +1334,8 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 				}
 			}
 
-			/* Get/Create Topic */
-			var _entryTopic = __getTopic(_index, _topicNameArray);
+			/* Create Topic */
+			var _entryTopic = __createTopic(_index, _topicNameArray);
 			if(!_entryTopic) {
 				_global["log"].push(localize(_global.createTopicErrorMessage, _entryValue));
 				continue;
@@ -1320,12 +1346,20 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 					continue indexmarkLoop; /* ToDo: entfernen */
 					break;
 				case "t":
-					/* Add index cross-reference */
-					continue indexmarkLoop; /* ToDo: entfernen */
+					/* Add topic cross-reference */
+					var _topicCrossRef = __addTopicCrossReference(_index, _entryTopic, _target, _setupObj);
+					if(!_topicCrossRef || !_topicCrossRef.isValid) {
+						_global["log"].push(localize(_global.topicCrossReferenceErrorMessage, _entryValue, _target));
+						continue indexmarkLoop;
+					}
 					break;
 				case "x":
 					/* Add Page Reference */
-					_entryTopic.pageReferences.add(_indexmarkXMLElement.texts[0], PageReferenceType.CURRENT_PAGE, undefined, _numberOverrideStyle); /* -> DOC */
+					var _pageRef = _entryTopic.pageReferences.add(_indexmarkXMLElement.texts[0], PageReferenceType.CURRENT_PAGE, undefined, _numberOverrideStyle); /* -> DOC */
+					if(!_pageRef || !_pageRef.isValid) {
+						_global["log"].push(localize(_global.pageReferenceErrorMessage, _entryValue, _target));
+						continue indexmarkLoop;
+					}
 					break;
 				default:
 					_global["log"].push(localize(_global.indexmarkTypeErrorMessage, _type));
@@ -1348,12 +1382,146 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 
 
 /**
- * Get topic 
+ * Add cross-reference for index topic
+ * @param {Index} _index
+ * @param {Topic} _entryTopic 
+ * @param {String} _target 
+ * @param {Object} _setupObj 
+ * @returns CrossReference
+ */
+function __addTopicCrossReference(_index, _entryTopic, _target, _setupObj) {
+
+	if(!_index || !(_index instanceof Index) || !_index.isValid) { return null; }
+	if(!_entryTopic || !(_entryTopic instanceof Topic) || !_entryTopic.isValid) { return null; }
+	if(_target ===  null || _target === undefined || _target.constructor !== String) { return null; }
+	if(!_setupObj || !(_setupObj instanceof Object))  { return null; }
+
+	const TOPIC_SEPARATOR = ":";
+	
+	const _crossRefPrefixObjArray = _setupObj["indexmark"]["crossReference"]["prefixes"];
+	const _noMatchCustomTypeString = _setupObj["indexmark"]["crossReference"]["noMatchCustomTypeString"];
+	const _referencedTopicNameSplitRegExp = new RegExp(TOPIC_SEPARATOR + "[^\\S\\r\\n]*","");
+
+	/* Get cross-reference type and cross-reference custom string */
+	var _crossRefType;
+	var _crossRefCustomString = "";
+	var _referencedTopicName = _target;
+
+	for(var i=0; i<_crossRefPrefixObjArray.length; i+=1) {
+
+		var _crossRefPrefixObj = _crossRefPrefixObjArray[i];
+		if(!_crossRefPrefixObj || !(_crossRefPrefixObj instanceof Object) || !_crossRefPrefixObj.hasOwnProperty("en")) {
+			continue;
+		}
+
+		var _crossRefPrefix = localize(_crossRefPrefixObj);
+		if(!_crossRefPrefix || _crossRefPrefix.constructor !== String) {
+			continue;
+		}
+
+		var _crossRefPrefixRegExp = new RegExp("^" + _crossRefPrefix + "[^\\S\\r\\n]+","i");
+		var _crossRefPrefixMatchArray = _target.match(_crossRefPrefixRegExp);
+		if(!_crossRefPrefixMatchArray || _crossRefPrefixMatchArray.length === 0) {
+			continue;
+		}
+
+		var _crossRefKey = _crossRefPrefixObj["en"];
+		switch(_crossRefKey) {
+			case "See [also]":
+				_crossRefType = CrossReferenceType.SEE_OR_ALSO_BRACKET;
+				break;
+			case "See also herein":
+				_crossRefType = CrossReferenceType.SEE_ALSO_HEREIN;
+				break;
+			case "See also":
+				_crossRefType = CrossReferenceType.SEE_ALSO;
+				break;
+			case "See herein":
+				_crossRefType = CrossReferenceType.SEE_HEREIN;
+				break;
+			case "See":
+				_crossRefType = CrossReferenceType.SEE;
+				break;
+			default:
+				_crossRefType = CrossReferenceType.CUSTOM_CROSS_REFERENCE_BEFORE;
+				_crossRefCustomString = _crossRefPrefixMatchArray[0];
+		}
+
+		_referencedTopicName = _target.replace(_crossRefPrefixRegExp, "");
+		break;
+	}
+
+	/* Check: No match for cross-reference prefix? */
+	if(!_crossRefType) {
+		_crossRefType = CrossReferenceType.CUSTOM_CROSS_REFERENCE;
+		_crossRefCustomString = _noMatchCustomTypeString;
+	}
+
+	var _referencedTopicNameArray = _referencedTopicName.split(_referencedTopicNameSplitRegExp);
+	var _referencedTopic = __createTopic(_index, _referencedTopicNameArray);
+	if(!_referencedTopic) {
+		_global["log"].push(localize(_global.createTopicErrorMessage, _referencedTopicName));
+		return null;
+	}
+
+	/* Check: Cross-reference already exists? */
+	var _topicCrossRef = __getTopicCrossReference(_entryTopic, _referencedTopic, _crossRefCustomString);
+	if(_topicCrossRef === null) {
+		try {
+			_topicCrossRef = _entryTopic.crossReferences.add(_referencedTopic, _crossRefType, _crossRefCustomString);
+		} catch(_error) {
+			_global["log"].push(_error.message);
+			return null;
+		}
+	} 
+
+	return _topicCrossRef;
+} /* END function __addTopicCrossReference */
+
+
+/**
+ * Get index cross-reference
+ * Check if cross-reference already exists. If yes, return cross-reference.
+ * Reason: An exactly identical cross-reference cannot be created again.
+ * @param {Topic} _parentTopic 
+ * @param {Topic} _referencedTopic 
+ * @param {String} _customTypeString 
+ * @returns CrossRefference|Null
+ */
+function __getTopicCrossReference(_parentTopic, _referencedTopic, _customTypeString) {
+	
+	if(!_parentTopic || !(_parentTopic instanceof Topic) || !_parentTopic.isValid) { return false; }
+	if(!_referencedTopic || !(_referencedTopic instanceof Topic) || !_referencedTopic.isValid) { return false; }
+	if(_customTypeString === null || _customTypeString === undefined || _customTypeString.constructor !== String) { return false; }
+	
+	var _crossReferenceArray = _parentTopic.crossReferences.everyItem().getElements();
+	
+	for(var i=0; i<_crossReferenceArray.length; i+=1) {
+		
+		var _curCrossReference = _crossReferenceArray[i];
+		if(!_curCrossReference || !_curCrossReference.isValid) {
+			continue;
+		}
+		
+		if(
+			_curCrossReference.referencedTopic === _referencedTopic &&
+			_curCrossReference.customTypeString === _customTypeString
+		) {
+			return _curCrossReference;
+		}
+	}
+	
+	return null;
+} /* END function __getTopicCrossReference */
+
+
+/**
+ * Create index topic 
  * If the topic does not exist, one will be created.
  * @param {Index|Topic} _inputTopic Document index.
  * @param {Array} _inputTopicNameArray Array with names of topics.
  */
-function __getTopic(_inputTopic, _inputTopicNameArray) {
+function __createTopic(_inputTopic, _inputTopicNameArray) {
 
 	if(!_inputTopic || !(_inputTopic instanceof Index || _inputTopic instanceof Topic) || !_inputTopic.isValid) {
 		return null;
@@ -1383,11 +1551,11 @@ function __getTopic(_inputTopic, _inputTopicNameArray) {
 
 	var _childTopicArray = _inputTopicNameArray.slice(1, _inputTopicNameArray.length);
 	if(_childTopicArray.length !== 0) {
-		_outputTopic = __getTopic(_curTopic, _childTopicArray);
+		_outputTopic = __createTopic(_curTopic, _childTopicArray);
 	}
 
 	return _outputTopic;
-} /* END function __getTopic */
+} /* END function __createTopic */
 
 
 /**
@@ -3325,6 +3493,16 @@ function __defLocalizeStrings() {
 	_global.indexmarkTypeErrorMessage = { 
 		en: "Type for index entry not defined or incorrect. Type [%1]",
 		de: "Typ für Indexeintrag nicht definiert oder fehlerhaft. Typ [%1]" 
+	};
+
+	_global.topicCrossReferenceErrorMessage = { 
+		en: "Cross-reference for index entry could not be created. Entry [%1] Target [%2]",
+		de: "Querverweis für Indexeintrag konnte nicht erstellt werden. Eintrag [%1] Ziel [%2]" 
+	};
+
+	_global.pageReferenceErrorMessage = { 
+		en: "Page reference for index entry could not be created. Entry [%1] Target [%2]",
+		de: "Seitenverweis für Indexeintrag konnte nicht erstellt werden. Eintrag [%1] Ziel [%2]" 
 	};
 
 	_global.commentsLabel = { 
