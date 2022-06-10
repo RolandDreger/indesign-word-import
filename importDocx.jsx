@@ -114,6 +114,7 @@
 		- Table table styles are not imported
 		- Local style overrides
 		- Import images as embedded images
+		- Index: Styles for page reference number is not transferred.
 
 
 		# Known Issues
@@ -625,7 +626,7 @@ function __getPackageData(_packageFile) {
 		_packageFolderPath = _tempFolder.fullName + "/package_" + _timestamp;
 		_packageFolder = Folder(_packageFolderPath);
 	} catch(_error) {
-		_global["log"].push(_error.message);
+		_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 		return null;
 	}
 
@@ -638,7 +639,7 @@ function __getPackageData(_packageFile) {
 	try {
 		app.unpackageUCF(_packageFile, _packageFolder);
 	} catch(_error) {
-		_global["log"].push(_error.message);
+		_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 		return null;
 	}
 	
@@ -773,7 +774,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 		_doc.importXML(_wordXMLFile);
 
 	} catch(_error) {
-		_global["log"].push(localize(_global.xmlFileImportXMLErrorMessage) + " " + _error.message);
+		_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 		return null;
 	} finally {
 		_doc.xmlImportPreferences.properties = _userXMLImportPreferences;
@@ -842,7 +843,7 @@ function __getXSLTFile(_xsltFileName) {
 	
 	try {
 		_skriptFolder  = app.activeScript.parent;
-	} catch (_error) { 
+	} catch(_error) { 
 		_skriptFolder = File(_error.fileName).parent;
 	}
 	
@@ -1012,7 +1013,7 @@ function __insertSpecialCharacter(_xmlElementArray, _specialCharName) {
 		try {
 			_xmlElement.contents = SpecialCharacters[_specialCharName]; 
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			continue;
 		}
 		
@@ -1133,7 +1134,7 @@ function __createComments(_doc, _wordXMLElement, _commentXMLElementArray, _setup
 			_commentXMLElement.remove();
 
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			continue;
 		}
 
@@ -1343,9 +1344,22 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 				continue;
 			}
 
+			var _pageRef;
+
 			switch(_type) {
 				case "r":
-					continue indexmarkLoop; /* ToDo: entfernen */
+					/* Page range via bookmark */
+					_global["log"].push(localize(_global.indexPageRangeOptionErrorMessage, _entryValue, _target));
+					var _numOfParagraphs = __getNumberOfParagraphs(_wordXMLElement, _indexmarkXMLElement, _target, _setupObj);
+					if(!_numOfParagraphs) {
+						_global["log"].push(localize(_global.getNumberOfParagraphsErrorMessage, _entryValue, _target));
+						continue indexmarkLoop;
+					}
+					_pageRef = _entryTopic.pageReferences.add(_indexmarkXMLElement.texts[0], PageReferenceType.FOR_NEXT_N_PARAGRAPHS, _numOfParagraphs, _numberOverrideStyle); /* -> DOC */
+					if(!_pageRef || !_pageRef.isValid) {
+						_global["log"].push(localize(_global.pageReferenceErrorMessage, _entryValue, _target));
+						continue indexmarkLoop;
+					}
 					break;
 				case "t":
 					/* Add topic cross-reference */
@@ -1357,7 +1371,7 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 					break;
 				case "x":
 					/* Add Page Reference */
-					var _pageRef = _entryTopic.pageReferences.add(_indexmarkXMLElement.texts[0], PageReferenceType.CURRENT_PAGE, undefined, _numberOverrideStyle); /* -> DOC */
+					_pageRef = _entryTopic.pageReferences.add(_indexmarkXMLElement.texts[0], PageReferenceType.CURRENT_PAGE, undefined, _numberOverrideStyle); /* -> DOC */
 					if(!_pageRef || !_pageRef.isValid) {
 						_global["log"].push(localize(_global.pageReferenceErrorMessage, _entryValue, _target));
 						continue indexmarkLoop;
@@ -1368,7 +1382,7 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 					continue indexmarkLoop;
 			}
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			continue;
 		}
 
@@ -1472,9 +1486,9 @@ function __addTopicCrossReference(_index, _entryTopic, _target, _setupObj) {
 	var _topicCrossRef = __getTopicCrossReference(_entryTopic, _referencedTopic, _crossRefCustomString);
 	if(_topicCrossRef === null) {
 		try {
-			_topicCrossRef = _entryTopic.crossReferences.add(_referencedTopic, _crossRefType, _crossRefCustomString);
+			_topicCrossRef = _entryTopic.crossReferences.add(_referencedTopic, _crossRefType, _crossRefCustomString); /* -> DOC */
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			return null;
 		}
 	} 
@@ -1548,7 +1562,7 @@ function __createTopic(_inputTopic, _inputTopicNameArray) {
 
 	var _curTopic = _inputTopic.topics.itemByName(_curTopicName);
 	if(!_curTopic.isValid) {
-		_curTopic = _inputTopic.topics.add(_curTopicName);
+		_curTopic = _inputTopic.topics.add(_curTopicName); /* -> DOC */
 	}
 	
 	var _outputTopic = _curTopic;
@@ -1560,6 +1574,51 @@ function __createTopic(_inputTopic, _inputTopicNameArray) {
 
 	return _outputTopic;
 } /* END function __createTopic */
+
+
+/**
+ * Get number of paragraphs between two XML elements
+ * (Index entry element and bookmark element)
+ * @param {XMLElement} _wordXMLElement 
+ * @param {XMLElement} _indexmarkXMLElement 
+ * @param {String} _bookmarkID 
+ * @param {Object} _setupObj 
+ * @returns Number | Null
+ */
+function __getNumberOfParagraphs(_wordXMLElement, _indexmarkXMLElement, _bookmarkID, _setupObj) {
+
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { return null; }
+	if(!_indexmarkXMLElement || !(_indexmarkXMLElement instanceof XMLElement) || !_indexmarkXMLElement.isValid) { return null;	}
+	if(!_bookmarkID || _bookmarkID.constructor !== String) { return null;	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { return null;	}
+
+	const BOOKMARK_TAG_NAME = _setupObj["bookmark"]["tag"];
+	const BOOKMARK_ID_ATTRIBUTE_NAME = _setupObj["bookmark"]["attributes"]["id"];
+
+	var _bookmarkXMLElement = _wordXMLElement.evaluateXPathExpression("//" + BOOKMARK_TAG_NAME + "[@" + BOOKMARK_ID_ATTRIBUTE_NAME + " = '" + _bookmarkID + "']")[0];
+	if(!_bookmarkXMLElement || !_bookmarkXMLElement.isValid) {
+		_global["log"].push(localize(_global.indexEntryBookmarkNotFoundMessage, _bookmarkID));
+		return null;
+	}
+
+	var _indexmarkStory = _indexmarkXMLElement.parentStory;
+	var _bookmarkStory = _bookmarkXMLElement.parentStory;
+	if(!_indexmarkStory.isValid || !_bookmarkStory.isValid || _indexmarkStory !== _bookmarkStory) {
+		return null;
+	}
+
+	var _paragraphRange = _indexmarkStory.paragraphs.itemByRange(_indexmarkXMLElement.paragraphs[0], _bookmarkXMLElement.paragraphs[0]);
+	if(!_paragraphRange.isValid) {
+		return null;
+	}
+
+	var _numOfParagraphs = _paragraphRange.paragraphs.count();
+	if(_numOfParagraphs < 1) {
+		return null;
+	}
+
+	return _numOfParagraphs;
+} /* END function __getNumberOfParagraphs */
 
 
 /**
@@ -1715,7 +1774,7 @@ function __createHyperlinks(_doc, _wordXMLElement, _hyperlinkXMLElementArray, _s
 			}
 		} catch(_error) {
 
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 
 			/* Clean up */
 			if(_hyperlinkSource && _hyperlinkSource.isValid) {
@@ -1945,7 +2004,7 @@ function __createCrossReferences(_doc, _wordXMLElement, _crossRefXMLElementArray
 			/* Add Cross-reference */
 			_doc.hyperlinks.add(_crossRefSource, _crossRefDestination); /* -> DOC */
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			/* Clean up */
 			if(_crossRefSource && _crossRefSource.isValid) {
 				_crossRefSource.remove(); /* This also automatically removes hyperlink and hyperlink destination */
@@ -2024,7 +2083,7 @@ function __createCrossReferenceFormat(_doc, _crossRefFormatId, _buildingBlockTyp
 			_crossRefFormat.appliedCharacterStyle = _cStyle;
 		}
 	} catch(_error) {
-		_global["log"].push(_error.message);
+		_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 		return null;
 	}
 
@@ -2153,7 +2212,7 @@ function __createBookmarks(_doc, _wordXMLElement, _bookmarkXMLElementArray, _set
 			_bookmark.name = _bookmarkName;
 			
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			/* Clean up */
 			if(_bookmark && _bookmark.isValid) {
 				_bookmark.remove();
@@ -2286,7 +2345,7 @@ function __createTextboxes(_doc, _textboxXMLElementArray, _setupObj) {
 			__applyStylesToTextboxParagraphs(_doc, _textboxXMLElement, _setupObj);
 
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			continue;
 		}
 
@@ -2347,7 +2406,7 @@ function __applyStylesToTextboxParagraphs(_doc, _textboxXMLElement, _setupObj) {
 		try {
 			_paragraphXMLElement.applyParagraphStyle(_pStyle, true);
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			_isAssignmentCorrect = false;
 			continue;
 		}
@@ -2454,7 +2513,7 @@ function __insertImageSources(_doc, _imageXMLElementArray, _setupObj) {
 		try {
 			_imageXMLElement.insertTextAsContent("{" + _sourceAttribute.value + "}", XMLElementPosition.ELEMENT_START);
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			continue;
 		}
 
@@ -2626,7 +2685,7 @@ function __placeImages(_doc, _imageXMLElementArray, _unpackObj, _setupObj) {
 				}
 			}
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			continue;
 		}
 
@@ -2835,7 +2894,7 @@ function __createFootnotes(_doc, _wordXMLElement, _footnoteXMLElementArray, _set
 			_footnoteXMLElement.remove();
 
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			continue;
 		}
 
@@ -2965,7 +3024,7 @@ function __createEndnotes(_doc, _endnoteXMLElementArray, _setupObj) {
 			_endnoteXMLElement.remove();
 
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			continue;
 		}
 
@@ -3070,7 +3129,7 @@ function __applyStylesToNoteParagraphs(_doc, _note, _pStyleNameArray) {
 		try {
 			_noteParagraph.applyParagraphStyle(_pStyle, true);
 		} catch(_error) {
-			_global["log"].push(_error.message);
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 			_isAssignmentCorrect = false;
 			continue;
 		}
@@ -3130,7 +3189,7 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 	try {
 		_wordTextFrame = _targetPage.placeXML(_wordXMLElement, [_placePointTop, _placePointLeft], IS_AUTOFLOWING);
 	} catch(_error) {
-		_global["log"].push(_error.message);
+		_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
 		return null;
 	} finally {
 		_doc.viewPreferences.rulerOrigin = _userRulerOrigin;
@@ -3259,6 +3318,11 @@ function __defLocalizeStrings() {
 		de:"Zeile:" 
 	};
 	
+	_global.indesignErrorMessage = { 
+		en:"Error message [%1] Line [%2]",
+		de:"Fehlermeldung [%1] Zeile [%2]" 
+	};
+
 	_global.fileNameLabel = { 
 		en:"File:",
 		de:"Datei:" 
@@ -3485,13 +3549,23 @@ function __defLocalizeStrings() {
 	};
 
 	_global.createTopicErrorMessage = { 
-		en: "Topic for index could not be found. Entry [%1]",
-		de: "Thema für Index konnte nicht erstellt werden. Eintrag [%1]" 
+		en: "Index entry [%1]. Topic for index could not be found.",
+		de: "Indexeintrag [%1]. Thema für Index konnte nicht erstellt werden." 
+	};
+
+	_global.indexPageRangeOptionErrorMessage = {
+		en: "Index entry [%1] Target [%2]. There is no direct equivalent in InDesign for the option [Page range → bookmark] in Word. Please check the entries in the index.",
+		de: "Indexeintrag [%1] Ziel [%2]. Für die Option [Seitenbereich → Textmarke] in Word gibt es keine direkte Entsprechung in InDesign. Bitte die Einträge im Index kontrollieren."
+	};
+
+	_global.getNumberOfParagraphsErrorMessage = {
+		en: "Index entry [%1] Target [%2]. The number of paragraphs for page reference could not be determined.",
+		de: "Indexeintrag [%1] Ziel [%2]. Die Anzahl der Absätze für die Seitenreferenz konnte nicht ermittelt werden."
 	};
 
 	_global.maximumTopicLevelsErrorMessage = { 
-		en: "A maximum of 4 topic levels are allowed. Determined via topic separator [%2]. Entry [%1]",
-		de: "Es sind maximal 4 Themenebenen erlaubt. Ermittelt über Thementrenner [%2]. Eintrag [%1]" 
+		en: "Index entry [%1]. A maximum of 4 topic levels are allowed. Determined via topic separator [%2].",
+		de: "Indexeintrag [%1]. Es sind maximal 4 Themenebenen erlaubt. Ermittelt über Thementrenner [%2]." 
 	};
 
 	_global.indexmarkTypeErrorMessage = { 
@@ -3500,13 +3574,18 @@ function __defLocalizeStrings() {
 	};
 
 	_global.topicCrossReferenceErrorMessage = { 
-		en: "Cross-reference for index entry could not be created. Entry [%1] Target [%2]",
-		de: "Querverweis für Indexeintrag konnte nicht erstellt werden. Eintrag [%1] Ziel [%2]" 
+		en: "Index entry [%1] Target [%2]. Cross-reference for index entry could not be created.",
+		de: "Eintrag [%1] Ziel [%2]. Querverweis für Indexeintrag konnte nicht erstellt werden." 
 	};
 
 	_global.pageReferenceErrorMessage = { 
-		en: "Page reference for index entry could not be created. Entry [%1] Target [%2]",
-		de: "Seitenverweis für Indexeintrag konnte nicht erstellt werden. Eintrag [%1] Ziel [%2]" 
+		en: "Index entry [%1]. Page reference for index entry could not be created.",
+		de: "Eintrag [%1] Ziel [%2]. Seitenverweis für Indexeintrag konnte nicht erstellt werden." 
+	};
+
+	_global.indexEntryBookmarkNotFoundMessage = { 
+		en: "Bookmark for index entry (page range) could not be found. Bookmark ID [%1]",
+		de: "Textmarke für Indexeintrag (Seitenbereich) konnte nicht gefunden werden. ID Textmarke [%1]" 
 	};
 
 	_global.commentsLabel = { 
