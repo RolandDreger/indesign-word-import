@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: June 8, 2022
+		+ Last modified: June 10, 2022
 		
 		
 		+ Descriptions
@@ -102,8 +102,10 @@
 			in den Skripteinstellungen können neben den Standardwerten auch individuelle Präfixen definiert werden. 
 			z.B.:
 			{"de":"x", "en":"x", "fr":"x"}  Eintrag im Word cross-reference field dann e.g. "x Topic0: Topic1"
-			Wird für Benutzerdefinierter Querverweis kein Eintrag gefunden, wird für customTextString ein non-joiner whitespace (\x{200B}) eingesetzt. (InDesign setzt in dem Falle beim
-			Word-Import ein \uFEFF Zeichen, was aber beim Zuweisen durch JavaScript die XML-Struktur zerstört.)
+			Wird für Benutzerdefinierter Querverweis kein Eintrag gefunden, wird für customTextString ein non-joiner whitespace (\x{200B}) eingesetzt.
+			In der Eingabemaske für den Indexeintrag erscheint dafür im Feld »Benuterdefiniert« die Zeichenkombination »^k«.  
+			(InDesign setzt in dem Falle beim
+			Word-Import ein \uFEFF Zeichen, was aber beim Zuweisen durch JavaScript die XML-Struktur »zerstört«.)
 
 
 		# Drawbacks of the native docx import
@@ -204,7 +206,7 @@ _global["setups"] = {
 				{"de":"Siehe hier", "en":"See herein", "fr":"Voir ici"}, /* English key "en" and value "See herein" is required as a minimum. Do not modify the value. */
 				{"de":"Siehe", "en":"See", "fr":"Voir"}, /* English key "en" and value "See" is required as a minimum. Do not modify the value. */
 				/* more objects can be added -> CrossReferenceType.CUSTOM_CROSS_REFERENCE */
-				{"de":"x", "en":"x", "fr":"x"} /* Word cross-reference field: e.g. x Topic0: Topic1 */
+				{"de":"→", "en":"→", "fr":"→"} /* Word cross-reference field: e.g. x Topic0: Topic1 */
 			],
 			"noMatchCustomTypeString": "\u200B" /* Default: zero-width whitespace; If an empty string, the prefix "See [also]" is used.  */
 		}
@@ -1401,6 +1403,7 @@ function __addTopicCrossReference(_index, _entryTopic, _target, _setupObj) {
 	const _crossRefPrefixObjArray = _setupObj["indexmark"]["crossReference"]["prefixes"];
 	const _noMatchCustomTypeString = _setupObj["indexmark"]["crossReference"]["noMatchCustomTypeString"];
 	const _referencedTopicNameSplitRegExp = new RegExp(TOPIC_SEPARATOR + "[^\\S\\r\\n]*","");
+	const _specialCharRegExp = new RegExp("([.*+?()[\\]{}\\^$|\\~\\\\])", "g");
 
 	/* Get cross-reference type and cross-reference custom string */
 	var _crossRefType;
@@ -1419,7 +1422,8 @@ function __addTopicCrossReference(_index, _entryTopic, _target, _setupObj) {
 			continue;
 		}
 
-		var _crossRefPrefixRegExp = new RegExp("^" + _crossRefPrefix + "[^\\S\\r\\n]+","i");
+		var escapedCrossRefPrefix = _crossRefPrefix.replace(_specialCharRegExp, "\\$1");
+		var _crossRefPrefixRegExp = new RegExp("^" + escapedCrossRefPrefix + "[^\\S\\r\\n]+","i");
 		var _crossRefPrefixMatchArray = _target.match(_crossRefPrefixRegExp);
 		if(!_crossRefPrefixMatchArray || _crossRefPrefixMatchArray.length === 0) {
 			continue;
