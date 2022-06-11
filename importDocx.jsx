@@ -470,8 +470,6 @@ function __runMainSequence(_doScriptParameterArray) {
 	var _hooks = new Hooks();
 
 	/* Get docx file */
-// Remove if ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-if(_doc.xmlElements[0].xmlElements.length === 0) {
 	var _docxFile = __getDocxFile();
 	if(!_docxFile) {
 		return false;
@@ -494,16 +492,6 @@ if(_doc.xmlElements[0].xmlElements.length === 0) {
 	if(!_wordXMLElement) {
 		return false;
 	}
-} else {
-	var _wordXMLElement = _doc.xmlElements[0].xmlElements.lastItem();
-	var _unpackObj = {
-		"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732"),
-		"word":{
-			"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732" + "/word/document.xml")
-		}
-	};
-}
-
 
 	/* Hook: beforeMount */
 	var _beforeMountResultObj = _hooks.beforeMount(_doc, _unpackObj, _wordXMLElement, _setupObj);
@@ -837,7 +825,7 @@ function __getXSLTFile(_xsltFileName) {
  * Get path for current script
  * @returns String
  */
- function __getScriptFolder() {
+function __getScriptFolder() {
 	
 	var _skriptFolder;
 	
@@ -1346,6 +1334,9 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 
 			var _pageRef;
 
+			/* ToDo: Add bugfix for index entries shift when tables in same story */
+			/* Move character into indexmark XML-Element */
+
 			switch(_type) {
 				case "r":
 					/* Page range via bookmark */
@@ -1371,7 +1362,10 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 					break;
 				case "x":
 					/* Add Page Reference */
-					_pageRef = _entryTopic.pageReferences.add(_indexmarkXMLElement.texts[0], PageReferenceType.CURRENT_PAGE, undefined, _numberOverrideStyle); /* -> DOC */
+					_pageRef = __addPageReference(_indexmarkXMLElement.texts[0], "CURRENT_PAGE", undefined, _numberOverrideStyle);
+					
+					
+					_entryTopic.pageReferences.add(_indexmarkXMLElement.texts[0], PageReferenceType.CURRENT_PAGE, undefined, _numberOverrideStyle); /* -> DOC */
 					if(!_pageRef || !_pageRef.isValid) {
 						_global["log"].push(localize(_global.pageReferenceErrorMessage, _entryValue, _target));
 						continue indexmarkLoop;
@@ -1416,7 +1410,8 @@ function __addTopicCrossReference(_index, _entryTopic, _target, _setupObj) {
 	
 	const _crossRefPrefixObjArray = _setupObj["indexmark"]["crossReference"]["prefixes"];
 	const _noMatchCustomTypeString = _setupObj["indexmark"]["crossReference"]["noMatchCustomTypeString"];
-	const _referencedTopicNameSplitRegExp = new RegExp(TOPIC_SEPARATOR + "[^\\S\\r\\n]*","");
+	const _horizontalWhitespaces = "[^\\S\\r\\n]";
+	const _referencedTopicNameSplitRegExp = new RegExp(TOPIC_SEPARATOR + _horizontalWhitespaces + "*","");
 	const _specialCharRegExp = new RegExp("([.*+?()[\\]{}\\^$|\\~\\\\])", "g");
 
 	/* Get cross-reference type and cross-reference custom string */
@@ -1437,7 +1432,7 @@ function __addTopicCrossReference(_index, _entryTopic, _target, _setupObj) {
 		}
 
 		var escapedCrossRefPrefix = _crossRefPrefix.replace(_specialCharRegExp, "\\$1");
-		var _crossRefPrefixRegExp = new RegExp("^" + escapedCrossRefPrefix + "[^\\S\\r\\n]+","i");
+		var _crossRefPrefixRegExp = new RegExp("^" + escapedCrossRefPrefix + _horizontalWhitespaces + "+","i");
 		var _crossRefPrefixMatchArray = _target.match(_crossRefPrefixRegExp);
 		if(!_crossRefPrefixMatchArray || _crossRefPrefixMatchArray.length === 0) {
 			continue;
