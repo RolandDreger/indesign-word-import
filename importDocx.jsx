@@ -201,13 +201,13 @@ _global["setups"] = {
 		"isCreated":true,
 		"crossReference":{
 			"prefixes":[
-				{"de":"Siehe [auch]", "en":"See [also]", "fr":"Voir [aussi]"}, /* English key "en" and value "See [also]" is required as a minimum. Do not modify the value. */
-				{"de":"Siehe auch hier", "en":"See also herein", "fr":"Voir aussi ici"}, /* English key "en" and value "See also herein" is required as a minimum. Do not modify the value. */
-				{"de":"Siehe auch", "en":"See also", "fr":"Voir aussi"}, /* English key "en" and value "See also" is required as a minimum. Do not modify the value. */
-				{"de":"Siehe hier", "en":"See herein", "fr":"Voir ici"}, /* English key "en" and value "See herein" is required as a minimum. Do not modify the value. */
-				{"de":"Siehe", "en":"See", "fr":"Voir"}, /* English key "en" and value "See" is required as a minimum. Do not modify the value. */
-				/* more objects can be added -> CrossReferenceType.CUSTOM_CROSS_REFERENCE */
-				{"de":"→", "en":"→", "fr":"→"} /* Word cross-reference field: e.g. x Topic0: Topic1 */
+				{ "de":"Siehe [auch]", "en":"See [also]", "fr":"Voir [aussi]" }, /* English key "en" and value "See [also]" is required as a minimum. Do not modify the value. */
+				{ "de":"Siehe auch hier", "en":"See also herein", "fr":"Voir aussi ici" }, /* English key "en" and value "See also herein" is required as a minimum. Do not modify the value. */
+				{ "de":"Siehe auch", "en":"See also", "fr":"Voir aussi" }, /* English key "en" and value "See also" is required as a minimum. Do not modify the value. */
+				{ "de":"Siehe hier", "en":"See herein", "fr":"Voir ici" }, /* English key "en" and value "See herein" is required as a minimum. Do not modify the value. */
+				{ "de":"Siehe", "en":"See", "fr":"Voir" }, /* English key "en" and value "See" is required as a minimum. Do not modify the value. */
+				/* more objects can be added -> results in cross-reference with type CrossReferenceType.CUSTOM_CROSS_REFERENCE */
+				{"de":"→", "en":"→", "fr":"→" } /* Word cross-reference field: e.g. x Topic0: Topic1 */
 			],
 			"noMatchCustomTypeString": "\u200B" /* Default: zero-width whitespace; If an empty string, the prefix "See [also]" is used.  */
 		}
