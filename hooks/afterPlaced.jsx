@@ -32,6 +32,11 @@
 	if(_doc.crossReferenceSources.length > 0) {
 		_doc.crossReferenceSources.everyItem().update();
 	}
+
+	/* Update index */
+	if(_doc.indexes.length > 0) {
+		_doc.indexes[0].update();
+	}
 	
 	return {};
 } /* END method afterPlaced */
