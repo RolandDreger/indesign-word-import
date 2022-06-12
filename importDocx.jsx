@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: June 10, 2022
+		+ Last modified: June 12, 2022
 		
 		
 		+ Descriptions
@@ -1270,7 +1270,8 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 
 	var _counter = 0;
 	
-	indexmarkLoop: for(var i=_indexmarkXMLElementArray.length-1; i>=0; i-=1) {
+	indexmarkLoop: 
+	for(var i=_indexmarkXMLElementArray.length-1; i>=0; i-=1) {
 
 		var _indexmarkXMLElement = _indexmarkXMLElementArray[i];
 		if(!_indexmarkXMLElement || !_indexmarkXMLElement.isValid) {
@@ -1314,72 +1315,60 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 		}
 		var _target = _targetAttribute.value;
 
-		try {
-
-			/* Style (overrides default number style) */
-			var _numberOverrideStyle = null;
-			if(_format !== "") {
-				_numberOverrideStyle = _doc.characterStyles.itemByName(_format);
-				if(!_numberOverrideStyle.isValid) {
-					_numberOverrideStyle = _doc.characterStyles.add({ name:_format }); /* -> DOC */
-				}
+		/* Style (overrides default number style) */
+		var _numberOverrideStyle;
+		if(_format !== "") {
+			_numberOverrideStyle = _doc.characterStyles.itemByName(_format);
+			if(!_numberOverrideStyle.isValid) {
+				_numberOverrideStyle = _doc.characterStyles.add({ name:_format }); /* -> DOC */
 			}
+		}
 
-			/* Create Topic */
-			var _entryTopic = __createTopic(_index, _topicNameArray);
-			if(!_entryTopic) {
-				_global["log"].push(localize(_global.createTopicErrorMessage, _entryValue));
-				continue;
-			}
-
-			var _pageRef;
-
-			/* ToDo: Add bugfix for index entries shift when tables in same story */
-			/* Move character into indexmark XML-Element */
-
-			switch(_type) {
-				case "r":
-					/* Page range via bookmark */
-					_global["log"].push(localize(_global.indexPageRangeOptionErrorMessage, _entryValue, _target));
-					var _numOfParagraphs = __getNumberOfParagraphs(_wordXMLElement, _indexmarkXMLElement, _target, _setupObj);
-					if(!_numOfParagraphs) {
-						_global["log"].push(localize(_global.getNumberOfParagraphsErrorMessage, _entryValue, _target));
-						continue indexmarkLoop;
-					}
-					_pageRef = _entryTopic.pageReferences.add(_indexmarkXMLElement.texts[0], PageReferenceType.FOR_NEXT_N_PARAGRAPHS, _numOfParagraphs, _numberOverrideStyle); /* -> DOC */
-					if(!_pageRef || !_pageRef.isValid) {
-						_global["log"].push(localize(_global.pageReferenceErrorMessage, _entryValue, _target));
-						continue indexmarkLoop;
-					}
-					break;
-				case "t":
-					/* Add topic cross-reference */
-					var _topicCrossRef = __addTopicCrossReference(_index, _entryTopic, _target, _setupObj);
-					if(!_topicCrossRef || !_topicCrossRef.isValid) {
-						_global["log"].push(localize(_global.topicCrossReferenceErrorMessage, _entryValue, _target));
-						continue indexmarkLoop;
-					}
-					break;
-				case "x":
-					/* Add Page Reference */
-					_pageRef = __addPageReference(_indexmarkXMLElement.texts[0], "CURRENT_PAGE", undefined, _numberOverrideStyle);
-					
-					
-					_entryTopic.pageReferences.add(_indexmarkXMLElement.texts[0], PageReferenceType.CURRENT_PAGE, undefined, _numberOverrideStyle); /* -> DOC */
-					if(!_pageRef || !_pageRef.isValid) {
-						_global["log"].push(localize(_global.pageReferenceErrorMessage, _entryValue, _target));
-						continue indexmarkLoop;
-					}
-					break;
-				default:
-					_global["log"].push(localize(_global.indexmarkTypeErrorMessage, _type));
-					continue indexmarkLoop;
-			}
-		} catch(_error) {
-			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
+		/* Create Topic */
+		var _entryTopic = __createTopic(_index, _topicNameArray);
+		if(!_entryTopic) {
+			_global["log"].push(localize(_global.createTopicErrorMessage, _entryValue));
 			continue;
 		}
 
+		var _pageRef;
+
+		switch(_type) {
+			case "r":
+				/* Page range via bookmark */
+				_global["log"].push(localize(_global.indexPageRangeOptionErrorMessage, _entryValue, _target));
+				var _numOfParagraphs = __getNumberOfParagraphs(_wordXMLElement, _indexmarkXMLElement, _target, _setupObj);
+				if(!_numOfParagraphs) {
+					_global["log"].push(localize(_global.getNumberOfParagraphsErrorMessage, _entryValue, _target));
+					continue indexmarkLoop;
+				}
+				_pageRef = __createPageReference(_doc, _entryTopic, _indexmarkXMLElement, "FOR_NEXT_N_PARAGRAPHS", _numOfParagraphs, _numberOverrideStyle);
+				if(!_pageRef) {
+					_global["log"].push(localize(_global.pageReferenceErrorMessage, _entryValue, _target));
+					continue indexmarkLoop;
+				}
+				break;
+			case "t":
+				/* Add topic cross-reference */
+				var _topicCrossRef = __createTopicCrossReference(_index, _entryTopic, _target, _setupObj);
+				if(!_topicCrossRef || !_topicCrossRef.isValid) {
+					_global["log"].push(localize(_global.topicCrossReferenceErrorMessage, _entryValue, _target));
+					continue indexmarkLoop;
+				}
+				break;
+			case "x":
+				/* Add Page Reference */
+				_pageRef = __createPageReference(_doc, _entryTopic, _indexmarkXMLElement, "CURRENT_PAGE", undefined, _numberOverrideStyle);
+				if(!_pageRef) {
+					_global["log"].push(localize(_global.pageReferenceErrorMessage, _entryValue, _target));
+					continue indexmarkLoop;
+				}
+				break;
+			default:
+				_global["log"].push(localize(_global.indexmarkTypeErrorMessage, _type));
+				continue indexmarkLoop;
+		}
+		
 		_counter += 1;
 	}
 
@@ -1392,6 +1381,93 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 
 
 /**
+ * Create Page Reference for index topic
+ * @param {Document} _doc
+ * @param {Topic} _entryTopic
+ * @param {XMLElement} _targetXMLElement 
+ * @param {String} _pageReferenceType 
+ * @param {ParagraphStyle|Number} _pageReferenceLimit (optional)
+ * @param {CharacterStyle} _numberOverrideStyle (optional)
+ * @returns PageReference
+ */
+function __createPageReference(_doc, _entryTopic, _targetXMLElement, _pageReferenceType, _pageReferenceLimit, _numberOverrideStyle) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { return null; }
+	if(!_entryTopic || !(_entryTopic instanceof Topic) || !_entryTopic.isValid) { return null; }
+	if(!_targetXMLElement || !(_targetXMLElement instanceof XMLElement) || !_targetXMLElement.isValid) { return null; }
+	if(!_pageReferenceType || _pageReferenceType.constructor !== String || !(PageReferenceType.hasOwnProperty(_pageReferenceType))) { return null; }
+
+	var _tempTextframe;
+	var _pageRef;
+	var _isPageRefMoved = false;
+	
+	try {
+
+		/* Backup character style at the target insertion point */
+		var _targetIP = _targetXMLElement.insertionPoints.firstItem();
+		if(!_targetIP.isValid) {
+			return null;
+		}
+		var _targetIPCStyle = _targetIP.appliedCharacterStyle;
+
+		/* 
+			Add temporary text frame for bug fixing.
+			Description: Insert a temporary text frame to work around the position shift when creating a page reference.
+			Discussion: https://community.adobe.com/t5/indesign-discussions/crazy-bug-with-index-entry/m-p/10522748#M146836
+		*/
+		_tempTextframe = _doc.textFrames.add(); /* -> DOC */
+		if(!_tempTextframe || !_tempTextframe.isValid) {
+			return null;
+		}
+
+		var _tempStory = _tempTextframe.parentStory;
+
+		/* Add page reference in temporary text frame */
+		_pageRef = _entryTopic.pageReferences.add(_tempStory.texts[0], PageReferenceType[_pageReferenceType], _pageReferenceLimit, _numberOverrideStyle); /* -> DOC */
+		if(!_pageRef || !_pageRef.isValid) {
+			return null;
+		}
+		
+		var _pageRefChar = _tempStory.characters.firstItem();
+		if(!_pageRefChar.isValid || _pageRefChar.contents !== "\uFEFF") {
+			return null;
+		}
+
+		/* Move page reference to correct position */
+		_pageRefChar = _pageRefChar.move(LocationOptions.BEFORE, _targetXMLElement.texts[0]); /* -> DOC */
+		if(!_pageRefChar || !_pageRefChar.isValid || _pageRefChar.contents === "") {
+			return null;
+		}
+
+		_isPageRefMoved = true;
+
+		_pageRefChar.applyCharacterStyle(_targetIPCStyle);
+		_pageRefChar.clearOverrides(OverrideType.CHARACTER_ONLY);
+
+	} catch(_error) {
+		_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
+		return null;
+	} finally {
+		/* Remove temporary text frame */
+		if(!!_tempTextframe && _tempTextframe.hasOwnProperty("remove") && _tempTextframe.isValid) {
+			_tempTextframe.remove();
+		}
+		/* Check: Has the page reference been moved correctly? */
+		if(_isPageRefMoved === false) {
+			_global["log"].push(localize(_global.movePageReferenceErrorMessage));
+		}
+	}
+	
+	/* Check: Is page reference valid? */
+	if(!_pageRef || !_pageRef.isValid) {
+		return null;
+	}
+
+	return _pageRef;
+} /* END function __createPageReference */
+
+
+/**
  * Add cross-reference for index topic
  * @param {Index} _index
  * @param {Topic} _entryTopic 
@@ -1399,7 +1475,7 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
  * @param {Object} _setupObj 
  * @returns CrossReference
  */
-function __addTopicCrossReference(_index, _entryTopic, _target, _setupObj) {
+function __createTopicCrossReference(_index, _entryTopic, _target, _setupObj) {
 
 	if(!_index || !(_index instanceof Index) || !_index.isValid) { return null; }
 	if(!_entryTopic || !(_entryTopic instanceof Topic) || !_entryTopic.isValid) { return null; }
@@ -1481,6 +1557,7 @@ function __addTopicCrossReference(_index, _entryTopic, _target, _setupObj) {
 	var _topicCrossRef = __getTopicCrossReference(_entryTopic, _referencedTopic, _crossRefCustomString);
 	if(_topicCrossRef === null) {
 		try {
+			/* Add cross-reference */
 			_topicCrossRef = _entryTopic.crossReferences.add(_referencedTopic, _crossRefType, _crossRefCustomString); /* -> DOC */
 		} catch(_error) {
 			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
@@ -1489,7 +1566,7 @@ function __addTopicCrossReference(_index, _entryTopic, _target, _setupObj) {
 	} 
 
 	return _topicCrossRef;
-} /* END function __addTopicCrossReference */
+} /* END function __createTopicCrossReference */
 
 
 /**
@@ -1557,7 +1634,13 @@ function __createTopic(_inputTopic, _inputTopicNameArray) {
 
 	var _curTopic = _inputTopic.topics.itemByName(_curTopicName);
 	if(!_curTopic.isValid) {
-		_curTopic = _inputTopic.topics.add(_curTopicName); /* -> DOC */
+		try {
+			/* Add topic */
+			_curTopic = _inputTopic.topics.add(_curTopicName); /* -> DOC */
+		} catch(_error) {
+			_global["log"].push(localize(_global.indesignErrorMessage, _error.message, _error.line));
+			return null;
+		}
 	}
 	
 	var _outputTopic = _curTopic;
@@ -3576,6 +3659,11 @@ function __defLocalizeStrings() {
 	_global.pageReferenceErrorMessage = { 
 		en: "Index entry [%1]. Page reference for index entry could not be created.",
 		de: "Eintrag [%1] Ziel [%2]. Seitenverweis für Indexeintrag konnte nicht erstellt werden." 
+	};
+
+	_global.movePageReferenceErrorMessage = { 
+		en: "Page reference for index entry could not be inserted at the correct position.",
+		de: "Seitenverweis für Indexeintrag konnte nicht an der korrekten Stelle eingefügt werden." 
 	};
 
 	_global.indexEntryBookmarkNotFoundMessage = { 
