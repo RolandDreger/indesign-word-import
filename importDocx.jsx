@@ -1316,7 +1316,7 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 		var _target = _targetAttribute.value;
 
 		/* Style (overrides default number style) */
-		var _numberOverrideStyle;
+		var _numberOverrideStyle = undefined;
 		if(_format !== "") {
 			_numberOverrideStyle = _doc.characterStyles.itemByName(_format);
 			if(!_numberOverrideStyle.isValid) {
