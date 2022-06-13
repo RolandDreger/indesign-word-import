@@ -1340,7 +1340,7 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 				var _numOfParagraphs = __getNumberOfParagraphs(_wordXMLElement, _indexmarkXMLElement, _target, _setupObj);
 				if(!_numOfParagraphs) {
 					_global["log"].push(localize(_global.getNumberOfParagraphsErrorMessage, _entryValue, _target));
-					continue indexmarkLoop;
+					_numOfParagraphs = 1;
 				}
 				_pageRef = __createPageReference(_doc, _entryTopic, _indexmarkXMLElement, "FOR_NEXT_N_PARAGRAPHS", _numOfParagraphs, _numberOverrideStyle);
 				if(!_pageRef) {
@@ -1435,7 +1435,7 @@ function __createPageReference(_doc, _entryTopic, _targetXMLElement, _pageRefere
 
 		/* Move page reference to correct position */
 		_pageRefChar = _pageRefChar.move(LocationOptions.BEFORE, _targetXMLElement.texts[0]); /* -> DOC */
-		if(!_pageRefChar || !_pageRefChar.isValid || _pageRefChar.contents === "") {
+		if(!_pageRefChar || !_pageRefChar.isValid) {
 			return null;
 		}
 
@@ -3627,8 +3627,8 @@ function __defLocalizeStrings() {
 	};
 
 	_global.createTopicErrorMessage = { 
-		en: "Index entry [%1]. Topic for index could not be found.",
-		de: "Indexeintrag [%1]. Thema für Index konnte nicht erstellt werden." 
+		en: "Index entry [%1]. Topic for index could not be created (correctly).",
+		de: "Indexeintrag [%1]. Thema für Index konnte nicht (korrekt) erstellt werden." 
 	};
 
 	_global.indexPageRangeOptionErrorMessage = {
@@ -3652,13 +3652,13 @@ function __defLocalizeStrings() {
 	};
 
 	_global.topicCrossReferenceErrorMessage = { 
-		en: "Index entry [%1] Target [%2]. Cross-reference for index entry could not be created.",
-		de: "Eintrag [%1] Ziel [%2]. Querverweis für Indexeintrag konnte nicht erstellt werden." 
+		en: "Index entry [%1] Target [%2]. Cross-reference for index entry could not be created(correctly).",
+		de: "Eintrag [%1] Ziel [%2]. Querverweis für Indexeintrag konnte nicht (korrekt) erstellt werden." 
 	};
 
 	_global.pageReferenceErrorMessage = { 
-		en: "Index entry [%1]. Page reference for index entry could not be created.",
-		de: "Eintrag [%1] Ziel [%2]. Seitenverweis für Indexeintrag konnte nicht erstellt werden." 
+		en: "Index entry [%1] Target [%2]. Page reference for index entry could not be created(correctly).",
+		de: "Eintrag [%1] Ziel [%2]. Seitenverweis für Indexeintrag konnte nicht (korrekt) erstellt werden." 
 	};
 
 	_global.movePageReferenceErrorMessage = { 
