@@ -217,14 +217,14 @@ Word change tracking is currently implemented via conditional text in InDesign.
 Hyperlinks across multiple paragraphs. Only the part in the first paragraph becomes an active hyperlink.
 
 # ToDo 
-- [] Dialog (UI) 
+- [ ] Dialog (UI) 
 	Radio-Buttons for Footnotes, Index, ... 
 	(Import as text / Highlight content (conditional text) / Create InDesign objects)
-- [] Remove special characters (text, index entries, ...)?
-- [] Import functional references (Bibliography)? with cross-references to text anchors with name e.g. Newton, 1743
-- [] Section break (Numbering & Section Options)?
-- [] Symbols via Unicode
-- [] Create lists for list paragraphs during import (If same paragraph format but different list, then new paragraph format based original with new list.)
+- [ ] Remove special characters (text, index entries, ...)?
+- [ ] Import functional references (Bibliography)? with cross-references to text anchors with name e.g. Newton, 1743
+- [ ] Section break (Numbering & Section Options)?
+- [ ] Symbols via Unicode
+- [ ] Create lists for list paragraphs during import (If same paragraph format but different list, then new paragraph format based original with new list.)
 
 
 # Support
