@@ -13,7 +13,7 @@ Technically, the import works via an XSL transformation (1.0). The Word document
 
 The stylesheet is designed to not lose content. After the import, however, please always check the contents to make sure that everything is there. As someone once put it so aptly: While Microsoft Word manuscripts »(sometimes) look nice to a human reader, a peek under the hood reveals a messy slurry of largely unstructured text, tags, and cruft«.[^1] And it is also not too uncommon that the structure of the Word document is damaged.  
 
-[^1] [The XSweet Story](https://xsweet.org/docs/3-xsweet-story/)
+[^1]: [The XSweet Story](https://xsweet.org/docs/3-xsweet-story/)
 
 ## Hooks
 
