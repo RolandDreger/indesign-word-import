@@ -181,7 +181,7 @@ Word change tracking is currently implemented via conditional text in InDesign.
 
 Hyperlinks across multiple paragraphs. Only the part in the first paragraph becomes an active hyperlink.
 
-# ToDo
+# ToDo 
 - Dialog (UI) 
 	Radio-Buttons for Footnotes, Index, ... 
 	[x] Import as text
