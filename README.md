@@ -1,11 +1,46 @@
 # Word to InDesign
 The script **importDoxc.jsx** provides an alternative import for Microsoft Word document into Adobe InDesign. 
 
-In some areas, the native import will be better, for instance when it comes to performance. However, it is by nature a very general approach and so are many of the design decisions behind it.
+# Script usage
 
-The way via a script, on the other hand, offers the possibility to configure the import individually, to treat the content differently than InDesign does or even to omit parts of it completely that might cause problems.
+Download the script via `Code` ‣ `Download ZIP`
 
-For example, the included images are placed and not embedded. Instead of local overrides, character styles are applied. Comments, table styles or functional references in scientific papers can be imported.
+<img width="930" alt="download_zip" src="https://user-images.githubusercontent.com/19747449/150357885-c60fa14e-faf7-4b4f-88c6-f6429c3d2f7b.png">
+
+Put the unzipped folder with all files in into the script folder of InDesign and start it from the script panel via double click.
+
+# What's the difference?
+
+For example, the included images are placed and not embedded. Instead of local overrides, character styles are applied. Comments, table styles or functional references in scientific papers can be imported. And much more.
+
+In some areas, the native import will definitely be better, for instance when it comes to performance. However, it is by nature a very general approach and so are many of the design decisions behind it.
+
+The way via a script, on the other hand, offers the possibility to configure the import individually, to treat the content differently than InDesign does or even to omit parts of it completely that might cause problems. As a user, you can decide to import plain text only and mark the text passages to edit them individually. As programmer you can hook into the different states of import, e.g. if the index entry cases a crash of indesign (because of special characters) you can clean up the entries.
+
+# Document preparation
+## Word
+
+It is best to work with paragraph and character styles already in Word. This results in less rework in InDesign and a better XML structure - if you need it.
+## InDesign
+
+In fact, no special preparation is needed for the InDesign document. But you can create paragraph, character, table and object styles even before importing. If the names match those in Word, the desired formatting will appear immediately after the import.
+
+You can work with or without a primary text frame. Try out what is most suitable for you.
+
+a) Without primary text frame 
+
+- [x] No primary text frame
+- [x] Text flow disabled in document settings or limited to primary text frame
+- [x] Script setting `isAutoflowing: true` (default)
+	
+Text flow is created by the script (via the placeXML method before the script then continues). This method is generally preferable.
+
+b) With primary text frames
+
+- [x] Primary text frame on the master page
+- [x] text flow enabled in the document settings
+	
+Text flow is created by InDesign after the script is complete. (Endnotes cannot be inserted on the last page this way).
 
 ## Technical background
 
@@ -182,16 +217,14 @@ Word change tracking is currently implemented via conditional text in InDesign.
 Hyperlinks across multiple paragraphs. Only the part in the first paragraph becomes an active hyperlink.
 
 # ToDo 
-- Dialog (UI) 
+- [] Dialog (UI) 
 	Radio-Buttons for Footnotes, Index, ... 
-	[x] Import as text
-	[x] Highlight content (conditional text)
-	[x] Create InDesign objects
-- Remove special characters (text, index entries, ...)?
-- Import functional references (Bibliography)? with cross-references to text anchors with name e.g. Newton, 1743
-– Section break (Numbering & Section Options)?
-- Symbols via Unicode
-- Create lists for list paragraphs during import (If same paragraph format but different list, then new paragraph format based original with new list.)
+	(Import as text / Highlight content (conditional text) / Create InDesign objects)
+- [] Remove special characters (text, index entries, ...)?
+- [] Import functional references (Bibliography)? with cross-references to text anchors with name e.g. Newton, 1743
+- [] Section break (Numbering & Section Options)?
+- [] Symbols via Unicode
+- [] Create lists for list paragraphs during import (If same paragraph format but different list, then new paragraph format based original with new list.)
 
 
 # Support
