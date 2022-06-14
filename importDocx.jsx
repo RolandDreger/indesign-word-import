@@ -1,4 +1,4 @@
-﻿/* DESCRIPTION: Import Microsoft Word Document (docx) */ 
+﻿/* DESCRIPTION: Import Word Document (docx) */ 
 
 /*
 	
@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: June 12, 2022
+		+ Last modified: June 14, 2022
 		
 		
 		+ Descriptions
@@ -14,112 +14,6 @@
 			Alternative import for Microsoft Word documents
 			for clean and sematically structured content
 
-		+ Hints
-		
-		  Temp folder e.g. /private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/import
-
-			
-	// var _unpackObj = {
-	// 	"folder": Folder("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732"),
-	// 	"word":{
-	// 		"document":File("/private/var/folders/s5/st5j74qj0wj2vmhjtwwh4_hr0000gn/T/TemporaryItems/InDesign_Word_Import/package_20220030_161205732" + "/word/document.xml")
-	// 	}
-	// };
-
-
-			ToDo:
-			Radio-Buttons for Footnotes, Index, ... 
-			1) import content
-			1a) mark with conditional Text
-			2) create InDesign objects
-
-			Sonderzeichen entfernen aus Text???
-
-			ToDo
-
-			– Abschnittsumbruch
-			– delete files and foldes off zip package in temp folder???
-			– Remove if __runMainSequence
-    
-    # Images
-    
-    A folder »Links« is created next to the InDesign file if document path is avaliable (saved document). 
-		Otherwise the image will be embedded in the document.
-    
-		Option: Mark Images
-		Image source is inserted as plain text and highlighted with condition.
-    
-
-		# Hyperlinks
-
-			Hyperlinks are automatically named by InDesign by default and not renamed by the script. 
-			But the tooltip text from Word is added as a label for later script editing. 
-			Unfortunately alternate text is not accessible via Scripting DOM.
- 
-    # Track Changes
-    
-    Inserted Text
-
-    app.selection[0].parentStory.trackChanges = false
-    app.selection[0].contents = ""
-    app.selection[0].parentStory.trackChanges = true
-    app.selection[0].contents = "verspielt"
-    
-    Delete Text
-    
-    app.selection[0].parentStory.trackChanges = true
-    app.selection[0].contents = ""
-    app.selection[0].parentStory.trackChanges = false
-    
-    
-    # Symbole mit Unicode
-    
-    # Listen für Listenabsätze beim Import erstellen
-      (Wenn gleiches Absatzformat aber unterschiedliche Liste, 
-      dann neues Absatzformat basierend original mit neuer Liste)
-      
-    
-    # Zitate 
-        
-      mit Querverweise auf Textanker mit Name z.B. Newton, 1743
-			
-		# Querverweise
-
-		  Vorsicht bei Querverweisen.Einige Querverweistypen sind nicht in InDesign 1:1 darstellbar. Etwa ein Verweis auf »oben/unten«, Fuß-/Endnoten-Nummer,
-			oder auf Textmarkeninhalt.
-			Bitte nach dem Import kontrollieren, ob diese den Wünschen entsprechen. Sonst beim Import deaktivieren. Die Informationen bleiben in 
-			der XML-Struktur vorhanden (außer in Fußnotentext, da ist keine XML erlaubt.) Mit diesen Informationen können die Querverweise an die
-			eignen Bedürfnise angepasst werden.
-		
-		# Index
-
-			Themen-Querverweise:
-
-			Themen:
-			Verschachtelte Themen können in Word im Feld Querverweis (Indexeintrag markieren > Optionen > Querverweis) mit Doppelpunkt als Trenner eingegeben werden, z.B. "Tiere: Katze".
-			
-			Präfix:
-			in den Skripteinstellungen können neben den Standardwerten auch individuelle Präfixen definiert werden. 
-			z.B.:
-			{"de":"x", "en":"x", "fr":"x"}  Eintrag im Word cross-reference field dann e.g. "x Topic0: Topic1"
-			Wird für Benutzerdefinierter Querverweis kein Eintrag gefunden, wird für customTextString ein non-joiner whitespace (\x{200B}) eingesetzt.
-			In der Eingabemaske für den Indexeintrag erscheint dafür im Feld »Benuterdefiniert« die Zeichenkombination »^k«.  
-			(InDesign setzt in dem Falle beim
-			Word-Import ein \uFEFF Zeichen, was aber beim Zuweisen durch JavaScript die XML-Struktur »zerstört«.)
-
-
-		# Drawbacks of the native docx import
-		
-		- Hyperlinks are not imported (correctly) (see https://indesign.uservoice.com/forums/601021-adobe-indesign-feature-requests/suggestions/32872021-hyperlinks-from-word)
-		- Table table styles are not imported
-		- Local style overrides
-		- Import images as embedded images
-		- Index: Styles for page reference number is not transferred.
-
-
-		# Known Issues
-
-		  Hyperlinks über mehrere Absätze. Nur der Teil im ersten Absatz wird zu einem aktiven Hyperlink.
 */
 
 
@@ -196,7 +90,7 @@ _global["setups"] = {
 			"entry":"entry",
 			"target":"target"
 		},
-		"entrySeparator": ":",
+		"topicSeparator": ":",
 		"isRemoved":false,
 		"isCreated":true,
 		"crossReference":{
@@ -1255,7 +1149,7 @@ function __createIndexmarks(_doc, _wordXMLElement, _indexmarkXMLElementArray, _s
 	const FORMAT_ATTRIBUTE_NAME = _setupObj["indexmark"]["attributes"]["format"];
 	const ENTRY_ATTRIBUTE_NAME = _setupObj["indexmark"]["attributes"]["entry"];
 	const TARGET_ATTRIBUTE_NAME = _setupObj["indexmark"]["attributes"]["target"];
-	const ENTRY_SEPARATOR = _setupObj["indexmark"]["entrySeparator"];
+	const ENTRY_SEPARATOR = _setupObj["indexmark"]["topicSeparator"];
 
 	var _wordXMLStory = _wordXMLElement.parentStory;
 	if(!_wordXMLStory || !_wordXMLStory.isValid) {
