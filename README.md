@@ -5,7 +5,7 @@ The script **importDoxc.jsx** provides an alternative import for Microsoft Word 
 
 Download the script via `Code` ‣ `Download ZIP`
 
-<img width="930" alt="download_zip" src="https://user-images.githubusercontent.com/19747449/150357885-c60fa14e-faf7-4b4f-88c6-f6429c3d2f7b.png">
+<img width="922" alt="download_zip" src="https://user-images.githubusercontent.com/19747449/173639516-21f37b19-e104-4904-ba95-b74c64877275.png">
 
 Put the unzipped folder with all files in into the script folder of InDesign and start it from the script panel via double click.
 
