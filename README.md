@@ -49,7 +49,7 @@ Text flow is created by InDesign after the script is complete. (Endnotes cannot 
 
 Technically, the import works via an XSL transformation (1.0). The Word document is unpacked, transformed and imported as XML into InDesign. As a benefit you get an XML structure in your InDesign document and fully tagged content.
 
-The stylesheet is designed to not lose content. After the import, however, please always check the contents to make sure that everything is there. As someone once put it so aptly: While Microsoft Word manuscripts »(sometimes) look nice to a human reader, a peek under the hood reveals a messy slurry of largely unstructured text, tags, and cruft«.[^1] And it is also not too uncommon that the structure of the Word document is damaged.  
+The stylesheet is designed to not lose content. After the import, however, please always check the contents to make sure that everything is there. As someone once put it so aptly: While Microsoft Word manuscripts *»(sometimes) look nice to a human reader, a peek under the hood reveals a messy slurry of largely unstructured text, tags, and cruft«.*[^1] And it is also not too uncommon that the structure of the Word document is damaged.  
 
 [^1]: [The XSweet Story](https://xsweet.org/docs/3-xsweet-story/)
 
@@ -79,13 +79,15 @@ A folder »Links« is created next to the InDesign file if document path is aval
 
 # Textboxes
 
+Text boxes from Word are inserted into the story as anchored text frames.
+
 |Option|Property|Type|Default|Description|
 |---|---|---|---|---| 
 |Remove|isRemoved|Boolean|false|Remove textbox.|
-|Mark|isMarked|Boolean|false|Insert image source as plain text and highlighted with a condition.|
-|Place|isPlaced|Boolean|true|Place image in InDesign document.|
-|Width|width|String|100|Default image width in mm.|
-|Height|height|String|40|Default image width in mm.|
+|Mark|isMarked|Boolean|false|Insert textbox constent as plain text and highlighted with a condition.|
+|Insert|isCreated|Boolean|true|Create anchored text frame in story.|
+|Width|width|String|100|Default text frame width in mm.|
+|Height|height|String|40|Default text frame width in mm.|
 |Object Style|objectStyle|Object||Properties for the applied object style.|
 
 # Page Breaks
@@ -161,7 +163,7 @@ Hyperlinks are automatically named by InDesign and not renamed by the script. Th
 |Character Style|characterStyleName|String|Hyperlink|Character style applied to the hyperlink text.|
 |Add Character Style|isCharacterStyleAdded|Boolean|false| Add a character style to hyperlink text.|
 
-# Querverweise
+# Cross-references
 
 Be careful with cross-references: Some cross-reference types are not transferable 1:1 to InDesign, e.g. a reference to top/bottom, footnote/endnote number, or to bookmark content. 
 
