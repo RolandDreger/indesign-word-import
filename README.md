@@ -7,7 +7,7 @@ Download the script via `Code` ‣ `Download ZIP`
 
 <img width="922" alt="download_zip" src="https://user-images.githubusercontent.com/19747449/173639516-21f37b19-e104-4904-ba95-b74c64877275.png">
 
-Put the unzipped folder with all files in into the script folder of InDesign and start it from the script panel via double click.
+Put the unzipped folder with all files in into the script folder of InDesign and start the script **importDoxc.jsx** from the script panel via double click.
 
 # What's the difference?
 
@@ -15,12 +15,15 @@ For example, the included images are placed and not embedded. Instead of local o
 
 In some areas, the native import will definitely be better, for instance when it comes to performance. However, it is by nature a very general approach and so are many of the design decisions behind it.
 
-The way via a script, on the other hand, offers the possibility to configure the import individually, to treat the content differently than InDesign does or even to omit parts of it completely that might cause problems. As a user, you can decide to import plain text only and mark the text passages to edit them individually. As programmer you can hook into the different states of import, e.g. if the index entry cases a crash of indesign (because of special characters) you can clean up the entries.
+The way via a script, on the other hand, offers the possibility to configure the import individually, to treat the content differently than InDesign does or even to omit parts of it completely that might cause problems. 
+
+As a user, you can decide to import plain text only and mark the text passages to edit them individually. As programmer you can hook into the different states of import, e.g. if the index entry cases a crash of indesign (because of special characters) you can clean up the entries.
 
 # Document preparation
 ## Word
 
 It is best to work with paragraph and character styles already in Word. This results in less rework in InDesign and a better XML structure - if you need it.
+
 ## InDesign
 
 In fact, no special preparation is needed for the InDesign document. But you can create paragraph, character, table and object styles even before importing. If the names match those in Word, the desired formatting will appear immediately after the import.
