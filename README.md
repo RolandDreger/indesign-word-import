@@ -13,6 +13,13 @@ Put the unzipped folder with all files in into the script folder of InDesign and
 
 For example, the included images are placed and not embedded. Instead of local overrides, character styles are applied. Comments, table styles or functional references in scientific papers can be imported. And much more.
 
+Here you can find some example videos:
+
+- [Character Styles](https://vimeo.com/698193760)
+- [Table Styles](https://vimeo.com/702916024)
+- [Index](https://vimeo.com/719616490)
+- [Track Changes](https://vimeo.com/681081988)
+
 In some areas, the native import will definitely be better, for instance when it comes to performance. However, it is by nature a very general approach and so are many of the design decisions behind it.
 
 The way via a script, on the other hand, offers the possibility to configure the import individually, to treat the content differently than InDesign does or even to omit parts of it completely that might cause problems. 
