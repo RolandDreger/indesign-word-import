@@ -56,9 +56,10 @@ Text flow is created by InDesign after the script is complete. (Endnotes cannot 
 
 Technically, the import works via an XSL transformation (1.0). The Word document is unpacked, transformed and imported as XML into InDesign. As a benefit you get an XML structure in your InDesign document and fully tagged content.
 
-The stylesheet is designed to not lose content. After the import, however, please always check the contents to make sure that everything is there. As someone once put it so aptly: While Microsoft Word manuscripts *»(sometimes) look nice to a human reader, a peek under the hood reveals a messy slurry of largely unstructured text, tags, and cruft«.*[^1] And it is also not too uncommon that the structure of the Word document is damaged.  
+The stylesheet is designed to not lose content. After the import, however, please always check the contents to make sure that everything is there. As someone once put it so aptly: While Microsoft Word manuscripts *»(sometimes) look nice to a human reader, a peek under the hood reveals a messy slurry of largely unstructured text, tags, and cruft«.*[^1] And it is also not too uncommon that the structure of the Word document is damaged.[^2]  
 
 [^1]: [The XSweet Story](https://xsweet.org/docs/3-xsweet-story/)
+[^2]: [Quotation mark problem in Word index](https://indesign.uservoice.com/forums/601180-adobe-indesign-bugs/suggestions/36062545-index)
 
 ## Hooks
 
@@ -221,8 +222,11 @@ Word change tracking is currently implemented via conditional text in InDesign.
 - Local style overrides
 - Import images as embedded images
 - Table styles are not imported
-- Index: Number style override is not transferred, nothing other than "See" is identified as a custom cross-reference text, Index entries get lost [Bug report](https://indesign.uservoice.com/forums/601180-adobe-indesign-bugs/suggestions/38549830-index-entries-lost-when-importing-a-docx-file-wit).
-- Hyperlinks are not imported (correctly) [Bug report](https://indesign.uservoice.com/forums/601021-adobe-indesign-feature-requests/suggestions/32872021-hyperlinks-from-word)
+- Index: Number style override is not transferred, nothing other than "See" is identified as a custom cross-reference text, Index entries get lost.[^3]
+- Hyperlinks are not imported (correctly).[^4] 
+
+[^3]: [Bug report: Index number style override](https://indesign.uservoice.com/forums/601180-adobe-indesign-bugs/suggestions/38549830-index-entries-lost-when-importing-a-docx-file-wit)
+[^4]: [Bug report: Hyperlinks import](https://indesign.uservoice.com/forums/601021-adobe-indesign-feature-requests/suggestions/32872021-hyperlinks-from-word)
 
 # Known Issues
 
@@ -230,8 +234,7 @@ Hyperlinks across multiple paragraphs. Only the part in the first paragraph beco
 
 # ToDo 
 - [ ] Dialog (UI) 
-	Radio-Buttons for Footnotes, Index, ... 
-	(Import as text / Highlight content (conditional text) / Create InDesign objects)
+	- Radio-Buttons for Footnotes, Index, ... (Import as text / Highlight content (conditional text) / Create InDesign objects)
 - [ ] Remove special characters (text, index entries, ...)?
 - [ ] Import functional references (Bibliography)? with cross-references to text anchors with name e.g. Newton, 1743
 - [ ] Section break (Numbering & Section Options)?
