@@ -223,7 +223,7 @@ Word change tracking is currently implemented via conditional text in InDesign.
 - Import images as embedded images
 - Table styles are not imported
 - Index: Number style override is not transferred, nothing other than "See" is identified as a custom cross-reference text, Index entries get lost.[^3]
-- Hyperlinks are not imported (correctly) 
+- Hyperlinks are not imported (correctly).[^4] 
 
 [^3]: [Bug report: Index number style override](https://indesign.uservoice.com/forums/601180-adobe-indesign-bugs/suggestions/38549830-index-entries-lost-when-importing-a-docx-file-wit)
 [^4]: [Bug report: Hyperlinks import](https://indesign.uservoice.com/forums/601021-adobe-indesign-feature-requests/suggestions/32872021-hyperlinks-from-word)
