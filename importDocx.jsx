@@ -437,7 +437,7 @@ function __getDocxFile() {
 	
 	const _wordExtRegExp = new RegExp("(\\.docx$|\\.xml$)","i");
 
-	var _wordFile = File.openDialog(localize(_global.selectWordFile), null, false);
+	var _wordFile = File.openDialog(localize(_global.selectWordFile));
 	if(!_wordFile || !_wordFile.exists) { 
 		return null; 
 	}
