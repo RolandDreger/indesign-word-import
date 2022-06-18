@@ -11,7 +11,7 @@ Put the unzipped folder with all files in into the script folder of InDesign and
 
 # What's the difference?
 
-For example, the included images are placed and not embedded. Instead of local overrides, character styles are applied. Comments, table styles or functional references in scientific papers can be imported. And much more.
+A crucial difference: No style properties are taken over from Word only the style names and their assignment to the text places. The style properties must be set in InDesign. Furthermore, the included images are placed and not embedded. Instead of local overrides, character styles are applied. Comments, table styles or functional references in scientific papers can be imported. And much more.
 
 Here you can find some example videos:
 
