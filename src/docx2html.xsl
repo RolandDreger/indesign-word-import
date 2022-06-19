@@ -5,7 +5,7 @@
     Microsoft Word Document -> HTML
     
     Created: September 30, 2021
-    Modified: May 1, 2022
+    Modified: June 19, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -868,13 +868,18 @@
     <!-- Tag Name for Paragraph (h1, h2, ..., li, p) -->
     <xsl:template name="get-paragraph-tag-name">
         <xsl:param name="target-element" select="."/>
-        <xsl:variable name="p-style-id" select="$target-element/w:pPr/w:pStyle/@w:val"/>
-        <xsl:variable name="p-style-name" select="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:name/@w:val"/>
+        <xsl:variable name="paragraph-style-id" select="$target-element/w:pPr/w:pStyle/@w:val"/>
+        <xsl:variable name="paragraph-style-name">
+            <xsl:call-template name="get-style-name">
+                <xsl:with-param name="style-id" select="$paragraph-style-id"/>
+                <xsl:with-param name="style-type" select="'paragraph'"/>
+            </xsl:call-template>
+        </xsl:variable>
         <xsl:variable name="heading-level">
             <xsl:choose>
                 <!-- Heading: Default WordML Name -->
-                <xsl:when test="starts-with($p-style-name, 'heading')">
-                    <xsl:variable name="heading-level-string" select="substring-after($p-style-name, 'heading')"/>
+                <xsl:when test="starts-with($paragraph-style-name, 'heading')">
+                    <xsl:variable name="heading-level-string" select="substring-after($paragraph-style-name, 'heading')"/>
                     <xsl:variable name="heading-level-number" select="number($heading-level-string)"/>
                     <xsl:choose>
                         <xsl:when test="$heading-level-number">
@@ -887,38 +892,38 @@
                 </xsl:when>
                 <!-- Heading: User Paragraph Name (H1, H2, H3, H4, H5, H6) -->
                 <xsl:when test="
-                    translate($p-style-name, 'H ', 'h') = 'h1' or 
-                    translate($p-style-name, 'H ', 'h') = 'h2' or
-                    translate($p-style-name, 'H ', 'h') = 'h3' or
-                    translate($p-style-name, 'H ', 'h') = 'h4' or
-                    translate($p-style-name, 'H ', 'h') = 'h5' or
-                    translate($p-style-name, 'H ', 'h') = 'h6'
+                    translate($paragraph-style-name, 'H ', 'h') = 'h1' or 
+                    translate($paragraph-style-name, 'H ', 'h') = 'h2' or
+                    translate($paragraph-style-name, 'H ', 'h') = 'h3' or
+                    translate($paragraph-style-name, 'H ', 'h') = 'h4' or
+                    translate($paragraph-style-name, 'H ', 'h') = 'h5' or
+                    translate($paragraph-style-name, 'H ', 'h') = 'h6'
                 ">
-                    <xsl:value-of select="number(substring-after(translate($p-style-name, 'H','h'), 'h'))"/>
+                    <xsl:value-of select="number(substring-after(translate($paragraph-style-name, 'H','h'), 'h'))"/>
                 </xsl:when>
                 <!-- Heading: User Paragraph Name with $heading-marker -->
-                <xsl:when test="contains($p-style-name, $heading-marker)">
-                    <xsl:value-of select="number(substring-after(translate($p-style-name, 'h','H'), $heading-marker))"/>
+                <xsl:when test="contains($paragraph-style-name, $heading-marker)">
+                    <xsl:value-of select="number(substring-after(translate($paragraph-style-name, 'h','H'), $heading-marker))"/>
                 </xsl:when>
                 <!-- Heading: User Paragraph Name in $h1-paragraph-style-names -->
                 <xsl:when test="boolean($h1-paragraph-style-names)">
                     <xsl:choose>
-                        <xsl:when test="($h1-paragraph-style-names = $p-style-name or (contains($h1-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                        <xsl:when test="($h1-paragraph-style-names = $paragraph-style-name or (contains($h1-paragraph-style-names, concat('»', $paragraph-style-name, '«'))))">
                             <xsl:value-of select="1"/>
                         </xsl:when>
-                        <xsl:when test="($h2-paragraph-style-names = $p-style-name or (contains($h2-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                        <xsl:when test="($h2-paragraph-style-names = $paragraph-style-name or (contains($h2-paragraph-style-names, concat('»', $paragraph-style-name, '«'))))">
                             <xsl:value-of select="2"/>
                         </xsl:when>
-                        <xsl:when test="($h3-paragraph-style-names = $p-style-name or (contains($h3-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                        <xsl:when test="($h3-paragraph-style-names = $paragraph-style-name or (contains($h3-paragraph-style-names, concat('»', $paragraph-style-name, '«'))))">
                             <xsl:value-of select="3"/>
                         </xsl:when>
-                        <xsl:when test="($h4-paragraph-style-names = $p-style-name or (contains($h4-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                        <xsl:when test="($h4-paragraph-style-names = $paragraph-style-name or (contains($h4-paragraph-style-names, concat('»', $paragraph-style-name, '«'))))">
                             <xsl:value-of select="4"/>
                         </xsl:when>
-                        <xsl:when test="($h5-paragraph-style-names = $p-style-name or (contains($h5-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                        <xsl:when test="($h5-paragraph-style-names = $paragraph-style-name or (contains($h5-paragraph-style-names, concat('»', $paragraph-style-name, '«'))))">
                             <xsl:value-of select="5"/>
                         </xsl:when>
-                        <xsl:when test="($h6-paragraph-style-names = $p-style-name or (contains($h6-paragraph-style-names, concat('»', $p-style-name, '«'))))">
+                        <xsl:when test="($h6-paragraph-style-names = $paragraph-style-name or (contains($h6-paragraph-style-names, concat('»', $paragraph-style-name, '«'))))">
                             <xsl:value-of select="6"/>
                         </xsl:when>
                         <xsl:otherwise>
@@ -936,11 +941,11 @@
                             <xsl:when test="$target-element/w:pPr/w:szCs">
                                 <xsl:value-of select="$target-element/w:pPr/w:rPr/w:szCs/@w:val"/>
                             </xsl:when>
-                           <xsl:when test="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:sz">
-                                <xsl:value-of select="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:sz/@w:val"/>
+                           <xsl:when test="$styles/w:style[@w:type='paragraph' and @w:styleId=$paragraph-style-id]/w:rPr/w:sz">
+                                <xsl:value-of select="$styles/w:style[@w:type='paragraph' and @w:styleId=$paragraph-style-id]/w:rPr/w:sz/@w:val"/>
                             </xsl:when>
-                            <xsl:when test="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:szCs">
-                                <xsl:value-of select="$styles/w:style[@w:type='paragraph' and @w:styleId=$p-style-id]/w:rPr/w:szCs/@w:val"/>
+                            <xsl:when test="$styles/w:style[@w:type='paragraph' and @w:styleId=$paragraph-style-id]/w:rPr/w:szCs">
+                                <xsl:value-of select="$styles/w:style[@w:type='paragraph' and @w:styleId=$paragraph-style-id]/w:rPr/w:szCs/@w:val"/>
                             </xsl:when>
                             <xsl:otherwise>
                                 <xsl:value-of select="0"/>
@@ -1005,22 +1010,29 @@
         </xsl:attribute>
         <!-- Paragraph Style -->
         <xsl:if test="w:pPr/w:pStyle">
-            <xsl:variable name="p-style-id" select="w:pPr/w:pStyle/@w:val"/>
+            <xsl:variable name="paragraph-style-name">
+                <xsl:call-template name="get-style-name">
+                    <xsl:with-param name="style-id" select="w:pPr/w:pStyle/@w:val"/>
+                    <xsl:with-param name="style-type" select="'paragraph'"/>
+                </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="paragraph-style-attribute-value">
+                <xsl:choose>
+                    <xsl:when test="contains($paragraph-style-name, $heading-marker)">
+                        <xsl:value-of select="substring-before($paragraph-style-name, $heading-marker)"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="$paragraph-style-name"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <xsl:variable name="translated-paragraph-style-attribute-value" select="translate(translate($paragraph-style-attribute-value, $uppercase, $lowercase), ' ', '-')"/>
             <xsl:attribute name="{$paragraph-style-attribute-name}">
-                <xsl:variable name="class">
-                    <xsl:choose>
-                        <xsl:when test="contains($p-style-id, $heading-marker)">
-                            <xsl:value-of select="substring-before($p-style-id, $heading-marker)"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:value-of select="$p-style-id"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </xsl:variable>
-                <xsl:value-of select="translate(translate($class, $uppercase, $lowercase), ' ', '-')"/>
+                <xsl:value-of select="$translated-paragraph-style-attribute-value"/>
             </xsl:attribute>
         </xsl:if>
     </xsl:template>
+    
     
     <!-- Table -->
     <xsl:template match="w:tbl">
@@ -1876,10 +1888,17 @@
                         </xsl:call-template>
                     </xsl:when>
                     <!-- Referenced Character Style -->
-                    <xsl:when test="$target-style-element[name() = 'w:rStyle']">
+                    <xsl:when test="$target-style-element[name() = 'w:rStyle']"> 
+                        <xsl:variable name="character-style-name">
+                            <xsl:call-template name="get-style-name">
+                                <xsl:with-param name="style-id" select="$target-style-element/@w:val"/>
+                                <xsl:with-param name="style-type" select="'character'"/>
+                            </xsl:call-template>
+                        </xsl:variable>
+                        <xsl:variable name="translated-character-style-name" select="translate($character-style-name, ' ', '-')"/>
                         <xsl:call-template name="assign-inline-styles">
                             <xsl:with-param name="inline-style-elements" select="$inline-style-elements[position() != 1]"/>
-                            <xsl:with-param name="class-names" select="concat($target-style-element/@w:val, ' ', $class-names)"/>
+                            <xsl:with-param name="class-names" select="concat($translated-character-style-name, ' ', $class-names)"/>
                         </xsl:call-template>
                     </xsl:when>
                     <!-- Element: Bold | Complex Script Bold -->
@@ -3024,6 +3043,40 @@
     <!-- +++++++++++++++++++++ -->
     <!-- + General templates + -->
     <!-- +++++++++++++++++++++ -->
+    
+    <!-- Value of Style Name (Paragraph Style, Character Style) -->
+    <xsl:template name="get-style-name">
+        <xsl:param name="style-id" select="''"/>
+        <xsl:param name="style-type" select="''"/>
+        <xsl:variable name="style-element" select="$styles/w:style[@w:type=$style-type and @w:styleId=$style-id]"/>
+        <xsl:choose>
+            <xsl:when test="$style-element">
+                <xsl:choose>
+                    <!-- Style aliases -->
+                    <xsl:when test="$style-element/w:aliases">
+                        <xsl:variable name="style-aliases" select="$style-element/w:aliases/@w:val"/>
+                        <xsl:choose>
+                            <xsl:when test="contains($style-aliases, ',')">
+                                <xsl:value-of select="substring-before($style-aliases,',')"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="$style-aliases"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:when>
+                    <!-- Style name -->
+                    <xsl:otherwise>
+                        <xsl:value-of select="$style-element/w:name/@w:val"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
+            <!-- Style ID -->
+            <xsl:otherwise>
+                <xsl:value-of select="$style-id"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    
     
     <!-- 
         Substring after last
