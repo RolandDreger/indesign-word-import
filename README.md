@@ -92,6 +92,7 @@ For special cases you can hook into the import with JavaScript, e.g. to create y
 |---|---|---|---|---| 
 |Autoflow|isAutoflow|Boolean|true|Controls automatic flow when no primary text frame is used.|
 |XML Structure|isUntagged|Boolean|false|If true, then the XML structure will be removed out of the document after import.|
+|Default Paragraph Style|defaultParagraphStyle|String|Normal|Name of the default paragraph style. This style is used for paragraphs that do not have a specific paragraph style applied in the Word document.|
 
 # Images
 

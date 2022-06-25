@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: June 19, 2022
+    Modified: June 25, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -104,7 +104,7 @@
     <xsl:param name="is-comment-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
     <xsl:param name="is-tab-preserved" select="true()"/>  <!-- Tab Character --> 
     <xsl:param name="is-special-local-override-applied" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
-    
+    <xsl:param name="fallback-paragraph-style-name" select="'Standard'"/>
     
     <!-- +++++++++ -->
     <!-- + INPUT + -->
@@ -339,9 +339,6 @@
     <xsl:variable name="tab-tag-name" select="'tab'"/>
     <xsl:variable name="tab-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="tab-style-attribute-value" select="'Tabulator'"/>
-    
-    <!-- Style Names -->
-    <xsl:variable name="fallback-paragraph-style-name" select="'Standard'"/>
     
     
     <!-- Spaces -->

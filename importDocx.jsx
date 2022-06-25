@@ -45,8 +45,9 @@ _global["setups"] = {
 	"import":{},
 	"place":{},
 	"document":{
-		"isAutoflowing": true, /* Description: If true, autoflows placed text. (Depends on document settings.); Value: Boolean; */
-		"isUntagged":false
+		"isAutoflowing": true, /* Description: If true, autoflows placed text. (Depends on document settings.). Value: Boolean. */
+		"isUntagged":false, /* Description: If true, then the XML structure will be removed out of the document after import. Value: Boolean. */
+		"defaultParagraphStyle":"Normal" /* Description: This style is used for paragraphs that do not have a specific paragraph style applied in the Word document. Value: String, e.g. Normal. */
 	},
 	"linkFolder":{
 		"name":"Links", /* Description: Folder name for placed images; Value: String; */
@@ -54,8 +55,7 @@ _global["setups"] = {
 	},
 	"mount":{},
 	"paragraph":{
-		"tag":"paragraph",
-		"defaultName":"Standard"
+		"tag":"paragraph"
 	},
 	"pageBreak":{
 		"tag":"pagebreak",
@@ -572,13 +572,16 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
+	const _defaultPStyleName = _setupObj["document"]["defaultParagraphStyle"];
+	const _xsltFileName = _setupObj["xslt"]["name"];
+
 	_global["progressbar"].init(0, 1, "", localize(_global.importProgressLabel));
 
 	var _transformParams = [];
 
-	_transformParams.push(["app","indesign"]);
+	_transformParams.push(["app", "indesign"]);
+	_transformParams.push(["fallback-paragraph-style-name", _defaultPStyleName]);
 
-	var _xsltFileName = _setupObj["xslt"]["name"];
 	var _xsltFile = __getXSLTFile(_xsltFileName);
 	if(!_xsltFile) { 
 		return null; 
