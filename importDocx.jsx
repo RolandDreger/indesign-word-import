@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: June 19, 2022
+		+ Last modified: June 25, 2022
 		
 		
 		+ Descriptions
@@ -32,6 +32,7 @@ var _global = {
 	"version":"0.1.1",
 	"mode":"release", /* Values: "debug", "release" */
 	"isLogged":false,
+	"isDialogShown":false,
 	"log":[]
 };
 
@@ -42,11 +43,10 @@ _global["setups"] = {
 		"name":"docx2Indesign.xsl"
 	},
 	"import":{},
-	"dialog":{
-		"isShown":false
-	},
-	"place":{
-		"isAutoflowing": true /* Description: If true, autoflows placed text. (Depends on document settings.); Value: Boolean; */
+	"place":{},
+	"document":{
+		"isAutoflowing": true, /* Description: If true, autoflows placed text. (Depends on document settings.); Value: Boolean; */
+		"isUntagged":false
 	},
 	"linkFolder":{
 		"name":"Links", /* Description: Folder name for placed images; Value: String; */
@@ -54,7 +54,8 @@ _global["setups"] = {
 	},
 	"mount":{},
 	"paragraph":{
-		"tag":"paragraph"
+		"tag":"paragraph",
+		"defaultName":"Standard"
 	},
 	"pageBreak":{
 		"tag":"pagebreak",
@@ -421,6 +422,13 @@ function __runMainSequence(_doScriptParameterArray) {
 	var _mountAfterPlaceResultObj = __mountAfterPlaced(_doc, _unpackObj, _wordXMLElement, _wordStory, _setupObj);
 	if(!_mountAfterPlaceResultObj) {
 		return false;
+	}
+
+	/* Remove XML Structure */
+	if(_setupObj["document"]["isUntagged"]) {
+		if(_wordXMLElement && _wordXMLElement.hasOwnProperty("untag") && _wordXMLElement.isValid) {
+			_wordXMLElement.untag();
+		}
 	}
 
 	return true;
@@ -3137,7 +3145,7 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	const IS_AUTOFLOWING = _setupObj["place"]["isAutoflowing"];
+	const IS_AUTOFLOWING = _setupObj["document"]["isAutoflowing"];
 
 	_global["progressbar"].init(0, 1, "", localize(_global.placeProgressLabel));
 
