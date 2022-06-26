@@ -578,7 +578,8 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 	const _xsltFileName = _setupObj["xslt"]["name"];
 	const _styleMode = _setupObj["import"]["styleMode"];
 
-	_global["progressbar"].init(0, 1, "", localize(_global.importProgressLabel));
+	_global["progressbar"].init(0, 2, "", localize(_global.importProgressLabel));
+	_global["progressbar"].step();
 
 	var _transformParams = [];
 
@@ -688,6 +689,8 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 		_global["log"].push(localize(_global.xmlDataImportErrorMessage));
 		return null; 
 	}
+
+	_global["progressbar"].step();
 
 	return _wordXMLElement;
 } /* END function __importXML */
@@ -3154,7 +3157,8 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 
 	const IS_AUTOFLOWING = _setupObj["document"]["isAutoflowing"];
 
-	_global["progressbar"].init(0, 1, "", localize(_global.placeProgressLabel));
+	_global["progressbar"].init(0, 2, "", localize(_global.placeProgressLabel));
+	_global["progressbar"].step();
 
 	var _targetPage = __getTargetPage(_doc, IS_AUTOFLOWING);
 	if(!_targetPage) {
@@ -3193,6 +3197,8 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 		_global["log"].push(localize(_global.wordStoryValidationErrorMessage));
 		return null;
 	}
+
+	_global["progressbar"].step();
 
 	return _wordStory;
 } /* END function __placeXML */
@@ -3330,14 +3336,14 @@ function __defLocalizeStrings() {
 		de: "OK" 
 	};
 	
-	_global.importProgressLabel = { 
+	_global.openProgressLabel = { 
 		en: "Open Word Document ...",
-		de: "Word-Document \u00f6ffnen ..." 
+		de: "Word-Dokument \u00f6ffnen ..." 
 	};
 
 	_global.importProgressLabel = { 
 		en: "Import Word Document ...",
-		de: "Word-Document importieren ..." 
+		de: "Word-Dokument importieren ..." 
 	};
 
 	_global.mountProgressLabel = { 
