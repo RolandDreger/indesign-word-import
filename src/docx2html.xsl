@@ -5,7 +5,7 @@
     Microsoft Word Document -> HTML
     
     Created: September 30, 2021
-    Modified: June 19, 2022
+    Modified: June 26, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -142,9 +142,9 @@
     <xsl:param name="max-bookmark-length" select="500"/>
     <xsl:param name="is-empty-paragraph-removed" select="false()"/>
     <xsl:param name="is-inline-style-on-empty-text-removed" select="false()"/>
-    <xsl:param name="is-local-override-without-tag-applied" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
     <xsl:param name="is-comment-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
-    <xsl:param name="is-tab-preserved" select="true()"/>  <!-- Tab Character --> 
+    <xsl:param name="is-tab-preserved" select="true()"/>  <!-- Tab Character -->
+    <xsl:param name="style-mode" select="'minimized'"/> <!-- Values: 'extended' or 'minimized'. If minimized, ignore all local overrides (without tags, only via class) except: strong, i, em, u, superscript, subscript  -->
     
     <!-- Heading Style Map -->
     <xsl:param name="h1-paragraph-style-names" select="''"/> <!-- e.g. '»Custom_Name_1« »Custom_Name_1.1«' -->
@@ -1974,7 +1974,7 @@
                     </xsl:when>
                     <!-- Attribute: class -->
                     <xsl:when test="
-                        $is-local-override-without-tag-applied and 
+                        ($style-mode = 'extended') and 
                         (
                             $target-style-element[name() = 'w:caps'] or
                             $target-style-element[name() = 'w:smallCaps'] or
