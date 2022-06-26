@@ -1762,7 +1762,9 @@
                 <xsl:text>	</xsl:text>
             </xsl:if>
         </xsl:element>
-    </xsl:template><!-- Position of Last Calculated Page Break --><!-- +++++++++++++++++++++ --><!-- + General templates + --><!-- +++++++++++++++++++++ --><!-- Value of Style Name (Paragraph Style, Character Style) --><xsl:template name="get-style-name">
+    </xsl:template><!-- Section Break --><!-- Position of Last Calculated Page Break (application specific) --><xsl:template match="w:lastRenderedPageBreak">
+        <xsl:apply-templates/>
+    </xsl:template><!-- +++++++++++++++++++++ --><!-- + General templates + --><!-- +++++++++++++++++++++ --><!-- Value of Style Name (Paragraph Style, Character Style) --><xsl:template name="get-style-name">
         <xsl:param name="style-id" select="''"/>
         <xsl:param name="style-type" select="''"/>
         <xsl:variable name="style-element" select="$styles/w:style[@w:type=$style-type and @w:styleId=$style-id]"/>
@@ -2457,8 +2459,8 @@
     </xsl:template>
 
 
-    <!-- Position of Last Calculated Page Break -->
-    <xsl:template match="w:lastRenderedPageBreak">
+    <!-- Section Break -->
+    <xsl:template match="w:sectPr">
         <xsl:element name="{$section-break-tag-name}" namespace="{$ns}">
             <xsl:apply-templates/>
         </xsl:element>

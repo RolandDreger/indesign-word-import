@@ -3027,8 +3027,8 @@
     </xsl:template>
     
     
-    <!-- Position of Last Calculated Page Break -->
-    <xsl:template match="w:lastRenderedPageBreak">
+    <!-- Section Break -->
+    <xsl:template match="w:sectPr">
         <xsl:element name="{$section-break-tag-name}" namespace="{$ns}">
             <xsl:attribute name="{$section-break-type-attribute-name}">
                 <xsl:value-of select="'section-break'"/>
@@ -3037,6 +3037,11 @@
         </xsl:element>
     </xsl:template>
     
+    
+    <!-- Position of Last Calculated Page Break (application specific) -->
+    <xsl:template match="w:lastRenderedPageBreak">
+        <xsl:apply-templates/>
+    </xsl:template>
     
     
     
