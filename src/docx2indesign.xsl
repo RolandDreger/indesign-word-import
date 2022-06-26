@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: June 19, 2022
+    Modified: June 26, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -100,10 +100,10 @@
     <xsl:param name="max-bookmark-length" select="500"/>
     <xsl:param name="is-empty-paragraph-removed" select="false()"/>
     <xsl:param name="is-inline-style-on-empty-text-removed" select="false()"/>
-    <xsl:param name="is-local-override-without-tag-applied" select="false()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript  -->
     <xsl:param name="is-comment-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
     <xsl:param name="is-tab-preserved" select="true()"/>  <!-- Tab Character --> 
-    <xsl:param name="is-special-local-override-applied" select="true()"/> <!-- Ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight, lang  -->
+    <xsl:param name="style-mode" select="'extended'"/> <!-- Values: 'extended' or 'minimized'. If minimized, ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight  -->
+    <xsl:param name="fallback-paragraph-style-name" select="'Standard'"/>
     
     
     <!-- +++++++++ -->
@@ -339,9 +339,6 @@
     <xsl:variable name="tab-tag-name" select="'tab'"/>
     <xsl:variable name="tab-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="tab-style-attribute-value" select="'Tabulator'"/>
-    
-    <!-- Style Names -->
-    <xsl:variable name="fallback-paragraph-style-name" select="'Standard'"/>
     
     
     <!-- Spaces -->
@@ -676,10 +673,10 @@
                         $target-style-element[name() = 'w:vertAlign'] or
                         $target-style-element[name() = 'w:smallCaps'] or 
                         $target-style-element[name() = 'w:caps'] or 
-                        $target-style-element[name() = 'w:highlight'] or  
-                        $target-style-element[name() = 'w:lang'] or 
-                        ($is-special-local-override-applied and 
+                        $target-style-element[name() = 'w:highlight'] or 
+                        ($style-mode = 'extended' and 
                             (
+                                $target-style-element[name() = 'w:lang'] or
                                 $target-style-element[name() = 'w:rFonts'] or 
                                 $target-style-element[name() = 'w:strike'] or 
                                 $target-style-element[name() = 'w:dstrike'] or 

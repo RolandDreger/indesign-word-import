@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: June 19, 2022
+		+ Last modified: June 26, 2022
 		
 		
 		+ Descriptions
@@ -30,28 +30,31 @@
 var _global = {
 	"projectName":"Import_Docx",
 	"version":"0.1.1",
-	"mode":"release", /* Values: "debug", "release" */
+	"mode":"release", /* Type: String. Value: "debug" or "release" */
 	"isLogged":false,
+	"isDialogShown":false,
 	"log":[]
 };
 
 /* Document Settings */
 _global["setups"] = {
 	"user":$.getenv("USER"),
+	"document":{
+		"isAutoflowing": true, /* Type: Boolean. Description: If true, autoflows placed text. (Depends on document settings.)  */
+		"isUntagged":false, /* Type: Boolean. Description: If true, then the XML structure will be removed out of the document after import. */
+		"defaultParagraphStyle":"Normal" /* Type: String. Value: e.g. "Normal". Description: This style is used for paragraphs that do not have a specific paragraph style applied in the Word document. */
+	},
+	"linkFolder":{
+		"name":"Links", /* Type: String. Value: e.g. "Links". Description: Folder name for placed images; */
+		"path":"" /* Type: String. Value: e.g. "" (next to the InDesign Document) or "~/Desktop". Description: Folder path for placed images (optional). */
+	},
 	"xslt":{
 		"name":"docx2Indesign.xsl"
 	},
-	"import":{},
-	"dialog":{
-		"isShown":false
+	"import":{
+		"styleMode":"extended" /* Type: String. Value: 'extended' or 'minimized'. Description:  If minimized, all local overrides are ignored except the following: strong, i, em, u, superscript, subscript, small caps, caps, highlight. */
 	},
-	"place":{
-		"isAutoflowing": true /* Description: If true, autoflows placed text. (Depends on document settings.); Value: Boolean; */
-	},
-	"linkFolder":{
-		"name":"Links", /* Description: Folder name for placed images; Value: String; */
-		"path":"" /* Description: Folder path for placed images (optional); Value: String; */
-	},
+	"place":{},
 	"mount":{},
 	"paragraph":{
 		"tag":"paragraph"
@@ -423,6 +426,13 @@ function __runMainSequence(_doScriptParameterArray) {
 		return false;
 	}
 
+	/* Remove XML Structure */
+	if(_setupObj["document"]["isUntagged"]) {
+		if(_wordXMLElement && _wordXMLElement.hasOwnProperty("untag") && _wordXMLElement.isValid) {
+			_wordXMLElement.untag();
+		}
+	}
+
 	return true;
 } /* END function __runMainSequence */
 
@@ -564,13 +574,18 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
+	const _defaultPStyleName = _setupObj["document"]["defaultParagraphStyle"];
+	const _xsltFileName = _setupObj["xslt"]["name"];
+	const _styleMode = _setupObj["import"]["styleMode"];
+
 	_global["progressbar"].init(0, 1, "", localize(_global.importProgressLabel));
 
 	var _transformParams = [];
 
-	_transformParams.push(["app","indesign"]);
+	_transformParams.push(["app", "indesign"]);
+	_transformParams.push(["style-mode", _styleMode]);
+	_transformParams.push(["fallback-paragraph-style-name", _defaultPStyleName]);
 
-	var _xsltFileName = _setupObj["xslt"]["name"];
 	var _xsltFile = __getXSLTFile(_xsltFileName);
 	if(!_xsltFile) { 
 		return null; 
@@ -3137,7 +3152,7 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	const IS_AUTOFLOWING = _setupObj["place"]["isAutoflowing"];
+	const IS_AUTOFLOWING = _setupObj["document"]["isAutoflowing"];
 
 	_global["progressbar"].init(0, 1, "", localize(_global.placeProgressLabel));
 

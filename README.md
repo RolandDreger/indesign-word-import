@@ -31,6 +31,12 @@ As a user, you can decide to import plain text only and mark the text passages t
 
 It is best to work with paragraph and character styles already in Word. This results in less rework in InDesign and a better XML structure - if you need it.
 
+### Renaming in-built styles
+
+Word does not let you rename the in-built styles such as headings, list styles or some character styles. The problem with this is that Word displays their language-specific names, but in the document English names are stored. And these names appear in InDesign after the import.
+
+This is where alias names come into play: To create an alias or alternative name for the same style, enter a semicolon or comma after the in-built name and then the desired name. Alias names get the priority when importing with the script.
+
 ## InDesign
 
 In fact, no special preparation is needed for the InDesign document. But you can create paragraph, character, table and object styles even before importing. If the names match those in Word, the desired formatting will appear immediately after the import.
@@ -71,6 +77,28 @@ For special cases you can hook into the import with JavaScript, e.g. to create y
 |Before Mount|beforeMount.jsx|Hooks in before the InDesign objects (hyperlinks, comments, index markers, ...) are created.|
 |Before Placed|beforePlaced|Hooks in before the content (XML story) is placed in the InDesign document.|
 |After Placed|afterPlaced.jsx|Hooks in after the content has been placed.|
+
+
+# Global Settings
+
+|Option|Property|Type|Default|Description|
+|---|---|---|---|---| 
+|Logging|isLogged|Boolean|false|Logging of info messages, e.g. which objects are created in InDesign in the course of the import. Warning messages will always be output.|
+|Dialog|isDialogShown|Boolean|false|Whether dialog is displayed or not. (Not implemented yet.)|
+
+# Document Settings
+
+|Option|Property|Type|Default|Description|
+|---|---|---|---|---| 
+|Autoflow|isAutoflow|Boolean|true|Controls automatic flow when no primary text frame is used.|
+|XML Structure|isUntagged|Boolean|false|If true, then the XML structure will be removed out of the document after import.|
+|Default Paragraph Style|defaultParagraphStyle|String|Normal|Name of the default paragraph style. This style is used for paragraphs that do not have a specific paragraph style applied in the Word document.|
+
+# Import Settings
+
+|Option|Property|Type|Value|Default|Description|
+|---|---|---|---|---|---| 
+|Special Character Styles|styleMode|String|'extended' or 'minimized'|"extended"|If minimized, all local overrides are ignored except the following: b (Bold), i (Italic), em (Emphasis), u (Underline), superscript, subscript, smallCaps, caps, highlight.|
 
 # Images
 
