@@ -578,7 +578,8 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 	const _xsltFileName = _setupObj["xslt"]["name"];
 	const _styleMode = _setupObj["import"]["styleMode"];
 
-	_global["progressbar"].init(0, 1, "", localize(_global.importProgressLabel));
+	_global["progressbar"].init(0, 2, "", localize(_global.importProgressLabel));
+	_global["progressbar"].step();
 
 	var _transformParams = [];
 
@@ -688,6 +689,8 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 		_global["log"].push(localize(_global.xmlDataImportErrorMessage));
 		return null; 
 	}
+
+	_global["progressbar"].step();
 
 	return _wordXMLElement;
 } /* END function __importXML */
@@ -3154,7 +3157,8 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 
 	const IS_AUTOFLOWING = _setupObj["document"]["isAutoflowing"];
 
-	_global["progressbar"].init(0, 1, "", localize(_global.placeProgressLabel));
+	_global["progressbar"].init(0, 2, "", localize(_global.placeProgressLabel));
+	_global["progressbar"].step();
 
 	var _targetPage = __getTargetPage(_doc, IS_AUTOFLOWING);
 	if(!_targetPage) {
@@ -3193,6 +3197,8 @@ function __placeXML(_doc, _wordXMLElement, _setupObj) {
 		_global["log"].push(localize(_global.wordStoryValidationErrorMessage));
 		return null;
 	}
+
+	_global["progressbar"].step();
 
 	return _wordStory;
 } /* END function __placeXML */
@@ -3330,9 +3336,14 @@ function __defLocalizeStrings() {
 		de: "OK" 
 	};
 	
+	_global.openProgressLabel = { 
+		en: "Open Word Document ...",
+		de: "Word-Dokument \u00f6ffnen ..." 
+	};
+
 	_global.importProgressLabel = { 
 		en: "Import Word Document ...",
-		de: "Word-Document importieren ..." 
+		de: "Word-Dokument importieren ..." 
 	};
 
 	_global.mountProgressLabel = { 
@@ -3352,7 +3363,7 @@ function __defLocalizeStrings() {
 	
 	_global.fileExtensionValidationMessage = { 
 		en: "Import is available only for Word (.docx) or Word XML Document (.xml).",
-		de: "Import ist nur für Word-Dokumente (.docx) oder Word-XML-Dokument (.xml) möglich." 
+		de: "Import ist nur f\u00fcr Word-Dokumente (.docx) oder Word-XML-Dokument (.xml) m\u00f6glich." 
 	};
 	
 	_global.createFolderErrorMessage = { 
@@ -3362,7 +3373,7 @@ function __defLocalizeStrings() {
 
 	_global.unpackageFolderErrorMessage = { 
 		en: "Destination folder for the unzipped file could not be created: %1",
-		de: "Ziel-Ordner für die entpackte Datei konnte nicht erstellt werden: %1" 
+		de: "Ziel-Ordner f\u00fcr die entpackte Datei konnte nicht erstellt werden: %1" 
 	};
 	
 	_global.unpackageDocumentFileErrorMessage = { 
@@ -3397,7 +3408,7 @@ function __defLocalizeStrings() {
 
 	_global.wordDocumentFileErrorMessage = { 
 		en: "File for import could not be found: [%1]",
-		de: "Datei für Import konnte nicht gefunden werden: [%1]" 
+		de: "Datei f\u00fcr Import konnte nicht gefunden werden: [%1]" 
 	};
 
 	_global.noTargetPageErrorMessage= { 
@@ -3427,7 +3438,7 @@ function __defLocalizeStrings() {
 
 	_global.removeXMLElementsMessage = { 
 		en: "%1 %2 removed.",
-		de: "%1 %2 gelöscht." 
+		de: "%1 %2 gel\u00f6scht." 
 	};
 
 	_global.markXMLElementsMessage = { 
@@ -3442,7 +3453,7 @@ function __defLocalizeStrings() {
 
 	_global.insertImageSourcesMessage = { 
 		en: "%1 %2 inserted as plain text.",
-		de: "%1 %2 als Text eingefügt." 
+		de: "%1 %2 als Text eingef\u00fcgt." 
 	};
 
 	_global.imageSourcesLabel = { 
@@ -3462,17 +3473,17 @@ function __defLocalizeStrings() {
 
 	_global.footnotesLabel = { 
 		en: "footnotes",
-		de: "Fußnoten" 
+		de: "Fu\u00dfnoten" 
 	};
 
 	_global.footnoteValidationErrorMessage = { 
 		en: "Footnote not valid.",
-		de: "Fußnote nicht valide." 
+		de: "Fu\u00dfnote nicht valide." 
 	};
 
 	_global.footnoteParagraphStyleErrorMessage = {
 		en: "Footnote [%1]: Error applying paragraph styles.",
-		de: "Fußnote [%1]: Fehler beim Zuweisen der Absatzformate."
+		de: "Fu\u00dfnote [%1]: Fehler beim Zuweisen der Absatzformate."
 	};
 
 	_global.endnotesLabel = { 
@@ -3492,7 +3503,7 @@ function __defLocalizeStrings() {
 
 	_global.specialCharacterNotAvailableErrorMessage = { 
 		en: "Special character not available: [1%]",
-		de: "Sonderzeichen nicht verfügbar: [%1]" 
+		de: "Sonderzeichen nicht verf\u00fcgbar: [%1]" 
 	}; 
 	
 	_global.xmlElementNotEmptyErrorMessage = { 
@@ -3502,7 +3513,7 @@ function __defLocalizeStrings() {
 		
 	_global.insertSpecialCharactersMessage = { 
 		en: "%1 special characters [%2] inserted.",
-		de: "%1 Sonderzeichen [%2] eingefügt." 
+		de: "%1 Sonderzeichen [%2] eingef\u00fcgt." 
 	};
 
 	_global.indexmarksLabel = { 
@@ -3537,47 +3548,47 @@ function __defLocalizeStrings() {
 
 	_global.createTopicErrorMessage = { 
 		en: "Index entry [%1]. Topic for index could not be created (correctly).",
-		de: "Indexeintrag [%1]. Thema für Index konnte nicht (korrekt) erstellt werden." 
+		de: "Indexeintrag [%1]. Thema f\u00fcr Index konnte nicht (korrekt) erstellt werden." 
 	};
 
 	_global.indexPageRangeOptionErrorMessage = {
 		en: "Index entry [%1] Target [%2]. There is no direct equivalent in InDesign for the option [Page range → bookmark] in Word. Please check the entries in the index.",
-		de: "Indexeintrag [%1] Ziel [%2]. Für die Option [Seitenbereich → Textmarke] in Word gibt es keine direkte Entsprechung in InDesign. Bitte die Einträge im Index kontrollieren."
+		de: "Indexeintrag [%1] Ziel [%2]. F\u00fcr die Option [Seitenbereich → Textmarke] in Word gibt es keine direkte Entsprechung in InDesign. Bitte die Eintr\u00e4ge im Index kontrollieren."
 	};
 
 	_global.getNumberOfParagraphsErrorMessage = {
 		en: "Index entry [%1] Target [%2]. The number of paragraphs for page reference could not be determined.",
-		de: "Indexeintrag [%1] Ziel [%2]. Die Anzahl der Absätze für die Seitenreferenz konnte nicht ermittelt werden."
+		de: "Indexeintrag [%1] Ziel [%2]. Die Anzahl der Abs\u00e4tze f\u00fcr die Seitenreferenz konnte nicht ermittelt werden."
 	};
 
 	_global.maximumTopicLevelsErrorMessage = { 
 		en: "Index entry [%1]. A maximum of 4 topic levels are allowed. Determined via topic separator [%2].",
-		de: "Indexeintrag [%1]. Es sind maximal 4 Themenebenen erlaubt. Ermittelt über Thementrenner [%2]." 
+		de: "Indexeintrag [%1]. Es sind maximal 4 Themenebenen erlaubt. Ermittelt \u00fcber Thementrenner [%2]." 
 	};
 
 	_global.indexmarkTypeErrorMessage = { 
 		en: "Type for index entry not defined or incorrect. Type [%1]",
-		de: "Typ für Indexeintrag nicht definiert oder fehlerhaft. Typ [%1]" 
+		de: "Typ f\u00fcr Indexeintrag nicht definiert oder fehlerhaft. Typ [%1]" 
 	};
 
 	_global.topicCrossReferenceErrorMessage = { 
 		en: "Index entry [%1] Target [%2]. Cross-reference for index entry could not be created(correctly).",
-		de: "Eintrag [%1] Ziel [%2]. Querverweis für Indexeintrag konnte nicht (korrekt) erstellt werden." 
+		de: "Eintrag [%1] Ziel [%2]. Querverweis f\u00fcr Indexeintrag konnte nicht (korrekt) erstellt werden." 
 	};
 
 	_global.pageReferenceErrorMessage = { 
 		en: "Index entry [%1] Target [%2]. Page reference for index entry could not be created(correctly).",
-		de: "Eintrag [%1] Ziel [%2]. Seitenverweis für Indexeintrag konnte nicht (korrekt) erstellt werden." 
+		de: "Eintrag [%1] Ziel [%2]. Seitenverweis f\u00fcr Indexeintrag konnte nicht (korrekt) erstellt werden." 
 	};
 
 	_global.movePageReferenceErrorMessage = { 
 		en: "Page reference for index entry could not be inserted at the correct position.",
-		de: "Seitenverweis für Indexeintrag konnte nicht an der korrekten Stelle eingefügt werden." 
+		de: "Seitenverweis f\u00fcr Indexeintrag konnte nicht an der korrekten Stelle eingef\u00fcgt werden." 
 	};
 
 	_global.indexEntryBookmarkNotFoundMessage = { 
 		en: "Bookmark for index entry (page range) could not be found. Bookmark ID [%1]",
-		de: "Textmarke für Indexeintrag (Seitenbereich) konnte nicht gefunden werden. ID Textmarke [%1]" 
+		de: "Textmarke f\u00fcr Indexeintrag (Seitenbereich) konnte nicht gefunden werden. ID Textmarke [%1]" 
 	};
 
 	_global.commentsLabel = { 
@@ -3607,17 +3618,17 @@ function __defLocalizeStrings() {
 
 	_global.insertedTextLabel = { 
 		en: "Inserted Text",
-		de: "Eingefügter Text" 
+		de: "Eingef\u00fcgter Text" 
 	};
 
 	_global.deletedTextLabel = { 
 		en: "Deleted Text",
-		de: "Gelöschter Text" 
+		de: "Gel\u00f6schter Text" 
 	};
 
 	_global.movedFromTextLabel = { 
 		en: "Deleted Text",
-		de: "Gelöschter Text" 
+		de: "Gel\u00f6schter Text" 
 	};
 
 	_global.movedToTextLabel = { 
