@@ -94,13 +94,13 @@ For special cases you can hook into the import with JavaScript, e.g. to create y
 |---|---|---|---|---| 
 |Autoflow|isAutoflow|Boolean|true|Controls automatic flow when no primary text frame is used.|
 |XML Structure|isUntagged|Boolean|false|If true, then the XML structure will be removed out of the document after import.|
-|Default Paragraph Style|defaultParagraphStyle|String|Normal|Name of the default paragraph style. This style is used for paragraphs that do not have a specific paragraph style applied in the Word document.|
+|Default Paragraph Style|defaultParagraphStyle|String|"Normal"|Name of the default paragraph style. This style is used for paragraphs that do not have a specific paragraph style applied in the Word document.|
 
 # Import Settings
 
 |Option|Property|Type|Value|Default|Description|
 |---|---|---|---|---|---| 
-|Special Character Styles|styleMode|String|'extended' or 'minimized'|"extended"|If minimized, all local overrides are ignored except the following: b (Bold), i (Italic), em (Emphasis), u (Underline), superscript, subscript, smallCaps, caps, highlight.|
+|Special Character Styles|styleMode|String|"extended" or "minimized"|"extended"|If minimized, all local overrides are ignored except the following: b (Bold), i (Italic), em (Emphasis), u (Underline), superscript, subscript, smallCaps, caps, highlight.|
 
 # Images
 
