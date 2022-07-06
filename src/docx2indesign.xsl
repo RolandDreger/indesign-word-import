@@ -757,7 +757,7 @@
     <xsl:template match="m:oMath">
         <xsl:element name="{$equation-tag-name}" namespace="{$ns}">
             <xsl:call-template name="insert-equation-attributes"/>
-            <xsl:copy-of select="."/>
+            <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
     
