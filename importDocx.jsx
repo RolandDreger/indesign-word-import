@@ -1731,7 +1731,13 @@ function __createHyperlinks(_doc, _wordXMLElement, _hyperlinkXMLElementArray, _s
 		try {
 
 			/* Add hyperlink */
-			_hyperlinkSource = _doc.hyperlinkTextSources.add(_hyperlinkXMLElement.texts[0]); /* -> DOC */
+			var _hyperlinkXMLElementText = _hyperlinkXMLElement.texts[0];
+			var _hyperlinkXMLElementContent = _hyperlinkXMLElementText.contents;
+			if(_hyperlinkXMLElementContent === "") {
+				_global["log"].push(localize(_global.emptyHyperlinkSourceMessage, (i+1), _uri));
+				continue;
+			}
+			_hyperlinkSource = _doc.hyperlinkTextSources.add(_hyperlinkXMLElementText); /* -> DOC */
 
 			/* Character Style */
 			if(IS_CHARACTER_STYLE_ADDED && _cStyle && _cStyle.isValid) {
@@ -1759,7 +1765,7 @@ function __createHyperlinks(_doc, _wordXMLElement, _hyperlinkXMLElementArray, _s
 			_hyperlink.visible = false;
 
 			/* Add label to hyperlink */
-			if(_title && _title !== "") {
+			if(_title !== "") {
 				_hyperlink.label = _title;
 			}
 		} catch(_error) {
@@ -3659,6 +3665,11 @@ function __defLocalizeStrings() {
 	_global.missingHyperlinkURIMessage = { 
 		en: "Hyperlink element without URI. Attribute [%1]",
 		de: "Hyperlink-Element ohne URI. Attribut [%1]" 
+	};
+
+	_global.emptyHyperlinkSourceMessage = { 
+		en: "Hyperlink without text content. Index [%1] URI [%2]",
+		de: "Hyperlink ohne Textinhalt. Index [%1] URI [%2]" 
 	};
 
 	_global.crossReferencesLabel = { 
