@@ -130,7 +130,7 @@ function __markXMLElements(_doc, _xmlElementArray, _label, _colorArray, _indicat
 		}
 
 		try {
-			_text.applyConditions([_markerCondition], false);
+			_xmlElement.texts[0].applyConditions([_markerCondition]); /* _xmlElement.texts[0]: Bugfix for text in cells */
 		} catch(_error) {
 			_global["log"].push(_error.message);
 			continue;

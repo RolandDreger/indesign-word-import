@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: June 26, 2022
+    Modified: July 7, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -614,10 +614,17 @@
         <!-- Column Width -->
         <!-- dxa (twentieths of a point), pct (fiftieths of a percent, not available in InDesign) -->
         <xsl:choose>
+            <!-- Defined width -->
             <xsl:when test="w:tcPr/w:tcW/@w:type = 'dxa' or w:tcPr/w:tcW/@w:type = 'pct'">
                 <xsl:variable name="column-width" select="number(w:tcPr/w:tcW/@w:w) div 20"/>
                 <xsl:attribute name="{concat('aid',':',$table-column-width-attribute-name)}">
                     <xsl:value-of select="$column-width"/>
+                </xsl:attribute>
+            </xsl:when>
+            <!-- Automatically width (Attribute is removed when importing to InDesign but inserted here for consistency.) -->
+            <xsl:when test="w:tcPr/w:tcW/@w:type = 'auto'">
+                <xsl:attribute name="{$table-column-width-attribute-name}">
+                    <xsl:value-of select="'auto'"/>
                 </xsl:attribute>
             </xsl:when>
         </xsl:choose>
@@ -757,7 +764,7 @@
     <xsl:template match="m:oMath">
         <xsl:element name="{$equation-tag-name}" namespace="{$ns}">
             <xsl:call-template name="insert-equation-attributes"/>
-            <xsl:copy-of select="."/>
+            <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
     
