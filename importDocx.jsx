@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: June 26, 2022
+		+ Last modified: July 7, 2022
 		
 		
 		+ Descriptions
@@ -29,7 +29,7 @@
 
 var _global = {
 	"projectName":"Import_Docx",
-	"version":"0.1.1",
+	"version":"0.3.1",
 	"mode":"release", /* Type: String. Value: "debug" or "release" */
 	"isLogged":false,
 	"isDialogShown":false,
