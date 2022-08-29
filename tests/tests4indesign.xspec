@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:description xmlns:x="http://www.jenitennison.com/xslt/xspec" 
+    xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage"
+    xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships"
+    xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+    xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" 
+    xmlns:extp="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
+    xmlns:cusp="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" 
+    xmlns:b="http://schemas.openxmlformats.org/officeDocument/2006/bibliography"
+    stylesheet="../src/docx2indesign.xsl">
+    
+    
+    <!-- Global parameters and variables for stylesheet -->
+    <x:param name="app-props"               href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/docProps/app.xml']/pkg:xmlData/extp:Properties"/>
+    <x:param name="core-props"              href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/docProps/core.xml']/pkg:xmlData/cp:coreProperties"/>
+    <x:param name="custom-props"            href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/docProps/custom.xml']/pkg:xmlData/cusp:Properties"/>
+    <x:param name="styles"                  href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/word/styles.xml']/pkg:xmlData/w:styles"/>
+    <x:param name="numbering"               href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/word/numbering.xml']/pkg:xmlData/w:numbering"/>
+    <x:param name="document-relationships"  href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/document.xml.rels']/pkg:xmlData/rel:Relationships"/>
+    <x:param name="footnotes"               href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/word/footnotes.xml']/pkg:xmlData/w:footnotes"/>
+    <x:param name="footnotes-relationships" href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/footnotes.xml.rels']/pkg:xmlData/rel:Relationships"/>
+    <x:param name="endnotes"                href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/word/endnotes.xml']/pkg:xmlData/w:endnotes"/>
+    <x:param name="endnotes-relationships"  href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/word/_rels/endnotes.xml.rels']/pkg:xmlData/rel:Relationships"/>
+    <x:param name="comments"                href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[@pkg:name = '/word/comments.xml']/pkg:xmlData/w:comments"/>
+    <x:param name="citations-relationships" href="local_style_overrides/local_style_overrides.xml" select="/pkg:package/pkg:part[contains(@pkg:name, 'customXml')]/pkg:xmlData/b:Sources[namespace-uri() = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography']"/>
+    
+    
+    <!-- Local Style Overrides -->
+    <x:scenario label="Local Style Overrides">
+        <x:context href="local_style_overrides/local_style_overrides.xml"/>
+        <x:expect label="Must be equal" href="local_style_overrides/indesign/local_style_overrides.xml" select="/document"/>
+    </x:scenario>
+    
+    
+</x:description>

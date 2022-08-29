@@ -6,7 +6,7 @@
     (XHTML Module)
     
     Created: September 30, 2021
-    Modified: February 5, 2022
+    Modified: August 29, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -51,7 +51,7 @@
     <!-- +++++++++++++ -->
     
     <xsl:template match="/">
-        <xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;&#x0d;</xsl:text>
+        <!--<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;&#x0d;</xsl:text>-->
         <xsl:element name="html" namespace="{$ns}">
             <xsl:attribute name="xml:lang">
                 <xsl:value-of select="$language"/>
