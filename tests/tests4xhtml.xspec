@@ -11,12 +11,103 @@
     run-as="external"
     stylesheet="../src/docx2xhtml.xsl">
     
-    
-    <!-- Local Style Overrides -->
-    <x:scenario label="Local Style Overrides">
-        <x:param name="document-file-name" select="'../tests/local_style_overrides/local_style_overrides.xml'"/>
-        <x:context href="local_style_overrides/local_style_overrides.xml" select="/"/>
-        <x:expect label="Must be equal" href="local_style_overrides/xhtml/local_style_overrides.xhtml" select="/" test="/"/>
+    <x:scenario label="Unit tests for XHTML">
+        
+        <!-- Local Style Overrides -->
+        <x:scenario label="Local Style Overrides">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/local_style_overrides/local_style_overrides.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/local_style_overrides/local_style_overrides.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="local_style_overrides/xhtml/local_style_overrides.xhtml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/html:html/*) gt 0" />
+        </x:scenario>
+        
+        <!-- Track Changes -->
+        <x:scenario label="Track Changes">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/track_changes/track_changes.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/track_changes/track_changes.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="track_changes/xhtml/track_changes.xhtml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/html:html/*) gt 0" />
+        </x:scenario>
+        
+        <!-- Breaks -->
+        <x:scenario label="Breaks">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/breaks/breaks.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/breaks/breaks.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="breaks/xhtml/breaks.xhtml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/html:html/*) gt 0" />
+        </x:scenario>
+        
+        <!-- Cross-references (Headlines) -->
+        <x:scenario label="Cross-references (Headlines)">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/cross-references_headlines/cross-references_headlines.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/cross-references_headlines/cross-references_headlines.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="cross-references_headlines/xhtml/cross-references_headlines.xhtml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/html:html/*) gt 0" />
+        </x:scenario>
+        
+        <!-- Formated Field -->
+        <x:scenario label="Formated Field">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/formated_field/formated_field.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/formated_field/formated_field.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="formated_field/xhtml/formated_field.xhtml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/html:html/*) gt 0" />
+        </x:scenario>
+        
+        <!-- List -->
+        <x:scenario label="List">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/list/list.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/list/list.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="list/xhtml/list.xhtml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/html:html/*) gt 0" />
+        </x:scenario>
+        
+        <!-- Table -->
+        <x:scenario label="Table">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/table/table.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/table/table.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="table/xhtml/table.xhtml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/html:html/*) gt 0" />
+        </x:scenario>
+        
+        
+        
+        
+        <!-- +++++++++++++++++++++ -->
+        <!-- + Scenario Template + -->
+        <!-- +++++++++++++++++++++ -->
+        
+        <!-- Comment for Scenario -->
+        <x:scenario pending="Scenario template" label="Insert scenario label here">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/__FOLDERNAME__/__FILENAME__.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/__FOLDERNAME__/__FILENAME__.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="__FOLDERNAME__/xhtml/__FILENAME__.xhtml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/html:html/*) gt 0" />
+        </x:scenario>
+        
     </x:scenario>
     
     
