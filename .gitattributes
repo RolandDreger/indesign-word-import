@@ -1,2 +1,4 @@
 ﻿/src/** export-ignore
 /src export-ignore
+/tests/** export-ignore
+/tests export-ignore
