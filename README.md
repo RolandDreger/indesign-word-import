@@ -86,7 +86,7 @@ For special cases you can hook into the import with JavaScript, e.g. to create y
 |Option|Property|Type|Default|Description|
 |---|---|---|---|---| 
 |Logging|isLogged|Boolean|false|Logging of info messages, e.g. which objects are created in InDesign in the course of the import. Warning messages will always be output.|
-|Dialog|isDialogShown|Boolean|false|Whether dialog is displayed or not. (Not implemented yet.)|
+|Dialog|isDialogShown|Boolean|true|Whether dialog is displayed or not. If `false`, the dialog can be shown by pressing and holding the **Shift** key when starting the script.|
 
 # Document Settings
 
@@ -196,7 +196,7 @@ Hyperlinks are automatically named by InDesign and not renamed by the script. Th
 
 |Option|Property|Type|Default|Description|
 |---|---|---|---|---|
-|Mark|isMarkec|Boolean|false|Insert hyperlink as plain text and mark with condition.|
+|Mark|isMarked|Boolean|false|Insert hyperlink as plain text and mark with condition.|
 |Create|isCreated|Boolean|true|Insert as InDesign hyperlink.|
 |Character Style|characterStyleName|String|Hyperlink|Character style applied to the hyperlink text.|
 |Add Character Style|isCharacterStyleAdded|Boolean|false| Add a character style to hyperlink text.|
@@ -219,7 +219,7 @@ Please check after the import if these correspond to your needs. Otherwise deact
 |Option|Property|Type|Default|Description|
 |---|---|---|---|---|
 |Create|isCreated|Boolean|false|Insert as InDesign bookmark.|
-|Marker|marker|String||Marker as a prefix of the content to identify bookmarks to be included. Example: Marker `#`, Bookmark in Word `#My_bookmark_name`. So Word bookmarks with prefix `#` will be transferred to InDesgin bookmarks.|
+|Marker|marker|String||Marker as a prefix of the content to identify bookmarks to be included. Example: Marker `#`, Bookmark in Word `#My_bookmark_name`. So Word bookmarks with prefix `#` will be transferred to InDesign bookmarks.|
 
 # Track Changes
 
