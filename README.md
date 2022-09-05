@@ -86,7 +86,7 @@ For special cases you can hook into the import with JavaScript, e.g. to create y
 |Option|Property|Type|Default|Description|
 |---|---|---|---|---| 
 |Logging|isLogged|Boolean|false|Logging of info messages, e.g. which objects are created in InDesign in the course of the import. Warning messages will always be output.|
-|Dialog|isDialogShown|Boolean|true|Whether dialog is displayed or not. If `false`, the dialog can be shown by pressing and holding the **Shift** key when starting the script.|
+|Dialog|isDialogShown|Boolean|true|Whether dialog is displayed or not. With `false` the dialog can be displayed by pressing and holding the **Shift** key when opening the document (click on the **Open** button).|
 
 # Document Settings
 
