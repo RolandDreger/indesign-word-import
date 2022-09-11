@@ -198,6 +198,7 @@ Hyperlinks are automatically named by InDesign and not renamed by the script. Th
 |---|---|---|---|---|
 |Mark|isMarked|Boolean|false|Insert hyperlink as plain text and mark with condition.|
 |Create|isCreated|Boolean|true|Insert as InDesign hyperlink.|
+|Ignore|isIgnored|Boolean|false|Ignore hyperlinks. Text content is imported as it is.|
 |Character Style|characterStyleName|String|Hyperlink|Character style applied to the hyperlink text.|
 |Add Character Style|isCharacterStyleAdded|Boolean|false| Add a character style to hyperlink text.|
 
@@ -211,6 +212,7 @@ Please check after the import if these correspond to your needs. Otherwise deact
 |---|---|---|---|---|
 |Mark|isMarked|Boolean|false|Insert cross-reference as plain text and mark with condition.|
 |Create|isCreated|Boolean|true|Insert as InDesign cross-reference.|
+|Ignore|isIgnored|Boolean|false|Ignore cross-references. Text content is imported as it is.|
 |Character Style|characterStyleName|String|Cross_Reference|Character style applied to the cross-reference text.|
 |Add Character Style|isCharacterStyleAdded|Boolean|false|Add a character style to cross-reference text.|
 

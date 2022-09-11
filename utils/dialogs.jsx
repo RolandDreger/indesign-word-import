@@ -158,8 +158,10 @@ function __showImportDialog(_setupObj) {
 	var _indexmarkRemovedRadiobutton;
 	var _hyperlinkCreatedRadiobutton;
 	var _hyperlinkMarkedRadiobutton;
+	var _hyperlinkIgnoredRadiobutton;
 	var _crossReferenceCreatedRadiobutton;
 	var _crossReferenceMarkedRadiobutton;
+	var _crossReferenceIgnoredRadiobutton;
 	var _bookmarkCreatedCheckbox;
 	var _bookmarkMarkerGroup;
 	var _bookmarkMarkerEdittext;
@@ -380,6 +382,7 @@ function __showImportDialog(_setupObj) {
 					spacing = GAP*2;
 					_hyperlinkCreatedRadiobutton = add("radiobutton", undefined, localize(_global.createLabel));
 					_hyperlinkMarkedRadiobutton = add("radiobutton", undefined, localize(_global.markLabel));
+					_hyperlinkIgnoredRadiobutton = add("radiobutton", undefined, localize(_global.ignoreLabel));
 				} /* END _hyperlinkPanel */
 				var _crossReferencePanel = add("panel", undefined, localize(_global.crossReferencesLabel));
 				with(_crossReferencePanel) {
@@ -389,6 +392,7 @@ function __showImportDialog(_setupObj) {
 					spacing = GAP*2;
 					_crossReferenceCreatedRadiobutton = add("radiobutton", undefined, localize(_global.createLabel));
 					_crossReferenceMarkedRadiobutton = add("radiobutton", undefined, localize(_global.markLabel));
+					_crossReferenceIgnoredRadiobutton = add("radiobutton", undefined, localize(_global.ignoreLabel));
 				} /* END _crossReferencePanel */
 				var _indexmarkPanel = add("panel", undefined, localize(_global.indexmarksLabel));
 				with(_indexmarkPanel) {
@@ -512,8 +516,10 @@ function __showImportDialog(_setupObj) {
 	_indexmarkRemovedRadiobutton.value = _setupObj["indexmark"]["isRemoved"];
 	_hyperlinkCreatedRadiobutton.value = _setupObj["hyperlink"]["isCreated"];
 	_hyperlinkMarkedRadiobutton.value = _setupObj["hyperlink"]["isMarked"];
+	_hyperlinkIgnoredRadiobutton.value = _setupObj["hyperlink"]["isIgnored"];
 	_crossReferenceCreatedRadiobutton.value = _setupObj["crossReference"]["isCreated"];
 	_crossReferenceMarkedRadiobutton.value = _setupObj["crossReference"]["isMarked"];
+	_crossReferenceIgnoredRadiobutton.value = _setupObj["crossReference"]["isIgnored"];
 	_bookmarkCreatedCheckbox.value = _setupObj["bookmark"]["isCreated"];
 	_bookmarkMarkerEdittext.text = _setupObj["bookmark"]["marker"];
 	_trackChangesMarkedRadiobutton.value = _setupObj["trackChanges"]["isMarked"];
@@ -575,8 +581,10 @@ function __showImportDialog(_setupObj) {
 	_setupObj["indexmark"]["isRemoved"] = _indexmarkRemovedRadiobutton.value;
 	_setupObj["hyperlink"]["isCreated"] = _hyperlinkCreatedRadiobutton.value;
 	_setupObj["hyperlink"]["isMarked"] = _hyperlinkMarkedRadiobutton.value;
+	_setupObj["hyperlink"]["isIgnored"] = _hyperlinkIgnoredRadiobutton.value;
 	_setupObj["crossReference"]["isCreated"] = _crossReferenceCreatedRadiobutton.value;
 	_setupObj["crossReference"]["isMarked"] = _crossReferenceMarkedRadiobutton.value;
+	_setupObj["crossReference"]["isIgnored"] = _crossReferenceIgnoredRadiobutton.value;
 	_setupObj["bookmark"]["isCreated"] = _bookmarkCreatedCheckbox.value;
 	_setupObj["bookmark"]["marker"] = _bookmarkMarkerEdittext.text;
 	_setupObj["trackChanges"]["isMarked"] = _trackChangesMarkedRadiobutton.value;

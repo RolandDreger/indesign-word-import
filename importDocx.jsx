@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: September 2, 2022
+		+ Last modified: September 11, 2022
 		
 		
 		+ Descriptions
@@ -119,7 +119,8 @@ _global["setups"] = {
 		"characterStyleName":"Hyperlink",
 		"isCharacterStyleAdded":false, 
 		"isMarked":false, 
-		"isCreated":true
+		"isCreated":true,
+		"isIgnored":false
 	},
 	"crossReference":{
 		"tag":"cross-reference", 
@@ -133,7 +134,8 @@ _global["setups"] = {
 		"isAnchorHidden":true,
 		"isCharacterStyleAdded":true, 
 		"isMarked":false, 
-		"isCreated":true
+		"isCreated":true,
+		"isIgnored":false
 	},
 	"bookmark":{
 		"tag":"bookmark",
@@ -1642,6 +1644,11 @@ function __handleHyperlinks(_doc, _wordXMLElement, _setupObj) {
 	const COLOR_ARRAY = _setupObj["hyperlink"]["color"];
 	const IS_HYPERLINK_MARKED = _setupObj["hyperlink"]["isMarked"];
 	const IS_HYPERLINK_CREATED = _setupObj["hyperlink"]["isCreated"];
+	const IS_HYPERLINK_IGNORED = _setupObj["hyperlink"]["isIgnored"];
+
+	if(IS_HYPERLINK_IGNORED) {
+		return true;
+	}
 
 	var _hyperlinkXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + HYPERLINK_TAG_NAME);
 	if(_hyperlinkXMLElementArray.length === 0) {
@@ -1824,6 +1831,11 @@ function __handleCrossReferences(_doc, _wordXMLElement, _setupObj) {
 	const COLOR_ARRAY = _setupObj["crossReference"]["color"];
 	const IS_CROSS_REFERENCE_MARKED = _setupObj["crossReference"]["isMarked"];
 	const IS_CROSS_REFERENCE_CREATED = _setupObj["crossReference"]["isCreated"];
+	const IS_CROSS_REFERENCE_IGNORED = _setupObj["crossReference"]["isIgnored"];
+
+	if(IS_CROSS_REFERENCE_IGNORED) {
+		return true;
+	}
 
 	var _crossRefXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + CROSS_REFERENCE_TAG_NAME);
 	if(_crossRefXMLElementArray.length === 0) {
@@ -3846,6 +3858,11 @@ function __defLocalizeStrings() {
 	_global.markLabel = { 
 		en: "Mark",
 		de: "Markieren" 
+	};
+
+	_global.ignoreLabel = { 
+		en: "Ignore",
+		de: "Ignorieren" 
 	};
 
 	_global.createLabel = { 
