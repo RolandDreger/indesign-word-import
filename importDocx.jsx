@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: July 7, 2022
+		+ Last modified: September 11, 2022
 		
 		
 		+ Descriptions
@@ -29,10 +29,10 @@
 
 var _global = {
 	"projectName":"Import_Docx",
-	"version":"0.3.1",
+	"version":"0.4.0",
 	"mode":"release", /* Type: String. Value: "debug" or "release" */
 	"isLogged":false,
-	"isDialogShown":false,
+	"isDialogShown":true,
 	"log":[]
 };
 
@@ -119,7 +119,8 @@ _global["setups"] = {
 		"characterStyleName":"Hyperlink",
 		"isCharacterStyleAdded":false, 
 		"isMarked":false, 
-		"isCreated":true
+		"isCreated":true,
+		"isIgnored":false
 	},
 	"crossReference":{
 		"tag":"cross-reference", 
@@ -133,7 +134,8 @@ _global["setups"] = {
 		"isAnchorHidden":true,
 		"isCharacterStyleAdded":true, 
 		"isMarked":false, 
-		"isCreated":true
+		"isCreated":true,
+		"isIgnored":false
 	},
 	"bookmark":{
 		"tag":"bookmark",
@@ -372,6 +374,14 @@ function __runMainSequence(_doScriptParameterArray) {
 		return false;
 	}
 	
+	/* Show import dialog */
+	if(_global["isDialogShown"] || (ScriptUI && ScriptUI.environment && ScriptUI.environment.keyboardState && ScriptUI.environment.keyboardState.shiftKey)) {
+		_setupObj = __showImportDialog(_setupObj);
+		if(!_setupObj) {
+			return false;
+		}
+	}
+
 	/* Get package data */
 	var _unpackObj = __getPackageData(_docxFile);
 	if(!_unpackObj) {
@@ -1634,6 +1644,11 @@ function __handleHyperlinks(_doc, _wordXMLElement, _setupObj) {
 	const COLOR_ARRAY = _setupObj["hyperlink"]["color"];
 	const IS_HYPERLINK_MARKED = _setupObj["hyperlink"]["isMarked"];
 	const IS_HYPERLINK_CREATED = _setupObj["hyperlink"]["isCreated"];
+	const IS_HYPERLINK_IGNORED = _setupObj["hyperlink"]["isIgnored"];
+
+	if(IS_HYPERLINK_IGNORED) {
+		return true;
+	}
 
 	var _hyperlinkXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + HYPERLINK_TAG_NAME);
 	if(_hyperlinkXMLElementArray.length === 0) {
@@ -1816,6 +1831,11 @@ function __handleCrossReferences(_doc, _wordXMLElement, _setupObj) {
 	const COLOR_ARRAY = _setupObj["crossReference"]["color"];
 	const IS_CROSS_REFERENCE_MARKED = _setupObj["crossReference"]["isMarked"];
 	const IS_CROSS_REFERENCE_CREATED = _setupObj["crossReference"]["isCreated"];
+	const IS_CROSS_REFERENCE_IGNORED = _setupObj["crossReference"]["isIgnored"];
+
+	if(IS_CROSS_REFERENCE_IGNORED) {
+		return true;
+	}
 
 	var _crossRefXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + CROSS_REFERENCE_TAG_NAME);
 	if(_crossRefXMLElementArray.length === 0) {
@@ -3743,5 +3763,185 @@ function __defLocalizeStrings() {
 	_global.bookmarksLabel = { 
 		en: "Bookmarks",
 		de: "Lesezeichen" 
+	};
+
+	_global.importDialogTitle = { 
+		en: "Microsoft Word Import Options",
+		de: "Microsoft Word Importoptionen" 
+	};
+	
+	_global.okButtonLabel = { 
+		en: "OK",
+		de: "OK" 
+	};
+
+	_global.cancelButtonLabel = { 
+		en: "Cancel",
+		de: "Abbrechen" 
+	};
+
+	_global.documentLabel = { 
+		en: "Document",
+		de: "Dokument" 
+	};
+
+	_global.defaultParagraphStyleLabel = { 
+		en: "Default paragraph style",
+		de: "Standard-Absatzformat" 
+	};
+
+	_global.isAutoflowingLabel = { 
+		en: "Automatic flow",
+		de: "Automatischer Textfluss" 
+	};
+
+	_global.isUntaggedLabel = { 
+		en: "Remove Tags",
+		de: "Tags entfernen" 
+	};
+
+	_global.stylePanelLabel = { 
+		en: "Styles",
+		de: "Formate" 
+	};
+
+	_global.styleModeGroupLabel = { 
+		en: "Character Styles",
+		de: "Zeichenformate" 
+	};
+
+	_global.extendedStyleModeRadiobutton = { 
+		en: "Extended Mode",
+		de: "Erweiterter Modus" 
+	};
+
+	_global.minimizedStyleModeRadiobutton = { 
+		en: "Minimized Mode",
+		de: "Reduzierter Modus" 
+	};
+
+	_global.breaksLabel = { 
+		en: "Breaks",
+		de: "Umbrüche" 
+	};
+
+	_global.pageBreakLabel = { 
+		en: "Page break",
+		de: "Seitenumbruch" 
+	};
+
+	_global.columnBreakLabel = { 
+		en: "Column break",
+		de: "Spaltenumbruch" 
+	};
+
+	_global.forcedLineLabel = { 
+		en: "Forced line break",
+		de: "Erzwungener Zeilenumbruch" 
+	};
+
+	_global.sectionLabel = { 
+		en: "Section break",
+		de: "Abschnittsumbruch" 
+	};
+
+	_global.commentsLabel = { 
+		en: "Comments",
+		de: "Kommentare" 
+	};
+	
+	_global.removeLabel = { 
+		en: "Remove",
+		de: "Entfernen" 
+	};
+
+	_global.markLabel = { 
+		en: "Mark",
+		de: "Markieren" 
+	};
+
+	_global.ignoreLabel = { 
+		en: "Ignore",
+		de: "Ignorieren" 
+	};
+
+	_global.createLabel = { 
+		en: "Create",
+		de: "Erstellen" 
+	};
+
+	_global.placeLabel = { 
+		en: "Place",
+		de: "Platzieren" 
+	};
+
+	_global.indexmarksLabel = { 
+		en: "Index marks",
+		de: "Indexmarken" 
+	};
+
+	_global.hyperlinksLabel = { 
+		en: "Hyperlinks",
+		de: "Hyperlinks" 
+	};
+
+	_global.crossReferencesLabel = { 
+		en: "Cross-references",
+		de: "Querverweise" 
+	};
+
+	_global.bookmarksPanelLabel = { 
+		en: "Bookmarks",
+		de: "Lesezeichen" 
+	};
+
+	_global.bookmarkMarkerLabel = { 
+		en: "Marker",
+		de: "Marker" 
+	};
+
+	_global.trackChangesLabel = { 
+		en: "Track changes",
+		de: "Änderungsverfolgung" 
+	};
+
+	_global.footnotesLabel = { 
+		en: "Footnotes",
+		de: "Fußnoten" 
+	};
+
+	_global.endnotesLabel = { 
+		en: "Endnotes",
+		de: "Endnoten" 
+	};
+
+	_global.imagesPanelLabel = { 
+		en: "Images",
+		de: "Bilder" 
+	};
+
+	_global.imageWidthLabel = { 
+		en: "Width (mm)",
+		de: "Breite (mm)" 
+	};
+
+	_global.imageHeightLabel = { 
+		en: "Height (mm)",
+		de: "Höhe (mm)" 
+	};
+
+	_global.textboxesPanelLabel = { 
+		en: "Textboxes",
+		de: "Textfelder" 
+	};
+
+	_global.textboxWidthLabel = { 
+		en: "Width (mm)",
+		de: "Breite (mm)" 
+	};
+
+	_global.textboxHeightLabel = { 
+		en: "Height (mm)",
+		de: "Höhe (mm)" 
 	};
 } /* END function __defLocalizeStrings */
