@@ -51,7 +51,6 @@
     <!-- +++++++++++++ -->
     
     <xsl:template match="/">
-        <!--<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;&#x0d;</xsl:text>-->
         <xsl:element name="html" namespace="{$ns}">
             <xsl:attribute name="xml:lang">
                 <xsl:value-of select="$language"/>
