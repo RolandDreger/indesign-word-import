@@ -221,7 +221,8 @@ Please check after the import if these correspond to your needs. Otherwise deact
 |Option|Property|Type|Default|Description|
 |---|---|---|---|---|
 |Create|isCreated|Boolean|false|Insert as InDesign bookmark.|
-|Marker|marker|String||Marker as a prefix of the content to identify bookmarks to be included. Example: Marker `#`, Bookmark in Word `#My_bookmark_name`. So Word bookmarks with prefix `#` will be transferred to InDesign bookmarks.|
+|Marker|marker|String||Marker as a prefix of the content to identify bookmarks to be included. Example: Marker `#`, Bookmark in Word `[#My_bookmark_content]`. So Word bookmarks with prefix `#` will be transferred to InDesign bookmarks. The insertion of the markers must be done in the content, because no special characters are allowed in the bookmark name. Regular expressions can be used.|
+|Remove Marker|isMarkerRemoved|String||The inserted marker (prefix) is removed from the bookmark content.|
 
 # Track Changes
 
