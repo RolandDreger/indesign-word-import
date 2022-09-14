@@ -111,8 +111,8 @@ A folder »Links« is created next to the InDesign file if document path is aval
 |Remove|isRemoved|Boolean|false|Remove image.|
 |Mark|isMarked|Boolean|false|Insert textbox content as plain text and highlighted with a condition.|
 |Create|isPlaced|Boolean|true|Create anchored textframe in story.|
-|Width|width|String|100|Default textframe width in mm.|
-|Height|height|String|100|Default textframe width in mm.|
+|Width|width|String|100|Default maximum image width in mm. Fitting into an (imaginary) rectangle with the values from height and width, i.e. the image frame will not be wider than this value.|
+|Height|height|String|100|Default maximum image height in mm. Fitting into an (imaginary) rectangle with the values from height and width, i.e. the image frame will not be higher than this value.|
 |Object Style|objectStyle|Object||Properties for the applied object style.|
 
 # Textboxes
@@ -124,8 +124,8 @@ Text boxes from Word are inserted into the story as anchored text frames.
 |Remove|isRemoved|Boolean|false|Remove textbox.|
 |Mark|isMarked|Boolean|false|Insert textbox constent as plain text and highlighted with a condition.|
 |Insert|isCreated|Boolean|true|Create anchored text frame in story.|
-|Width|width|String|100|Default text frame width in mm.|
-|Height|height|String|40|Default text frame width in mm.|
+|Width|width|String|100|Default maximum text frame width in mm. Fitting into an (imaginary) rectangle with the values from height and width, i.e. the text frame will not be wider than this value.|
+|Height|height|String|40|Default maximum text frame width in mm. Fitting into an (imaginary) rectangle with the values from height and width, i.e. the text frame will not be higher than this value.|
 |Object Style|objectStyle|Object||Properties for the applied object style.|
 
 # Page Breaks
