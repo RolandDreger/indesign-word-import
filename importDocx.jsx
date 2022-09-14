@@ -144,8 +144,8 @@ _global["setups"] = {
 			"index":"index",
 			"content":"content"
 		},
-		"marker":"", /* Marker as a prefix of the content to identify bookmarks to be included. Value: String. Example: #My_bookmark_name -> Marker: # */
-		"isMarkerRemoved":true,
+		"marker":"", /* Marker as a prefix of the content to identify bookmarks to be included. Value: String. Example: #My_bookmark_content -> Marker: # */
+		"isMarkerRemoved":false,
 		"isAnchorHidden":true,
 		"isCreated":false
 	},
@@ -2169,12 +2169,19 @@ function __createBookmarks(_doc, _wordXMLElement, _bookmarkXMLElementArray, _set
 	}
 
 	const CONTENT_ATTRIBUTE_NAME = _setupObj["bookmark"]["attributes"]["content"];
-	const MARKER = _setupObj["bookmark"]["marker"];
 	const IS_MARKER_REMOVED = _setupObj["bookmark"]["isMarkerRemoved"];
 	const IS_ANCHOR_HIDDEN = _setupObj["bookmark"]["isAnchorHidden"];
 	
 	const MAX_NAME_LENGTH = 100;
-	const _markerRegExp = new RegExp("^" + MARKER + "\\s*", "");
+
+	var _marker = _setupObj["bookmark"]["marker"];
+	var _markerRegExp;
+	try {
+		_markerRegExp = new RegExp("^" + _marker + "\\s*", "");
+	} catch(_error) {
+		_global["log"].push(localize(_global.bookmarksLabel) + " " + localize(_global.bookmarkMarkerLabel) + " [" + _marker + "]: " + _error.message);
+		_marker = "";
+	}
 
 	var _counter = 0;
 	
@@ -2197,7 +2204,7 @@ function __createBookmarks(_doc, _wordXMLElement, _bookmarkXMLElementArray, _set
 		}
 
 		/* Check: Marker available? */
-		if(MARKER) {
+		if(_marker) {
 			if(!_markerRegExp.test(_content)) {
 				continue;
 			}
