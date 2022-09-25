@@ -292,7 +292,6 @@ function __cleanUpString(_rawString, _areSpacesTrimmed, _areSpacesMerged) {
 } /* END __cleanUpString */
 
 
-
 /**
  * Get unique hyperlink destination name 
  * @param {Document} _doc 
@@ -326,3 +325,81 @@ function __getUniqueHyperlinkName(_doc, _curName) {
 
 	return _newName;
 } /* END function __getUniqueHyperlinkName */
+
+
+/**
+ * Search/Replace via GREP
+ * 
+ * Usage:
+ * var _findPropObj = { findWhat: _marker };
+ * var _changePropObj = { changeTo: "" };
+ * 
+ * __findChangeGREP(_parentXMLElement, _findPropObj, _changePropObj, "backward");
+ * 
+ * @param {Any} _place 
+ * @param {Object} _findPropObj 
+ * @param {Object} _changePropObj 
+ * @param {String} _mode 
+ * @returns {Array}
+ */
+function __findChangeGREP(_place, _findPropObj, _changePropObj, _mode) {
+	
+	if(!_place || !(_place.hasOwnProperty("findGrep"))) { return []; }
+	if (!_findPropObj || !(_findPropObj instanceof Object)) { return []; }
+	if (!_changePropObj || !(_changePropObj instanceof Object)) { return []; }
+	if(!_mode || _mode.constructor !== String) { return []; }
+	
+	if(_place.hasOwnProperty("contents") && _place.contents === "") { 
+		return []; 
+	}
+
+	var _reverseOrder;
+	
+	switch(_mode.toLowerCase()) {
+		case "forward":
+			/*Fundstellen vorwaerts durchsuchen */
+			_reverseOrder = false;
+			break;
+		case "backward":
+			/*Fundstellen ruechwaerts durchsuchen */
+			_reverseOrder = true;
+			break;
+		default:
+			return [];
+	}
+	
+	var _userProps = app.findChangeGrepOptions.properties;
+
+	app.findChangeGrepOptions.properties = {
+		includeFootnotes: false,
+		includeHiddenLayers: true,
+		includeLockedLayersForFind: false,
+		includeLockedStoriesForFind: false,
+		includeMasterPages: false,
+		searchBackwards: false
+	};
+	
+	app.findGrepPreferences = NothingEnum.nothing;
+	app.changeGrepPreferences = NothingEnum.nothing;
+	
+	var _resultArray = [];
+
+	try {
+		app.findGrepPreferences.properties = _findPropObj;
+		app.changeGrepPreferences.properties = _changePropObj;
+		if(_changePropObj.__count__) {
+			_resultArray = _place.changeGrep(_reverseOrder);
+		} else {
+			_resultArray = _place.findGrep(_reverseOrder);
+		}
+	} catch(_error) {
+		alert(_error.message);
+		_resultArray = [];
+	} finally {
+		app.findGrepPreferences = NothingEnum.nothing;
+		app.changeGrepPreferences = NothingEnum.nothing;
+		app.findChangeGrepOptions.properties = _userProps; 
+	}
+	
+	return _resultArray;
+} /* END function __findChangeGREP */
