@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: September 14, 2022
+		+ Last modified: September 25, 2022
 		
 		
 		+ Descriptions
@@ -144,8 +144,7 @@ _global["setups"] = {
 			"index":"index",
 			"content":"content"
 		},
-		"marker":"", /* Marker as a prefix of the content to identify bookmarks to be included. Value: String. Example: #My_bookmark_content -> Marker: # */
-		"isMarkerRemoved":false,
+		"marker":"", /* Marker as a prefix of Word bookmark ID to be included as InDesign bookmark. Value: String. Example: indesign_my_bookmark_name -> Marker: indesign_ */
 		"isAnchorHidden":true,
 		"isCreated":false
 	},
@@ -2169,15 +2168,16 @@ function __createBookmarks(_doc, _wordXMLElement, _bookmarkXMLElementArray, _set
 	}
 
 	const CONTENT_ATTRIBUTE_NAME = _setupObj["bookmark"]["attributes"]["content"];
-	const IS_MARKER_REMOVED = _setupObj["bookmark"]["isMarkerRemoved"];
+	const ID_ATTRIBUTE_NAME = _setupObj["bookmark"]["attributes"]["id"];
 	const IS_ANCHOR_HIDDEN = _setupObj["bookmark"]["isAnchorHidden"];
 	
 	const MAX_NAME_LENGTH = 100;
 
 	var _marker = _setupObj["bookmark"]["marker"];
 	var _markerRegExp;
+
 	try {
-		_markerRegExp = new RegExp("^" + _marker + "\\s*", "");
+		_markerRegExp = new RegExp("^" + _marker, "");
 	} catch(_error) {
 		_global["log"].push(localize(_global.bookmarksLabel) + " " + localize(_global.bookmarkMarkerLabel) + " [" + _marker + "]: " + _error.message);
 		_marker = "";
@@ -2203,16 +2203,22 @@ function __createBookmarks(_doc, _wordXMLElement, _bookmarkXMLElementArray, _set
 			continue;
 		}
 
-		/* Check: Marker available? */
-		if(_marker) {
-			if(!_markerRegExp.test(_content)) {
-				continue;
-			}
-			if(IS_MARKER_REMOVED) {
-				_content = _content.replace(_markerRegExp, "");
-			}
+		/* ID */
+		var _idAttribute = _bookmarkXMLElement.xmlAttributes.itemByName(ID_ATTRIBUTE_NAME);
+		if(!_idAttribute.isValid) {
+			continue;
 		}
-		
+
+		var _id = _idAttribute.value;
+		if(!_id) {
+			continue;
+		}
+
+		/* Check: Marker available and included in ID? */
+		if(_marker && !_markerRegExp.test(_id)) {
+			continue;
+		}
+
 		var _bookmarkName = _content.substring(0, MAX_NAME_LENGTH);
 
 		/* Bookmark destination properties */

@@ -420,7 +420,7 @@ function __showImportDialog(_setupObj) {
 					spacing = GAP*3;
 					var _bookmarkCreatedGroup = add("group");
 					with(_bookmarkCreatedGroup) {
-						margins.top = 4;
+						margins.top = GAP;
 						_bookmarkCreatedCheckbox = add("checkbox", undefined, localize(_global.createLabel));
 					} /* END _bookmarkCreatedGroup */
 					_bookmarkMarkerGroup = add("group");
@@ -431,7 +431,7 @@ function __showImportDialog(_setupObj) {
 						add("statictext", undefined, localize(_global.bookmarkMarkerLabel) + ":");
 						_bookmarkMarkerEdittext = add("edittext", undefined, "");
 						with(_bookmarkMarkerEdittext) {
-							characters = 6;
+							characters = 8;
 						} /* END _bookmarkMarkerEdittext */
 					} /* END _bookmarkMarkerGroup */
 				} /* END _bookmarkPanel */
