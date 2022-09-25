@@ -250,9 +250,13 @@ function __showImportDialog(_setupObj) {
 					alignChildren = ["left","top"];
 					spacing = GAP;
 					_pageBreakCheckbox = add("checkbox", undefined, localize(_global.pageBreakLabel));
+					_pageBreakCheckbox.helpTip = localize(_global.breaksHelpTip, localize(_global.pageBreakLabel));
 					_columnBreakCheckbox = add("checkbox", undefined, localize(_global.columnBreakLabel));
+					_columnBreakCheckbox.helpTip = localize(_global.breaksHelpTip, localize(_global.columnBreakLabel));
 					_forcedLineBreakCheckbox = add("checkbox", undefined, localize(_global.forcedLineLabel));
+					_forcedLineBreakCheckbox.helpTip = localize(_global.breaksHelpTip, localize(_global.forcedLineLabel));
 					_sectionBreakCheckbox = add("checkbox", undefined, localize(_global.sectionLabel));
+					_sectionBreakCheckbox.helpTip = localize(_global.breaksHelpTip, localize(_global.sectionLabel));
 				} /* END _breaksPanel */
 			} /* END _columnOne */
 			var _columnTwo = add("group");

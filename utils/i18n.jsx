@@ -511,6 +511,11 @@
 		de: "Reduzierter Modus" 
 	};
 
+	_global.breaksHelpTip = { 
+		en: "Inserting %1 as InDesign special characters",
+		de: "%1 als InDesign-Sonderzeichen einf\u00FCgen" 
+	};
+
 	_global.breaksLabel = { 
 		en: "Breaks",
 		de: "Umbr\u00FCche" 
