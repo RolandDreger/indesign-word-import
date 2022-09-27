@@ -98,7 +98,7 @@ For special cases you can hook into the import with JavaScript, e.g. to create y
 
 ## Metadata
 
-The metadata entries in the Word document can be transferred to the InDesign document. Multiple values are separated by semicolons in the »Author(s)« and »Keywords« input fields in the Word document.
+The metadata entries in the Word document can be transferred to the InDesign document. Multiple values are separated by semicolons in the »Author(s)« and »Keywords« input fields in the Word document. Also the custom metadata from Word can be imported.
 
 |Option|Property|Type|Default|Description|
 |---|---|---|---|---|
