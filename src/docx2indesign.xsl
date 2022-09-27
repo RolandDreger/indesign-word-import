@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: July 7, 2022
+    Modified: September 27, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -395,7 +395,7 @@
             <xsl:for-each select="$custom-props/cusp:property">
                 <xsl:if test="@name">
                     <xsl:attribute name="{@name}">
-                        <xsl:value-of select="vt:lpwstr"/>
+                        <xsl:value-of select="vt:lpwstr | vt:i4 | vt:bool | vt:filetime"/>
                     </xsl:attribute>
                 </xsl:if>
             </xsl:for-each>
