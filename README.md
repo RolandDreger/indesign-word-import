@@ -96,6 +96,16 @@ For special cases you can hook into the import with JavaScript, e.g. to create y
 |XML Structure|isUntagged|Boolean|false|If true, then the XML structure will be removed out of the document after import.|
 |Default Paragraph Style|defaultParagraphStyle|String|"Normal"|Name of the default paragraph style. This style is used for paragraphs that do not have a specific paragraph style applied in the Word document.|
 
+## Metadata
+
+The metadata entries in the Word document can be transferred to the InDesign document. Multiple values are separated by semicolons in the »Author(s)« and »Keywords« input fields in the Word document.
+
+|Option|Property|Type|Default|Description|
+|---|---|---|---|---|
+|Merge|areMerged|Boolean|Append the metadata of the imported Word document to the metadata of the InDesign document.|
+|Replace|areReplaced|Boolean|Replace the metadata of the InDesign document with the metadata from the imported Word document.|
+|Ignore|areIgnored|Boolean|Ignore metadata from the imported Word document.|
+
 # Import Settings
 
 |Option|Property|Type|Value|Default|Description|
