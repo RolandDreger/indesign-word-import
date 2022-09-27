@@ -476,6 +476,16 @@
 		de: "Dokument" 
 	};
 
+	_global.metadataLabel = { 
+		en: "Metadata",
+		de: "Metadaten" 
+	};
+
+	_global.insertMetadataMessage = { 
+		en: "[%1] Metadata interted",
+		de: "[%1] Metadaten eingef\u00FCgt" 
+	};
+
 	_global.defaultParagraphStyleLabel = { 
 		en: "Default paragraph style",
 		de: "Standard-Absatzformat" 
@@ -559,6 +569,16 @@
 	_global.ignoreLabel = { 
 		en: "Ignore",
 		de: "Ignorieren" 
+	};
+
+	_global.mergeLabel = { 
+		en: "Merge",
+		de: "Anf\u00FCgen" 
+	};
+
+	_global.replaceLabel = { 
+		en: "Replace",
+		de: "Ersetzen" 
 	};
 
 	_global.createLabel = { 

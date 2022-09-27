@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: September 25, 2022
+		+ Last modified: September 27, 2022
 		
 		
 		+ Descriptions
@@ -44,6 +44,20 @@ _global["setups"] = {
 		"isAutoflowing": true, /* Type: Boolean. Description: If true, autoflows placed text. (Depends on document settings.)  */
 		"isUntagged":false, /* Type: Boolean. Description: If true, then the XML structure will be removed out of the document after import. */
 		"defaultParagraphStyle":"Normal" /* Type: String. Value: e.g. "Normal". Description: This style is used for paragraphs that do not have a specific paragraph style applied in the Word document. */
+	},
+	"metadata":{
+		"tag":"document",
+		"attributes":{
+			"description":"description",
+			"category":"category",
+			"keywords":"keywords",
+			"author":"author",
+			"subject":"subject",
+			"title":"title"
+		},
+		"areMerged":false, 
+		"areReplaced":false,
+		"areIgnored":true
 	},
 	"linkFolder":{
 		"name":"Links", /* Type: String. Value: e.g. "Links". Description: Folder name for placed images; */
@@ -790,31 +804,34 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 		throw new Error("Object as parameter required.");
 	}
 
-	/* 01 Breaks */
+	/* 01 Metadata */
+	__handleMetadata(_doc, _wordXMLElement, _setupObj);
+
+	/* 02 Breaks */
 	__insertBreaks(_doc, _wordXMLElement, _setupObj);
 
-	/* 02 Comments */
+	/* 03 Comments */
 	__handleComments(_doc, _wordXMLElement, _setupObj);
 
-	/* 03 Index */
+	/* 04 Index */
 	__handleIndexmarks(_doc, _wordXMLElement, _setupObj);
 	
-	/* 04 Hyperlinks */
+	/* 05Hyperlinks */
 	__handleHyperlinks(_doc, _wordXMLElement, _setupObj);
 
-	/* 05 Cross-references */
+	/* 06 Cross-references */
 	__handleCrossReferences(_doc, _wordXMLElement, _setupObj);
 
-	/* 06 Bookmarks */
+	/* 07Bookmarks */
 	__handleBookmarks(_doc, _wordXMLElement, _setupObj);
 	
-	/* 07 Textboxes */
+	/* 08 Textboxes */
 	__handleTextboxes(_doc, _wordXMLElement, _setupObj);
 
-	/* 08 Images */
+	/* 09 Images */
 	__handleImages(_doc, _wordXMLElement, _unpackObj, _setupObj);
 
-	/* 09 Track Changes */
+	/* 10 Track Changes */
 	__handleTrackChanges(_doc, _wordXMLElement, _setupObj);
 
 	/* 
@@ -822,16 +839,338 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 		(After all XML manipulations, since XML elements must be removed from footnotes and endnotes)
 	*/
 
-	/* 10 Footnotes */ 
+	/* 11 Footnotes */ 
 	__handleFootnotes(_doc, _wordXMLElement, _setupObj);
 	
-	/* 11 Endnotes */
+	/* 12 Endnotes */
 	__handleEndnotes(_doc, _wordXMLElement, _setupObj);	
 
 	
 	return {};
 } /* END function __mountBeforePlaced */
 
+
+/**
+ * Handle Document Metadata
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns Boolean 
+ */
+function __handleMetadata(_doc, _wordXMLElement, _setupObj) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+	
+	const METADATA_TAG_NAME = _setupObj["metadata"]["tag"];
+	const ARE_METADATA_MERGED = _setupObj["metadata"]["areMerged"];
+	const ARE_METADATA_REPLACED = _setupObj["metadata"]["areReplaced"];
+	const ARE_METADATA_IGNORED = _setupObj["metadata"]["areIgnored"];
+
+	var _metadataXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + METADATA_TAG_NAME);
+	if(_metadataXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if(ARE_METADATA_IGNORED) {
+		return true;
+	}
+
+	if(ARE_METADATA_MERGED) {
+		__insertMetadata(_doc, _metadataXMLElementArray[0], "merge", _setupObj);
+		return true;
+	}
+
+	if(ARE_METADATA_REPLACED) {
+		__insertMetadata(_doc, _metadataXMLElementArray[0], "replace", _setupObj);
+		return true;
+	}
+
+
+	return true;
+} /* END function __handleMetadata */
+
+
+/**
+ * Create Comments
+ * @param {Document} _doc 
+ * @param {XMLElement} _metadataXMLElement 
+ * @param {String} _mode Values: merge | replace 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __insertMetadata(_doc, _metadataXMLElement, _mode, _setupObj) {
+	
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) { 
+		throw new Error("Document as parameter required.");
+	}
+	if(!_metadataXMLElement || !(_metadataXMLElement instanceof XMLElement) || !_metadataXMLElement.isValid) { 
+		throw new Error("XMLElement as parameter required."); 
+	}
+	if(!_mode || _mode.constructor !== String || (_mode !== "merge" && _mode !== "replace")) { 
+		throw new Error("String as parameter required.");
+	}
+	if(!_setupObj || !(_setupObj instanceof Object)) { 
+		throw new Error("Object as parameter required.");
+	}
+	
+	const TITLE_ATTRIBUTE_NAME = _setupObj["metadata"]["attributes"]["title"];
+	const AUTHOR_ATTRIBUTE_NAME = _setupObj["metadata"]["attributes"]["author"];
+	const DESCRIPTION_ATTRIBUTE_NAME = _setupObj["metadata"]["attributes"]["description"];
+	const CATEGORY_ATTRIBUTE_NAME = _setupObj["metadata"]["attributes"]["category"];
+	const KEYWORDS_ATTRIBUTE_NAME = _setupObj["metadata"]["attributes"]["keywords"];
+	const SUBJECT_ATTRIBUTE_NAME = _setupObj["metadata"]["attributes"]["subject"];
+
+	const DC_NS = "http://purl.org/dc/elements/1.1/";
+	const METADATA_VALUE_SEPARATOR = "; ";
+	
+	var _metadataCounter = 0;
+	var _isSet = false;
+
+	var _metadataPrefs = _doc.metadataPreferences;
+
+	/* Document title */
+	var _titleAttribute = _metadataXMLElement.xmlAttributes.itemByName(TITLE_ATTRIBUTE_NAME);
+	if(_titleAttribute.isValid && _titleAttribute.value) {
+		var _docTitle = "";
+		if(_mode === "merge") {
+			_docTitle = (_metadataPrefs.documentTitle && _metadataPrefs.documentTitle + METADATA_VALUE_SEPARATOR) || "";
+		}
+		_docTitle += _titleAttribute.value;
+		var _titleObjArray = __getItemObjArray(_docTitle, [{ "name":"xml:lang", "value":"x-default" }]);
+		_isSet = __setXMPContainerProperties(_doc, "ALT", DC_NS, "dc:title", _titleObjArray, "replace");
+		if(_isSet) { 
+			_metadataCounter += 1; 
+		}
+	}
+	
+	/* Authors */
+	var _authorAttribute = _metadataXMLElement.xmlAttributes.itemByName(AUTHOR_ATTRIBUTE_NAME);
+	if(_authorAttribute.isValid && _authorAttribute.value) {
+		var _creatorObjArray = __getItemObjArray(_authorAttribute.value, [], "split");
+		_isSet = __setXMPContainerProperties(_doc, "SEQ", DC_NS, "dc:creator", _creatorObjArray, _mode);
+		if(_isSet) { 
+			_metadataCounter += 1; 
+		}
+	}
+
+	/* Description */
+	var _descriptionAttribute = _metadataXMLElement.xmlAttributes.itemByName(DESCRIPTION_ATTRIBUTE_NAME);
+	if(_descriptionAttribute.isValid && _descriptionAttribute.value) {
+		var _description = "";
+		if(_mode === "merge") {
+			_description = (_metadataPrefs.description && _metadataPrefs.description + METADATA_VALUE_SEPARATOR) || "";
+		}
+		_description += _descriptionAttribute.value;
+		var _descObjArray = __getItemObjArray(_description, [{ "name":"xml:lang", "value":"x-default" }]);
+		_isSet = __setXMPContainerProperties(_doc, "ALT", DC_NS, "dc:description", _descObjArray, "replace");
+		if(_isSet) { 
+			_metadataCounter += 1; 
+		}
+	}
+
+	/* Keywords */
+	var _keywordsAttribute = _metadataXMLElement.xmlAttributes.itemByName(KEYWORDS_ATTRIBUTE_NAME);
+	if(_keywordsAttribute.isValid && _keywordsAttribute.value) {
+		var _subjectObjArray = __getItemObjArray(_keywordsAttribute.value, [], "split");
+		_isSet = __setXMPContainerProperties(_doc, "BAG", DC_NS, "dc:subject", _subjectObjArray, _mode);
+		if(_isSet) {
+			_metadataCounter += 1;
+		}
+	}
+
+	if(_global["isLogged"]) {
+		_global["log"].push(localize(_global.insertMetadataMessage, _metadataCounter));
+	}
+
+	return true;
+} /* END function __insertMetadata */
+
+
+/**
+ * Get item object array for setting XMP property
+ * @param {String} _inputValue 
+ * @param {Array} _attrArray 
+ * @param {String} _mode optional
+ * @returns Array
+ */
+function __getItemObjArray(_inputValue, _attrArray, _mode) {
+
+	if(!_inputValue || _inputValue.constructor !== String) {
+		return [];
+	}
+	if(!_attrArray || !(_attrArray instanceof Array)) {
+		return [];
+	}
+
+	const _valueSeparatorRegExp = new RegExp("[;]","g");
+	const _trimRegExp = new RegExp("^\\s+|\\s+$","g");
+
+	_inputValue = _inputValue.replace(_trimRegExp, "");
+	if(!_inputValue) {
+		return [];
+	}
+
+	var _valueArray = [];
+	
+	if(_mode === "split") {
+		_valueArray = _inputValue.replace(_trimRegExp, "").split(_valueSeparatorRegExp);
+	} else {
+		_valueArray.push(_inputValue);
+	}
+	
+	var _outputArray = [];
+
+	for(var i=0; i<_valueArray.length; i+=1) {
+
+		var _splitedValue = _valueArray[i].replace(_trimRegExp, "");
+		if(!_splitedValue) {
+			continue;
+		}
+
+		_outputArray.push({
+			"value": _splitedValue,
+			"attributes":_attrArray
+		});
+	}
+
+	return _outputArray;
+} /* END function __getItemObjArray */
+
+
+/**
+ * Merge/Replace metadata value in document
+ * If _itemObjArray is an empty array, the metadata property is not changed. 
+ * (This applies to both modes.)
+ * Example _itemObjArray
+ * [
+ *		{
+ *			"value": _description,
+ *			"attributes": [
+ *				{ "name":"xml:lang", "value":"x-default" },
+ *				...
+ *			]
+ *		},
+ *  	...
+ *	]
+ * @param {Document} _doc
+ * @param {String} _containerType Values: "ALT", "BAG" or "SEQ"
+ * @param {String} _namespace e.g. "http://purl.org/dc/elements/1.1/"
+ * @param {String} _name e.g. dc:title
+ * @param {Array} _itemObjArray 
+ * @param {String} _mode Values: "merge" or "replace"
+ * @returns Boolean
+ */
+function __setXMPContainerProperties (_doc, _containerType, _namespace, _name, _itemObjArray, _mode) {
+
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) {
+		return false;
+	}
+	if(!_containerType  || _containerType.constructor !== String || !ContainerType.hasOwnProperty(_containerType)) {
+		return false;
+	}
+	if(_namespace === null || _namespace === undefined || _namespace.constructor !== String) {
+		return false;
+	}
+	if(!_name || _name.constructor !== String) {
+		return false;
+	}
+	if(!_itemObjArray || !(_itemObjArray instanceof Array) || _itemObjArray.length === 0) {
+		return false;
+	}
+	if(_mode !== "merge" && _mode !== "replace") {
+		return false;
+	}
+
+	const _trimRegExp = new RegExp("^\\s+|\\s+$","g");
+
+	try {
+
+		var _metadataPrefs = _doc.metadataPreferences;
+		var _numOfContainerItems = _metadataPrefs.countContainer(_namespace, _name);
+
+		/* Check: Does the container exists? */
+		if(_numOfContainerItems === 0) {
+			/* Create new container */
+			_metadataPrefs.createContainerItem(_namespace, _name, 0, ContainerType[_containerType]);
+		}
+		/* Check: Replace mode? */
+		else if(_mode === "replace") {
+			/* Remove all items from container */
+			for(var n=_numOfContainerItems; n>0; n-=1) {
+				_metadataPrefs.setProperty(_namespace, _name + "[" + n + "]", "");
+			}
+		}
+
+		var _loopOffset = 0;
+
+		/* Check: Merge mode? */
+		if(_mode === "merge") {
+			_loopOffset = _numOfContainerItems;
+		}
+		
+		for(var i=0; i<_itemObjArray.length; i+=1) {
+	
+			var _itemObj = _itemObjArray[i];
+			if(!_itemObj || !(_itemObj instanceof Object)) {
+				_loopOffset -= 1;
+				continue;
+			}
+
+			var _itemValue = _itemObj["value"];
+			if(_itemValue === null || _itemValue === undefined || _itemValue.constructor !== String) {
+				_loopOffset -= 1;
+				continue;
+			}
+
+			_itemValue = _itemValue.replace(_trimRegExp, "");
+			if(!_itemValue) {
+				_loopOffset -= 1;
+				continue;
+			}
+
+			var _itemIndex = _loopOffset + i + 1;
+			if(_itemIndex <= 0) {
+				continue;
+			}
+
+			var _itemPath = _name + "[" + _itemIndex + "]";
+
+			/* Metadata property */
+			_metadataPrefs.setProperty(_namespace, _itemPath, _itemValue);
+
+			/* Attributes */
+			var _attrObjArray = _itemObj["attributes"] || [];
+
+			for(var a=0; a<_attrObjArray.length; a+=1) {
+
+				var _attrObj = _attrObjArray[a];
+				if(!_attrObj || !_attrObj.hasOwnProperty("name") || !_attrObj.hasOwnProperty("value")) {
+					continue;
+				}
+
+				var _attrName = _attrObj["name"];
+				var _attrValue = _attrObj["value"];
+				if(!_attrName || _attrName.constructor !== String || !_attrValue || _attrValue.constructor !== String) {
+					continue;
+				}
+
+				_metadataPrefs.setProperty(_namespace, _itemPath + "/@" + _attrName, _attrValue);
+			}
+		}
+	} catch(_error) {
+		return false;
+	}
+	
+	return true;
+} /* END function __setXMPContainerProperties */
 
 
 /**

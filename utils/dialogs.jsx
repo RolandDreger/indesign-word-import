@@ -145,6 +145,9 @@ function __showImportDialog(_setupObj) {
 	var _defaultParagraphStyleEdittext;
 	var _isAutoflowingCheckbox;
 	var _isUntaggedCheckbox;
+	var _metadataMergedRadiobutton;
+	var _metadataReplacedRadiobutton;
+	var _metadataIgnoredRadiobutton;
 	var _extendedStyleModeRadiobutton; 
 	var _minimizedStyleModeRadiobutton;
 	var _pageBreakCheckbox;
@@ -202,7 +205,7 @@ function __showImportDialog(_setupObj) {
 			with(_columnOne) {
 				orientation = "column";
 				alignChildren = ["fill","fill"];
-				spacing = GAP*5;
+				spacing = GAP*3;
 				var _documentPanel = add("panel", undefined, localize(_global.documentLabel));
 				with(_documentPanel) {
 					margins = [MARGIN*2,MARGIN*3,MARGIN*2,MARGIN*1];
@@ -210,6 +213,16 @@ function __showImportDialog(_setupObj) {
 					spacing = GAP;
 					_isAutoflowingCheckbox = add("checkbox", undefined, localize(_global.isAutoflowingLabel));
 					_isUntaggedCheckbox = add("checkbox", undefined, localize(_global.isUntaggedLabel));
+					add("statictext", undefined, localize(_global.metadataLabel));
+					var _metadataGroup = add("group");
+					with(_metadataGroup) {
+						orientation = "row";
+						alignChildren = ["left","top"];
+						spacing = GAP;
+						_metadataMergedRadiobutton = add("radiobutton", undefined, localize(_global.mergeLabel));
+						_metadataReplacedRadiobutton = add("radiobutton", undefined, localize(_global.replaceLabel));
+						_metadataIgnoredRadiobutton = add("radiobutton", undefined, localize(_global.ignoreLabel));
+					} /* END _metadataGroup */
 				} /* END _documentPanel */
 				var _stylePanel = add("panel", undefined, localize(_global.stylePanelLabel));
 				with(_stylePanel) {
@@ -263,7 +276,7 @@ function __showImportDialog(_setupObj) {
 			with(_columnTwo) {
 				orientation = "column";
 				alignChildren = ["fill","fill"];
-				spacing = GAP*5;
+				spacing = GAP*4;
 				var _imagePanel = add("panel", undefined, localize(_global.imagesPanelLabel));
 				with(_imagePanel) {
 					orientation = "column";
@@ -367,7 +380,7 @@ function __showImportDialog(_setupObj) {
 			with(_columnThree) {
 				orientation = "column";
 				alignChildren = ["fill","fill"];
-				spacing = GAP*4;
+				spacing = GAP*3;
 				var _commentPanel = add("panel", undefined, localize(_global.commentsLabel));
 				with(_commentPanel) {
 					orientation = "row";
@@ -504,6 +517,9 @@ function __showImportDialog(_setupObj) {
 	_defaultParagraphStyleEdittext.text = _setupObj["document"]["defaultParagraphStyle"];
 	_isAutoflowingCheckbox.value = _setupObj["document"]["isAutoflowing"];
 	_isUntaggedCheckbox.value = _setupObj["document"]["isUntagged"];
+	_metadataMergedRadiobutton.value = _setupObj["metadata"]["areMerged"];
+	_metadataReplacedRadiobutton.value = _setupObj["metadata"]["areReplaced"];
+	_metadataIgnoredRadiobutton.value = _setupObj["metadata"]["areIgnored"];		
 	if(_setupObj["import"]["styleMode"] === "extended") {
 		_extendedStyleModeRadiobutton.value = true; 
 	} else {
@@ -573,6 +589,9 @@ function __showImportDialog(_setupObj) {
 	_setupObj["document"]["defaultParagraphStyle"] = _defaultParagraphStyleEdittext.text;
 	_setupObj["document"]["isAutoflowing"] = _isAutoflowingCheckbox.value;
 	_setupObj["document"]["isUntagged"] = _isUntaggedCheckbox.value;
+	_setupObj["metadata"]["areMerged"] = _metadataMergedRadiobutton.value;
+	_setupObj["metadata"]["areReplaced"] = _metadataReplacedRadiobutton.value;
+	_setupObj["metadata"]["areIgnored"] = _metadataIgnoredRadiobutton.value;		
 	_setupObj["import"]["styleMode"] = (_extendedStyleModeRadiobutton.value && "extended") || (_minimizedStyleModeRadiobutton.value && "minimized");
 	_setupObj["pageBreak"]["isInserted"] = _pageBreakCheckbox.value;
 	_setupObj["columnBreak"]["isInserted"] = _columnBreakCheckbox.value;
