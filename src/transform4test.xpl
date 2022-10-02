@@ -10,7 +10,7 @@
     <p:input port="source" sequence="true" >
         <rd:config>
             <!-- Path to Word-XML-Document (must be relative to XSLT stylesheet) -->
-            <rd:item name="word-xml-document" href="../tests/table/table.xml"/>
+            <rd:item name="word-xml-document" href="../tests/table-with-faulty-structure/table-with-faulty-structure.xml"/>
             <!-- Selected modes (space separated values) -->
             <rd:item name="modes" value="indesign html xhtml"/> 
             <!-- XSLT stylesheets -->

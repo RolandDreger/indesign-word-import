@@ -90,6 +90,16 @@
             <x:expect label="Number of child elements must be greater than 0" test="count(/document/*) gt 0" />
         </x:scenario>
         
+        <!-- Table with faulty structure -->
+        <x:scenario label="Table with faulty structure">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/table-with-faulty-structure/table-with-faulty-structure.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/table-with-faulty-structure/table-with-faulty-structure.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="table-with-faulty-structure/indesign/table-with-faulty-structure.xml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/document/*) gt 0" />
+        </x:scenario>
         
         
         
