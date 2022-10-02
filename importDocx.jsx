@@ -3444,6 +3444,10 @@ function __getStylesOfNoteParagraphs(_containerXMLElement, _setupObj) {
 			continue;
 		}
 
+		if(i === _paragraphXMLElementArray.length - 1 && _paragraphXMLElement.contents === "") {
+			continue;
+		}
+
 		var _pStyleAttribute = _paragraphXMLElement.xmlAttributes.itemByName(STYLE_ATTRIBUTE_NAME);
 		if(!_pStyleAttribute.isValid) {
 			_pStyleNameArray.push("");
