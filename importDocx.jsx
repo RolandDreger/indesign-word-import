@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: September 27, 2022
+		+ Last modified: October 2, 2022
 		
 		
 		+ Descriptions
@@ -67,7 +67,8 @@ _global["setups"] = {
 		"name":"docx2Indesign.xsl"
 	},
 	"import":{
-		"styleMode":"extended" /* Type: String. Value: 'extended' or 'minimized'. Description:  If minimized, all local overrides are ignored except the following: strong, i, em, u, superscript, subscript, small caps, caps, highlight. */
+		"styleMode":"extended", /* Type: String. Value: 'extended' or 'minimized'. Description:  If minimized, all local overrides are ignored except the following: strong, i, em, u, superscript, subscript, small caps, caps, highlight. */
+		"tableMode":"table" /* Type: String. Value: 'table' or 'tabbedlist'. Description: If 'tabbedlist', import table structure as tab separated text. */
 	},
 	"place":{},
 	"mount":{},
@@ -601,6 +602,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 	const _defaultPStyleName = _setupObj["document"]["defaultParagraphStyle"];
 	const _xsltFileName = _setupObj["xslt"]["name"];
 	const _styleMode = _setupObj["import"]["styleMode"];
+	const _tableMode = _setupObj["import"]["tableMode"];
 
 	_global["progressbar"].init(0, 2, "", localize(_global.importProgressLabel));
 	_global["progressbar"].step();
@@ -609,6 +611,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 
 	_transformParams.push(["app", "indesign"]);
 	_transformParams.push(["style-mode", _styleMode]);
+	_transformParams.push(["table-mode", _tableMode]);
 	_transformParams.push(["fallback-paragraph-style-name", _defaultPStyleName]);
 
 	var _xsltFile = __getXSLTFile(_xsltFileName);

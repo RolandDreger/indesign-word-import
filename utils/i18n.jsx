@@ -660,4 +660,19 @@
 		en: "Height (mm)",
 		de: "H\u00F6he (mm)" 
 	};
+
+	_global.tablesPanelLabel = { 
+		en: "Tables",
+		de: "Tabellen" 
+	};
+
+	_global.tableTableModeRadiobuttonLabel = { 
+		en: "Table",
+		de: "Tabelle" 
+	};
+
+	_global.tabbedlistTableModeRadiobuttonLabel = { 
+		en: "Tabbed List",
+		de: "Text mit Tabulatoren" 
+	};
 } /* END function __defLocalizeStrings */

@@ -188,6 +188,8 @@ function __showImportDialog(_setupObj) {
 	var _textboxInputGroup;
 	var _textboxWidthEdittext;
 	var _textboxHeightEdittext;
+	var _tableTableModeRadiobutton;
+	var _tabbedlistTableModeRadiobutton;
 
 	var _okButton;
 	var _cancelButton;
@@ -205,7 +207,7 @@ function __showImportDialog(_setupObj) {
 			with(_columnOne) {
 				orientation = "column";
 				alignChildren = ["fill","fill"];
-				spacing = GAP*3;
+				spacing = GAP*2;
 				var _documentPanel = add("panel", undefined, localize(_global.documentLabel));
 				with(_documentPanel) {
 					margins = [MARGIN*2,MARGIN*3,MARGIN*2,MARGIN*1];
@@ -276,7 +278,7 @@ function __showImportDialog(_setupObj) {
 			with(_columnTwo) {
 				orientation = "column";
 				alignChildren = ["fill","fill"];
-				spacing = GAP*4;
+				spacing = GAP*2;
 				var _imagePanel = add("panel", undefined, localize(_global.imagesPanelLabel));
 				with(_imagePanel) {
 					orientation = "column";
@@ -355,6 +357,15 @@ function __showImportDialog(_setupObj) {
 						} /* END _textboxHeightGroup */
 					} /* END _textboxInputGroup */
 				} /* END _textboxPanel */
+				var _tablePanel = add("panel", undefined, localize(_global.tablesPanelLabel));
+				with(_tablePanel) {
+					orientation = "row";
+					margins = [MARGIN*2,MARGIN*3,MARGIN*2,MARGIN*1];
+					alignChildren = ["left","top"];
+					spacing = GAP*2;
+					_tableTableModeRadiobutton = add("radiobutton", undefined, localize(_global.tableTableModeRadiobuttonLabel));
+					_tabbedlistTableModeRadiobutton = add("radiobutton", undefined, localize(_global.tabbedlistTableModeRadiobuttonLabel));
+				} /* END _tablePanel */
 				var _footnotePanel = add("panel", undefined, localize(_global.footnotesLabel));
 				with(_footnotePanel) {
 					orientation = "row";
@@ -380,7 +391,7 @@ function __showImportDialog(_setupObj) {
 			with(_columnThree) {
 				orientation = "column";
 				alignChildren = ["fill","fill"];
-				spacing = GAP*3;
+				spacing = GAP*4;
 				var _commentPanel = add("panel", undefined, localize(_global.commentsLabel));
 				with(_commentPanel) {
 					orientation = "row";
@@ -525,6 +536,11 @@ function __showImportDialog(_setupObj) {
 	} else {
 		_minimizedStyleModeRadiobutton.value = true;
 	}
+	if(_setupObj["import"]["tableMode"] === "table") {
+		_tableTableModeRadiobutton.value = true; 
+	} else {
+		_tabbedlistTableModeRadiobutton.value = true;
+	}
 	_pageBreakCheckbox.value = _setupObj["pageBreak"]["isInserted"];
 	_columnBreakCheckbox.value = _setupObj["columnBreak"]["isInserted"];
 	_forcedLineBreakCheckbox.value = _setupObj["forcedLineBreak"]["isInserted"];
@@ -593,6 +609,7 @@ function __showImportDialog(_setupObj) {
 	_setupObj["metadata"]["areReplaced"] = _metadataReplacedRadiobutton.value;
 	_setupObj["metadata"]["areIgnored"] = _metadataIgnoredRadiobutton.value;		
 	_setupObj["import"]["styleMode"] = (_extendedStyleModeRadiobutton.value && "extended") || (_minimizedStyleModeRadiobutton.value && "minimized");
+	_setupObj["import"]["tableMode"] = (_tableTableModeRadiobutton.value && "table") || (_tabbedlistTableModeRadiobutton.value && "tabbedlist");
 	_setupObj["pageBreak"]["isInserted"] = _pageBreakCheckbox.value;
 	_setupObj["columnBreak"]["isInserted"] = _columnBreakCheckbox.value;
 	_setupObj["forcedLineBreak"]["isInserted"] = _forcedLineBreakCheckbox.value;

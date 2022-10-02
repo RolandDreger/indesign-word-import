@@ -112,6 +112,12 @@ The metadata entries in the Word document can be transferred to the InDesign doc
 |---|---|---|---|---|---| 
 |Special Character Styles|styleMode|String|"extended" or "minimized"|"extended"|If minimized, all local overrides are ignored except the following: b (Bold), i (Italic), em (Emphasis), u (Underline), superscript, subscript, smallCaps, caps, highlight.|
 
+# Tables
+
+|Option|Property|Type|Value|Default|Description|
+|---|---|---|---|---|---| 
+|Table Mode|tableMode|String|"table" or "tabbedlist"|"table"|If 'tabbedlist', import Word tables as tab separated text to InDesign.|
+
 # Images
 
 A folder »Links« is created next to the InDesign file if document path is avaliable (for saved document). Otherwise the image will be embedded in the document.
