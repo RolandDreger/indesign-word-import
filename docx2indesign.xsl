@@ -4,7 +4,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: September 27, 2022
+    Modified: Oktober 2, 2022
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -1826,7 +1826,8 @@
     <xsl:param name="is-inline-style-on-empty-text-removed" select="false()"/>
     <xsl:param name="is-comment-inserted" select="false()"/> <!-- Comments for Complex Fields, Tab, ... -->
     <xsl:param name="is-tab-preserved" select="true()"/>  <!-- Tab Character --> 
-    <xsl:param name="style-mode" select="'extended'"/> <!-- Values: 'extended' or 'minimized'. If minimized, ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight  -->
+    <xsl:param name="style-mode" select="'extended'"/> <!-- Values: 'extended' or 'minimized'. If 'minimized', ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight  -->
+    <xsl:param name="table-mode" select="'table'"/> <!-- Values: 'table' or 'tabbedlist'. If 'tabbedlist', import table structure as tab separated text. -->
     <xsl:param name="fallback-paragraph-style-name" select="'Standard'"/>
     
     
@@ -1939,6 +1940,9 @@
     <xsl:variable name="table-row-number-attribute-name" select="'crows'"/>
     <xsl:variable name="table-column-number-attribute-name" select="'ccols'"/>
     <xsl:variable name="table-column-width-attribute-name" select="'ccolwidth'"/>
+    <xsl:variable name="tabbed-list-tab-type-attribute-name" select="'type'"/>
+    <xsl:variable name="tabbed-list-tab-type-attribute-value" select="'table'"/>
+    <xsl:variable name="tabbed-list-tab-inline-style-attribute-name" select="'Tabbed_List'"/>
     <xsl:variable name="footnote-tag-name" select="'footnote'"/>
     <xsl:variable name="footnote-reference-tag-name" select="'footnoteref'"/>
     <xsl:variable name="footnote-index-attribute-name" select="'index'"/>
@@ -2226,15 +2230,46 @@
 
     <!-- Table -->
     <xsl:template match="w:tbl">
-        <xsl:element name="{$table-tag-name}" namespace="{$ns}">
-            <xsl:call-template name="insert-table-attributes"/>
-            <xsl:apply-templates/>
-        </xsl:element>
+        <xsl:variable name="is-table-ok">
+            <xsl:call-template name="check-table"/>
+        </xsl:variable>
+        <xsl:choose>
+            <!-- Tabbed List -->
+            <xsl:when test="$is-table-ok = 'false' or $table-mode = 'tabbedlist'">
+                <xsl:apply-templates mode="tabbed-list"/>
+            </xsl:when>
+            <!-- Normal Table -->
+            <xsl:otherwise>
+                <xsl:element name="{$table-tag-name}" namespace="{$ns}">
+                    <xsl:call-template name="insert-table-attributes"/>
+                    <xsl:apply-templates/>
+                </xsl:element>
+            </xsl:otherwise>
+        </xsl:choose>
         <xsl:if test="(following-sibling::w:p or following-sibling::w:tbl) and not(parent::w:footnote or parent::w:endnote)">
             <xsl:text>&#xD;</xsl:text> <!-- Carriage Return -->
         </xsl:if>
     </xsl:template>
-
+    
+    <!-- 
+        Check Table
+        The number of cells in a row must be equal to the number of columns. 
+        (Taking into account the merged cells.)
+    -->
+    <xsl:template name="check-table">
+        <xsl:variable name="num-of-table-columns" select="count(w:tblGrid/w:gridCol)"/>
+        <xsl:variable name="faulty-table-rows" select="w:tr[$num-of-table-columns != (count(w:tc) + sum(w:tc/w:tcPr/w:gridSpan/@w:val) - count(w:tc/w:tcPr/w:gridSpan))]"/>
+        <xsl:choose>
+            <xsl:when test="count($faulty-table-rows) &gt; 0">
+                <xsl:value-of select="'false'"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="'true'"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    
+    
     <!-- Table Attributes -->
     <xsl:template name="insert-table-attributes">
         <xsl:attribute name="{$table-index-attribute-name}">
@@ -2259,7 +2294,7 @@
         <xsl:apply-templates/>
     </xsl:template>
 
-    <!-- Table Column -->
+    <!-- Table Columns -->
     <xsl:template match="w:gridCol">
         <xsl:apply-templates/>
     </xsl:template>
@@ -2267,6 +2302,14 @@
     <!-- Table Row -->
     <xsl:template match="w:tr">
         <xsl:apply-templates/>
+    </xsl:template>
+    
+    <!-- Table Row - Tabbed List -->
+    <xsl:template match="w:tr" mode="tabbed-list">
+        <xsl:apply-templates mode="tabbed-list"/>
+        <xsl:if test="position() != last()">
+            <xsl:text>&#xD;</xsl:text> <!-- Carriage Return -->
+        </xsl:if>
     </xsl:template>
 
     <!-- Table Cell -->
@@ -2277,11 +2320,22 @@
         </xsl:element>
     </xsl:template>
 
-    <!-- Merged Table Cell -->
+    <!-- Table Cell - Merged -->
     <xsl:template match="w:tc[w:tcPr/w:vMerge[not(@w:val)]]">
         <!-- Skip merged cell --> 
     </xsl:template>
-
+    
+    <!-- Table Cell - Tabbed List -->
+    <xsl:template match="w:tc" mode="tabbed-list">
+        <xsl:apply-templates/>
+        <xsl:if test="position() != last()">
+            <xsl:element name="{$tab-tag-name}" namespace="{$ns}">
+                <xsl:call-template name="insert-tabbed-list-tab-attributes"/>
+                <xsl:text>	</xsl:text> <!-- Tab -->
+            </xsl:element>
+        </xsl:if>
+    </xsl:template>
+    
     <!-- Table Cell Attributes -->
     <xsl:template name="insert-cell-attributes">
         <!-- Type -->
@@ -2345,8 +2399,16 @@
             </xsl:when>
         </xsl:choose>
     </xsl:template>
-
-
+    
+    <!-- Tabbed List Tab Attributes -->
+    <xsl:template name="insert-tabbed-list-tab-attributes">
+        <xsl:attribute name="{$tabbed-list-tab-type-attribute-name}">
+            <xsl:value-of select="$tabbed-list-tab-type-attribute-value"/>
+        </xsl:attribute>
+        <xsl:attribute name="{concat('aid',':', $inline-style-attribute-name)}">
+            <xsl:value-of select="$tabbed-list-tab-inline-style-attribute-name"/>
+        </xsl:attribute>
+    </xsl:template>
     
     <!-- InDesign Character Style -->
     <xsl:template name="assign-inline-styles">
