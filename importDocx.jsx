@@ -290,7 +290,7 @@ function __start() {
 	
 	/* Active document */
 	var _doc = app.documents.firstItem();
-	if(!_doc || !(_doc instanceof Document) || !_doc.isValid) {
+	if(!_doc || !(_doc instanceof Document) || !_doc.isValid || _doc.layoutWindows.length === 0) {
 		alert(localize(_global.noDocOpenAlert));
 		return false; 
 	}
