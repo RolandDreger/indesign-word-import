@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: Oktober 2, 2022
+    Modified: April 1, 2023
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -211,8 +211,10 @@
     <xsl:variable name="paragraph-tag-name" select="'paragraph'"/>
     <xsl:variable name="paragraph-id-attribute-name" select="'ID'"/>
     <xsl:variable name="paragraph-style-attribute-name" select="'pstyle'"/>
+    <xsl:variable name="list-id-attribute-name" select="'list-id'"/>
     <xsl:variable name="list-item-level-attribute-name" select="'level'"/>
-    <xsl:variable name="list-id-attribute-name" select="'liste'"/>
+    <xsl:variable name="list-format-attribute-name" select="'list-format'"/>
+    <xsl:variable name="list-start-attribute-name" select="'list-start'"/>
     <xsl:variable name="table-tag-name" select="'table'"/>
     <xsl:variable name="table-index-attribute-name" select="'index'"/>
     <xsl:variable name="table-style-attribute-name" select="'tablestyle'"/>
@@ -451,6 +453,15 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:attribute>
+        <!-- List Attributes -->
+        <xsl:variable name="list-id" select="w:pPr/w:numPr/w:numId/@w:val"/>
+        <xsl:variable name="list-item-level" select="w:pPr/w:numPr/w:ilvl/@w:val"/>
+        <xsl:if test="boolean(w:pPr/w:numPr)">
+            <xsl:call-template name="insert-list-attributes">
+                <xsl:with-param name="list-id" select="$list-id"/>
+                <xsl:with-param name="list-item-level" select="$list-item-level"/>
+            </xsl:call-template>
+        </xsl:if>
         <!-- Paragraph Style -->
         <xsl:variable name="paragraph-style-name">
             <xsl:call-template name="get-style-name">
@@ -458,8 +469,6 @@
                 <xsl:with-param name="style-type" select="'paragraph'"/>
             </xsl:call-template>
         </xsl:variable>
-        <xsl:variable name="list-id" select="w:pPr/w:numPr/w:numId/@w:val"/>
-        <xsl:variable name="list-item-level" select="w:pPr/w:numPr/w:ilvl/@w:val"/>
         <xsl:variable name="indesign-paragraph-style-attribute-name">
             <xsl:choose>
                 <xsl:when test="parent::w:footnote or parent::w:endnote or parent::w:comment or parent::w:txbxContent">
@@ -497,18 +506,87 @@
         <xsl:attribute name="{$indesign-paragraph-style-attribute-name}">
             <xsl:value-of select="$translated-paragraph-style-attribute-value"/>
         </xsl:attribute>
+    </xsl:template>
+    
+    <!-- Insert List Attributes -->
+    <xsl:template name="insert-list-attributes">
+        
+        <xsl:param name="list-id" select="''"/>
+        <xsl:param name="list-item-level" select="''"/>
+        
+        <xsl:variable name="list-abstract-num-id" select="$numbering/w:num[@w:numId=$list-id]/w:abstractNumId/@w:val"/>
+        <xsl:variable name="numbering-style" select="$numbering/w:abstractNum[@w:abstractNumId=$list-abstract-num-id]"/>
+
         <!-- List ID -->
-        <xsl:if test="boolean($list-id)">
-            <xsl:attribute name="{$list-id-attribute-name}">
-                <xsl:value-of select="$list-id"/>
-            </xsl:attribute>
-        </xsl:if>
+        <xsl:attribute name="{$list-id-attribute-name}">
+            <xsl:value-of select="$list-id"/>
+        </xsl:attribute>
+        
         <!-- List Item Level -->
-        <xsl:if test="boolean($list-item-level)">
-            <xsl:attribute name="{$list-item-level-attribute-name}">
-                <xsl:value-of select="$list-item-level"/>
-            </xsl:attribute>
-        </xsl:if>
+        <xsl:attribute name="{$list-item-level-attribute-name}">
+            <xsl:value-of select="$list-item-level"/>
+        </xsl:attribute>
+        
+        <!-- List Format -->
+        <xsl:attribute name="{$list-format-attribute-name}">
+            <xsl:call-template name="get-list-format">
+                <xsl:with-param name="list-item-level" select="$list-item-level"/>
+                <xsl:with-param name="numbering-style" select="$numbering-style"/>
+            </xsl:call-template>
+        </xsl:attribute>
+        
+        <!-- List Start Value -->
+        <xsl:attribute name="{$list-start-attribute-name}">
+            <xsl:call-template name="get-list-start">
+                <xsl:with-param name="list-item-level" select="$list-item-level"/>
+                <xsl:with-param name="numbering-style" select="$numbering-style"/>
+            </xsl:call-template>
+        </xsl:attribute>
+    </xsl:template>
+    
+    <!-- Get Format of List -->
+    <xsl:template name="get-list-format">
+        <xsl:param name="list-item-level"/>
+        <xsl:param name="numbering-style"/>
+        <xsl:choose>
+            <!-- Linked Numbering Style -->
+            <xsl:when test="boolean($numbering-style/w:numStyleLink)">
+                <xsl:variable name="num-style-link" select="$numbering-style/w:numStyleLink/@w:val"/>
+                <xsl:call-template name="get-list-format">
+                    <xsl:with-param name="list-item-level" select="$list-item-level"/>
+                    <xsl:with-param name="numbering-style" select="$numbering/w:abstractNum[w:styleLink[@w:val=$num-style-link]]"/>
+                </xsl:call-template>
+            </xsl:when>
+            <!-- Custom Numbering Style -->
+            <xsl:when test="boolean($numbering-style/w:lvl[@w:ilvl=$list-item-level]/mc:AlternateContent)">
+                <xsl:variable name="custom-numbering-style" select="$numbering-style/w:lvl[@w:ilvl=$list-item-level]/mc:AlternateContent/mc:Choice/w:numFmt"/>
+                <xsl:variable name="custom-numbering-value" select="$custom-numbering-style/@w:val"/>
+                <xsl:variable name="custom-numbering-format" select="$custom-numbering-style/@w:format"/>
+                <xsl:value-of select="concat($custom-numbering-value,'; ',$custom-numbering-format)"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$numbering-style/w:lvl[@w:ilvl=$list-item-level]/w:numFmt/@w:val"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    
+    <!-- Get Start Value of List -->
+    <xsl:template name="get-list-start">
+        <xsl:param name="list-item-level"/>
+        <xsl:param name="numbering-style"/>
+        <xsl:choose>
+            <!-- Linked Numbering Style -->
+            <xsl:when test="boolean($numbering-style/w:numStyleLink)">
+                <xsl:variable name="num-style-link" select="$numbering-style/w:numStyleLink/@w:val"/>
+                <xsl:call-template name="get-list-start">
+                    <xsl:with-param name="list-item-level" select="$list-item-level"/>
+                    <xsl:with-param name="numbering-style" select="$numbering/w:abstractNum[w:styleLink[@w:val=$num-style-link]]"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$numbering-style/w:lvl[@w:ilvl=$list-item-level]/w:start/@w:val"/>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
 

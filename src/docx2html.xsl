@@ -5,7 +5,7 @@
     Microsoft Word Document -> HTML
     
     Created: September 30, 2021
-    Modified: July 07, 2022
+    Modified: April 01, 2023
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -335,8 +335,8 @@
     <xsl:variable name="paragraph-id-attribute-name" select="'id'"/>
     <xsl:variable name="paragraph-style-attribute-name" select="'class'"/>
     <xsl:variable name="list-item-tag-name" select="'li'"/>
-    <xsl:variable name="list-item-level-attribute-name" select="'data-item-level'"/>
     <xsl:variable name="list-id-attribute-name" select="'data-list-id'"/>
+    <xsl:variable name="list-item-level-attribute-name" select="'data-item-level'"/>
     <xsl:variable name="table-tag-name" select="'table'"/>
     <xsl:variable name="table-style-attribute-name" select="'class'"/>
     <xsl:variable name="table-column-group-tag-name" select="'colgroup'"/>
