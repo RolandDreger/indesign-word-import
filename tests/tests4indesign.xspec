@@ -79,6 +79,17 @@
             <x:expect label="Number of child elements must be greater than 0" test="count(/document/*) gt 0" />
         </x:scenario>
         
+        <!-- List Format -->
+        <x:scenario label="List Format">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/list-format/list-format.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/list-format/list-format.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="list-format/indesign/list-format.xml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/document/*) gt 0" />
+        </x:scenario>
+        
         <!-- Table -->
         <x:scenario label="Table">
             <!-- Parameter for Stylesheet -->
