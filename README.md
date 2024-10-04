@@ -271,7 +271,7 @@ Word change tracking is currently implemented via conditional text in InDesign.
 1. Click on Button `Load preset ...`
 2. Select preset file (.smp, .xml or .txt)
 
-You can use your .smp preset files in the InDesign program folder or create an XML file in the following form. (An example is also in the script preset folder.)
+You can use your .smp preset files in the InDesign preferences folder or create an XML file in the following form. (An example is also in the script preset folder.)
 
 ```
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -289,6 +289,11 @@ You can use your .smp preset files in the InDesign program folder or create an X
 </Sangam-Import-Preset>
 ```
 
+## InDesign Preferences Folder
+
+e.g. 
+German version, macOS: /Users/[Your User Name]/Library/Preferences/Adobe InDesign/Version 19.0/de_DE/Word-Importvorgaben
+German version, Windows 10: %USERPROFILE%\AppData\Roaming\Adobe\InDesign\Version 19.0\de_DE\Word-Importvorgaben
 
 # Drawbacks with the native docx import
 
