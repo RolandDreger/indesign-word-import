@@ -105,7 +105,7 @@
     <xsl:param name="style-mode" select="'extended'"/> <!-- Values: 'extended' or 'minimized'. If 'minimized', ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight  -->
     <xsl:param name="table-mode" select="'table'"/> <!-- Values: 'table' or 'tabbedlist'. If 'tabbedlist', import table structure as tab separated text. -->
     <xsl:param name="fallback-paragraph-style-name" select="'Standard'"/>
-    
+    <xsl:param name="fallback-character-style-name" select="'None'"/>
     
     <!-- +++++++++ -->
     <!-- + INPUT + -->
@@ -125,7 +125,11 @@
     <xsl:param name="comments-file-path" select="$document-file-name"/> <!-- comments.xml --> 
     <xsl:param name="document-relationships-file-path" select="$document-file-name"/> <!-- _rels/document.xml.rels --> 
     <xsl:param name="footnotes-relationships-file-path" select="$document-file-name"/> <!-- _rels/footnotes.xml.rels --> 
-    <xsl:param name="endnotes-relationships-file-path" select="$document-file-name"/> <!-- _rels/endnotes.xml.rels --> 
+    <xsl:param name="endnotes-relationships-file-path" select="$document-file-name"/> <!-- _rels/endnotes.xml.rels -->
+    
+    <!-- Style Mapping (Word to InDesign import preset) -->
+    <xsl:param name="indesign-import-preset-file-path" select="$document-file-name"/>
+    <xsl:variable name="indesign-import-preset" select="document($indesign-import-preset-file-path)"/>
     
     <!-- App Properties (Metadata) -->
     <xsl:variable name="app-props" select="document($app-props-file-path)/extp:Properties | /pkg:package/pkg:part[@pkg:name = '/docProps/app.xml']/pkg:xmlData/extp:Properties"/>
@@ -503,8 +507,13 @@
             </xsl:choose>
         </xsl:variable>
         <xsl:variable name="translated-paragraph-style-attribute-value" select="translate($paragraph-style-attribute-value,'[]','')"/>
+        <xsl:variable name="mapped-paragraph-style-attribute-value">
+            <xsl:call-template name="get-mapped-paragraph-style-name">
+                <xsl:with-param name="word-style-name" select="$translated-paragraph-style-attribute-value"/>
+            </xsl:call-template>
+        </xsl:variable>
         <xsl:attribute name="{$indesign-paragraph-style-attribute-name}">
-            <xsl:value-of select="$translated-paragraph-style-attribute-value"/>
+            <xsl:value-of select="$mapped-paragraph-style-attribute-value"/>
         </xsl:attribute>
     </xsl:template>
     
@@ -585,6 +594,176 @@
             </xsl:when>
             <xsl:otherwise>
                 <xsl:value-of select="$numbering-style/w:lvl[@w:ilvl=$list-item-level]/w:start/@w:val"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <!-- Paragraph style mapping: Word to InDesign (import preset) -->
+    <xsl:template name="get-mapped-paragraph-style-name">
+        <xsl:param name="word-style-name" select="$fallback-paragraph-style-name"/>
+        <xsl:variable name="indesign-import-style-name">
+            <xsl:call-template name="get-indesign-import-style-name">
+                <xsl:with-param name="word-style-name" select="$word-style-name"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="mapped-paragraph-style-name" select="$indesign-import-preset//Paragraph-Style-Mappings/Mapping[@style-name = $indesign-import-style-name]/@mapped-to"/>
+        <xsl:choose>
+            <xsl:when test="$mapped-paragraph-style-name">
+                <xsl:value-of select="$mapped-paragraph-style-name"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$indesign-import-style-name"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <!-- Translate Style Name: Word name to InDesign import name -->
+    <xsl:template name="get-indesign-import-style-name">
+        <xsl:param name="word-style-name"/>
+        <xsl:choose>
+            <!-- Paragraph Styles -->
+            <xsl:when test="$word-style-name = 'heading 1'">
+                <xsl:text>Heading 1</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'heading 2'">
+                <xsl:text>Heading 2</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'heading 3'">
+                <xsl:text>Heading 3</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'heading 4'">
+                <xsl:text>Heading 4</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'heading 5'">
+                <xsl:text>Heading 5</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'heading 6'">
+                <xsl:text>Heading 6</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'heading 7'">
+                <xsl:text>Heading 7</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'heading 8'">
+                <xsl:text>Heading 8</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'heading 9'">
+                <xsl:text>Heading 9</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'index 1'">
+                <xsl:text>Index 1</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'index 2'">
+                <xsl:text>Index 2</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'index 3'">
+                <xsl:text>Index 3</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'index 4'">
+                <xsl:text>Index 4</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'index 5'">
+                <xsl:text>Index 5</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'index 6'">
+                <xsl:text>Index 6</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'index 7'">
+                <xsl:text>Index 7</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'index 8'">
+                <xsl:text>Index 8</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'index 9'">
+                <xsl:text>Index 9</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'toc 1'">
+                <xsl:text>Toc 1</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'toc 2'">
+                <xsl:text>Toc 2</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'toc 3'">
+                <xsl:text>Toc 3</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'toc 4'">
+                <xsl:text>Toc 4</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'toc 5'">
+                <xsl:text>Toc 5</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'toc 6'">
+                <xsl:text>Toc 6</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'toc 7'">
+                <xsl:text>Toc 7</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'toc 8'">
+                <xsl:text>Toc 8</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'toc 9'">
+                <xsl:text>Toc 9</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'footnote text'">
+                <xsl:text>Footnote text</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'annotation text'">
+                <xsl:text>Annotation text</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'header'">
+                <xsl:text>Header</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'footer'">
+                <xsl:text>Footer</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'index heading'">
+                <xsl:text>Index heading</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'caption'">
+                <xsl:text>caption</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'table of figures'">
+                <xsl:text>Table of figures</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'envelope address'">
+                <xsl:text>Envelope address</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'envelope return'">
+                <xsl:text>Envelope return</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'endnote text'">
+                <xsl:text>Endnote text</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'table of authorities'">
+                <xsl:text>Table of authorities</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'macro'">
+                <xsl:text>Macro</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'toa heading'">
+                <xsl:text>Toa heading</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'annotation subject'">
+                <xsl:text>Annotation subject</xsl:text>
+            </xsl:when>
+            <!-- Character Style -->
+            <xsl:when test="$word-style-name = 'footnote reference'">
+                <xsl:text>Footnote reference</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'annotation reference'">
+                <xsl:text>Annotation reference</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'line number'">
+                <xsl:text>Line number</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'page number'">
+                <xsl:text>Page number</xsl:text>
+            </xsl:when>
+            <xsl:when test="$word-style-name = 'endnote reference'">
+                <xsl:text>Endnote reference</xsl:text>
+            </xsl:when>
+            <!-- Fallback -->
+            <xsl:otherwise>
+                <xsl:value-of select="$word-style-name"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
@@ -883,9 +1062,17 @@
                             <xsl:attribute name="{$element-type-attribute-name}">
                                 <xsl:value-of select="'inline'"/>
                             </xsl:attribute>
-                            <!-- Character Style -->
-                            <xsl:attribute name="{concat('aid',':', $inline-style-attribute-name)}">
+                            <!--Character Style -->
+                            <xsl:variable name="normalized-character-style-attribute-value">
                                 <xsl:value-of select="normalize-space($class-names)"/>
+                            </xsl:variable>
+                            <xsl:variable name="mapped-character-style-attribute-value">
+                                <xsl:call-template name="get-mapped-character-style-name">
+                                    <xsl:with-param name="word-style-name" select="$normalized-character-style-attribute-value"/>
+                                </xsl:call-template>
+                            </xsl:variable>
+                            <xsl:attribute name="{concat('aid',':', $inline-style-attribute-name)}">
+                                <xsl:value-of select="$mapped-character-style-attribute-value"/>
                             </xsl:attribute>
                             <xsl:apply-templates/>
                         </xsl:element>
@@ -898,7 +1085,25 @@
         </xsl:choose>
     </xsl:template>
     
-   
+    <!-- Character style mapping: Word to InDesign (import preset) -->
+    <xsl:template name="get-mapped-character-style-name">
+        <xsl:param name="word-style-name" select="$fallback-character-style-name"/>
+        <xsl:variable name="indesign-import-style-name">
+            <xsl:call-template name="get-indesign-import-style-name">
+                <xsl:with-param name="word-style-name" select="$word-style-name"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="mapped-character-style-name" select="$indesign-import-preset//Character-Style-Mappings/Mapping[@style-name = $indesign-import-style-name]/@mapped-to"/>
+        <xsl:choose>
+            <xsl:when test="$mapped-character-style-name">
+                <xsl:value-of select="$mapped-character-style-name"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$indesign-import-style-name"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    
    
     <!-- Mathematical Equation -->
     <xsl:template match="m:oMath">

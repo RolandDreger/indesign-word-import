@@ -45,6 +45,9 @@ _global["setups"] = {
 		"isUntagged":false, /* Type: Boolean. Description: If true, then the XML structure will be removed out of the document after import. */
 		"defaultParagraphStyle":"Normal" /* Type: String. Value: e.g. "Normal". Description: This style is used for paragraphs that do not have a specific paragraph style applied in the Word document. */
 	},
+	"preset": {
+		"filePath": ""
+	},
 	"metadata":{
 		"tag":"document",
 		"attributes":{
@@ -640,6 +643,15 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 		_lastXMLElement = _lastXMLElement.getElements()[0];
 	} else {
 		_lastXMLElement = null;
+	}
+
+	/* Preset */
+	var _importPresetFilePath = _setupObj["preset"]["filePath"];
+	if(!!_importPresetFilePath) {
+		var _importPresetFile = File(_importPresetFilePath);
+		if(_importPresetFile.exists) {
+			_transformParams.push(["indesign-import-preset-file-path", _importPresetFile.fsName]);
+		}
 	}
 
 	if(File(_unpackFolderPath + "/" + "word/comments.xml").exists) {

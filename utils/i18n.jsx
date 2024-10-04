@@ -421,7 +421,7 @@
 	_global.crossReferenceFormatWordImportLabel = {
 		en: " (Word)",
 		de: " (Word)"
-	}	
+	};	
 
 	_global.pageNumberCrossReferenceFormatName = { 
 		en: "Page number",
@@ -459,6 +459,21 @@
 	_global.importDialogTitle = { 
 		en: "Microsoft Word Import Options",
 		de: "Microsoft Word Importoptionen" 
+	};
+
+	_global.loadPresetButtonLabel = { 
+		en: "Load preset ...",
+		de: "Vorgabe laden ..." 
+	};
+
+	_global.loadPresetButtonHelpTip = { 
+		en: "Load preset for the style mapping of paragraph and character styles: .smp or .xml",
+		de: "Vorgabe f\u00FCr die Formatzuordung von Absatz- und Zeichenformaten laden: .smp oder .xml" 
+	};
+
+	_global.selectPresetLabel = { 
+		en: "Load preset for the style mapping: .smp or .xml",
+		de: "Vorgabe f\u00FCr Formatzuordung laden: .smp oder .xml" 
 	};
 	
 	_global.okButtonLabel = { 

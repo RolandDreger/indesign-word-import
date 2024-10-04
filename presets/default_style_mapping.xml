@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Sangam-Import-Preset reader-type="Word/RTF">
+	<Style-Mappings>
+		<Paragraph-Style-Mappings>
+			<Mapping style-name="1st-Paragraph-Style-Name-in-Word" mapped-to="1st-Paragraph-Style-Name-in-InDesign" />
+			<Mapping style-name="2nd-Paragraph-Style-Name-in-Word" mapped-to="2nd-Paragraph-Style-Name-in-InDesign" />
+		</Paragraph-Style-Mappings>
+		<Character-Style-Mappings>
+			<Mapping style-name="1st-Character-Style-Name-in-Word" mapped-to="1st-Character-Style-Name-in-InDesign" />
+			<Mapping style-name="2nd-Character-Style-Name-in-Word" mapped-to="2nd-Character-Style-Name-in-InDesign" />
+		</Character-Style-Mappings>
+	</Style-Mappings>
+</Sangam-Import-Preset>

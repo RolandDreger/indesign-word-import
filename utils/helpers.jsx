@@ -403,3 +403,34 @@ function __findChangeGREP(_place, _findPropObj, _changePropObj, _mode) {
 	
 	return _resultArray;
 } /* END function __findChangeGREP */
+
+
+/**
+ * Truncate string in the middle
+ * @param {string} input 
+ * @param {number} maxLength 
+ * @returns {string}
+ */
+function __truncateMiddle(input, maxLength) {
+  
+	if(!input || input.constructor.name !== "String") {
+		return "";
+	}
+	if(maxLength === null || maxLength === undefined || maxLength.constructor.name !== "Number" || maxLength < 1) {
+		maxLength = input.length;
+	}
+
+	if (input.length <= maxLength) {
+		return input;
+	}
+
+	const ellipsis = '…';
+	
+	maxLength -= ellipsis.length;
+	
+	const startCharsCount = Math.ceil(maxLength / 2);
+	const endCharsCount = Math.floor(maxLength / 2);
+	const output = input.substr(0, startCharsCount) + ellipsis + input.substr(input.length - endCharsCount);
+
+	return output;
+}

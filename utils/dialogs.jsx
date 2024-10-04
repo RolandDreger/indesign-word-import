@@ -191,6 +191,9 @@ function __showImportDialog(_setupObj) {
 	var _tableTableModeRadiobutton;
 	var _tabbedlistTableModeRadiobutton;
 
+	var _loadPresetButton;
+	var _presetFilePathStatictext;
+	var _presetFilePath;
 	var _okButton;
 	var _cancelButton;
 	
@@ -471,6 +474,19 @@ function __showImportDialog(_setupObj) {
 			alignChildren = ["fill","fill"];
 			margins = [0,0,GAP*4,0];
 			spacing = 8;
+			var _presetGroup = add("group");
+			with(_presetGroup) {
+				alignment = ["left","top"];
+				_loadPresetButton = add("button", undefined, localize(_global.loadPresetButtonLabel));
+				with(_loadPresetButton) {
+					helpTip = localize(_global.loadPresetButtonHelpTip);
+				} /* END _loadPresetButton */
+				_presetFilePathStatictext = add("statictext", undefined, "");
+				with(_presetFilePathStatictext) {
+					characters = 60;
+					enabled = false;
+				} /* END _bookmarkMarkerEdittext */
+			} /* END _presetGroup */
 			_cancelButton = add("button", undefined, localize(_global.cancelButtonLabel), { name:"Cancel" });
 			with(_cancelButton) {
 				alignment = ["right","top"];
@@ -511,6 +527,11 @@ function __showImportDialog(_setupObj) {
 			_textboxInputGroup.enabled = false;
 		}
 	};
+
+	_loadPresetButton.onClick = function() {
+		_presetFilePath = __getPresetFile();
+		_presetFilePathStatictext.text = __truncateMiddle(_presetFilePath, 60);
+	};
 	
 	_cancelButton.onClick = function() {
 		_importDialog.hide();
@@ -525,6 +546,8 @@ function __showImportDialog(_setupObj) {
 	
 
 	/* Initialize Dialog */	
+	_presetFilePath = _setupObj["preset"]["filePath"];
+	_presetFilePathStatictext.text = __truncateMiddle(_setupObj["preset"]["filePath"], 60);
 	_defaultParagraphStyleEdittext.text = _setupObj["document"]["defaultParagraphStyle"];
 	_isAutoflowingCheckbox.value = _setupObj["document"]["isAutoflowing"];
 	_isUntaggedCheckbox.value = _setupObj["document"]["isUntagged"];
@@ -602,6 +625,7 @@ function __showImportDialog(_setupObj) {
 	
 
 	/* Evaluate inputs */
+	_setupObj["preset"]["filePath"] = _presetFilePath || "";
 	_setupObj["document"]["defaultParagraphStyle"] = _defaultParagraphStyleEdittext.text;
 	_setupObj["document"]["isAutoflowing"] = _isAutoflowingCheckbox.value;
 	_setupObj["document"]["isUntagged"] = _isUntaggedCheckbox.value;
@@ -648,3 +672,38 @@ function __showImportDialog(_setupObj) {
 
 	return _setupObj;
 } /* END function __showImportDialog */
+
+
+
+/**
+ * Get preset file path by user selection
+ * @returns {string}
+ */
+function __getPresetFile() {
+	
+	if(!_global) {
+		return "";
+	}
+
+	var _presetFilePath = "";
+
+	try {
+		
+		var _presetFile = File.openDialog(localize(_global.selectPresetLabel));
+		if(!_presetFile) {
+			return "";
+		}
+		
+		_presetFilePath = _presetFile.fsName.toString();
+		
+		/* Check: smp or xml file extension? */
+		if(!/\.(xml|smp|txt)$/.test(_presetFilePath)) {
+			_presetFilePath = "";
+		}
+
+	} catch(err) {
+		alert(err.message);
+	}
+	
+	return _presetFilePath;
+}
