@@ -266,6 +266,30 @@ Word change tracking is currently implemented via conditional text in InDesign.
 |Mark|isMarked|Boolean|false|Insert as text and mark with condition.|
 |Create|isCreated|Boolean|true|Insert as InDesign endnote|
 
+# Style Mapping
+
+1. Click on Button `Load preset ...`
+2. Select preset file (.smp, .xml or .txt)
+
+You can use your .smp preset files in the InDesign program folder or create an XML file in the following form. (An example is also in the script preset folder.)
+
+```
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Sangam-Import-Preset reader-type="Word/RTF">
+	<Style-Mappings>
+		<Paragraph-Style-Mappings>
+			<Mapping style-name="1st-Paragraph-Style-Name-in-Word" mapped-to="1st-Paragraph-Style-Name-in-InDesign" />
+			<Mapping style-name="2nd-Paragraph-Style-Name-in-Word" mapped-to="2nd-Paragraph-Style-Name-in-InDesign" />
+		</Paragraph-Style-Mappings>
+		<Character-Style-Mappings>
+			<Mapping style-name="1st-Character-Style-Name-in-Word" mapped-to="1st-Character-Style-Name-in-InDesign" />
+			<Mapping style-name="2nd-Character-Style-Name-in-Word" mapped-to="2nd-Character-Style-Name-in-InDesign" />
+		</Character-Style-Mappings>
+	</Style-Mappings>
+</Sangam-Import-Preset>
+```
+
+
 # Drawbacks with the native docx import
 
 - Local style overrides
