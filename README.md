@@ -311,8 +311,6 @@ German version, Windows 10: %USERPROFILE%\AppData\Roaming\Adobe\InDesign\Version
 Hyperlinks across multiple paragraphs. Only the part in the first paragraph becomes an active hyperlink.
 
 # ToDo 
-- [ ] Dialog (UI) 
-	- Radio-Buttons for Footnotes, Index, ... (Import as text / Highlight content (conditional text) / Create InDesign objects)
 - [ ] Remove special characters (text, index entries, ...)?
 - [ ] Import functional references (Bibliography)? with cross-references to text anchors with name e.g. Newton, 1743
 - [ ] Section break (Numbering & Section Options)?
