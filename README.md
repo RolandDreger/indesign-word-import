@@ -295,6 +295,73 @@ e.g.
 German version, macOS: /Users/[Your User Name]/Library/Preferences/Adobe InDesign/Version 19.0/de_DE/Word-Importvorgaben
 German version, Windows 10: %USERPROFILE%\AppData\Roaming\Adobe\InDesign\Version 19.0\de_DE\Word-Importvorgaben
 
+## Script Helper
+
+The following script can be used to create a mapping file for the active InDesign document. You then only need to enter the names of the styles from Microsoft Word. Thanks to Jean-Claude Tremblay for the great idea and the script!
+
+<details>
+	<summary>ExtendScript Code (save as jsx file)</summary>
+	```
+	// Microsoft Word InDesign Style Mapping
+	// 
+	// Description: 
+	// The script creates an XML file for mapping Microsoft Word and InDesign styles. 
+	// The file can be found on the desktop after the script run. The names of the paragraph 
+	// and character styles from Word can then be entered there. Mappings that are not 
+	// required can be removed.
+	// 
+	// Author: Jean-Claude Tremblay
+	// Date: October 25, 2024
+
+	var doc = app.activeDocument;
+	var paragraphStyles = doc.allParagraphStyles;
+	var characterStyles = doc.allCharacterStyles;
+
+	// Create the content string
+	var content = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+	content += '<Sangam-Import-Preset reader-type="Word/RTF">\n';
+	content += '\t<Style-Mappings>\n';
+	content += '\t\t<Paragraph-Style-Mappings>\n';
+
+	for (var i = 1; i < paragraphStyles.length; i++) {
+			var style = paragraphStyles[i];
+			var styleName = style.name;
+			var groupName = style.parent.constructor.name === 'ParagraphStyleGroup' ? style.parent.name + '\uE00B' : '';
+			content += '\t\t\t<Mapping style-name="' + i + '-Paragraph-Style-Name-in-Word" mapped-to="' + groupName + styleName + '" />\n';
+	}
+
+	content += '\t\t</Paragraph-Style-Mappings>\n';
+	content += '\t\t<Character-Style-Mappings>\n';
+
+	for (var j = 1; j < characterStyles.length; j++) {
+			var style = characterStyles[j];
+			var styleName = style.name;
+			var groupName = style.parent.constructor.name === 'CharacterStyleGroup' ? style.parent.name + '\uE00B' : '';
+			content += '\t\t\t<Mapping style-name="' + j + '-Character-Style-Name-in-Word" mapped-to="' + groupName + styleName + '" />\n';
+	}
+
+	content += '\t\t</Character-Style-Mappings>\n';
+	content += '\t</Style-Mappings>\n';
+	content += '</Sangam-Import-Preset>';
+
+	// Get document name without extension
+	var docName = doc.name.replace(/\.[^\.]+$/, '');
+
+	// Create and write to file on desktop
+	var desktop = Folder.desktop;
+	var outputFile = new File(desktop + "/" + docName + "_style_mappings.xml");
+	outputFile.encoding = "UTF-8";
+	outputFile.open("w");
+	outputFile.write(content);
+	outputFile.close();
+
+	// Open the file
+	// outputFile.execute();
+
+	```
+</details>
+&nbsp;
+
 # Drawbacks with the native docx import
 
 - Local style overrides
