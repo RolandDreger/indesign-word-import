@@ -301,7 +301,8 @@ The following script can be used to create a mapping file for the active InDesig
 
 <details>
 	<summary>ExtendScript Code (save as jsx file)</summary>
-	```
+	
+	```js
 	// Microsoft Word InDesign Style Mapping
 	// 
 	// Description: 
@@ -360,7 +361,6 @@ The following script can be used to create a mapping file for the active InDesig
 
 	```
 </details>
-&nbsp;
 
 # Drawbacks with the native docx import
 
