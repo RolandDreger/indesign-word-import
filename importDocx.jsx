@@ -42,7 +42,7 @@ _global["setups"] = {
 	"user":$.getenv("USER"),
 	"document":{
 		"isAutoflowing": true, /* Type: Boolean. Description: If true, autoflows placed text. (Depends on document settings.)  */
-		"isUntagged":false, /* Type: Boolean. Description: If true, then the XML structure will be removed out of the document after import. */
+		"isUntagged": true, /* Type: Boolean. Description: If true, then the XML structure will be removed out of the document after import. */
 		"defaultParagraphStyle":"Normal" /* Type: String. Value: e.g. "Normal". Description: This style is used for paragraphs that do not have a specific paragraph style applied in the Word document. */
 	},
 	"preset": {
