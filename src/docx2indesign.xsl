@@ -6,7 +6,7 @@
     (InDesign Module)
     
     Created: September 30, 2021
-    Modified: April 1, 2023
+    Modified: November 09, 2025
     
     Author: Roland Dreger, www.rolanddreger.net
     
@@ -104,6 +104,7 @@
     <xsl:param name="is-tab-preserved" select="true()"/>  <!-- Tab Character --> 
     <xsl:param name="style-mode" select="'extended'"/> <!-- Values: 'extended' or 'minimized'. If 'minimized', ignore all local overrides except: strong, i, em, u, superscript, subscript, small caps, caps, highlight  -->
     <xsl:param name="table-mode" select="'table'"/> <!-- Values: 'table' or 'tabbedlist'. If 'tabbedlist', import table structure as tab separated text. -->
+    <xsl:param name="math-mode" select="'mml'"/> <!-- Values: 'mml' or 'text' or 'remove'. -->
     <xsl:param name="fallback-paragraph-style-name" select="'Standard'"/>
     <xsl:param name="fallback-character-style-name" select="'None'"/>
     
@@ -333,9 +334,9 @@
     <xsl:variable name="subdocument-style-attribute-name" select="'cstyle'"/>
     <xsl:variable name="subdocument-style-attribute-value" select="'Subdocument'"/>
     <xsl:variable name="subdocument-uri-attribute-name" select="'uri'"/>
-    <xsl:variable name="equation-tag-name" select="'equation'"/>
+    <xsl:variable name="equation-tag-name" select="'math-expression'"/>
     <xsl:variable name="equation-style-attribute-name" select="'cstyle'"/>
-    <xsl:variable name="equation-style-attribute-value" select="'Equation'"/>
+    <xsl:variable name="equation-style-attribute-value" select="'Math_Expression'"/>
     <xsl:variable name="time-tag-name" select="'time'"/>
     <xsl:variable name="time-format-attribute-name" select="'format'"/>
     <xsl:variable name="time-type-attribute-name" select="'type'"/>
@@ -1105,12 +1106,24 @@
     </xsl:template>
     
    
-    <!-- Mathematical Equation -->
+    <!-- Math Expression -->
     <xsl:template match="m:oMath">
-        <xsl:element name="{$equation-tag-name}" namespace="{$ns}">
-            <xsl:call-template name="insert-equation-attributes"/>
-            <xsl:apply-templates/>
-        </xsl:element>
+            <xsl:choose>
+                <xsl:when test="$math-mode ='mml'">
+                    <xsl:element name="{$equation-tag-name}" namespace="{$ns}">
+                        <xsl:call-template name="insert-equation-attributes"/>
+                        <xsl:element name="math">
+                            <xsl:apply-templates select="*" />
+                        </xsl:element>
+                    </xsl:element>
+                </xsl:when>
+                <xsl:when test="$math-mode ='text'">
+                    <xsl:element name="{$equation-tag-name}" namespace="{$ns}">
+                        <xsl:call-template name="insert-equation-attributes"/>
+                        <xsl:value-of select="normalize-space(.)"/>
+                    </xsl:element>
+                </xsl:when>
+            </xsl:choose>
     </xsl:template>
     
     
