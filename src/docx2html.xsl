@@ -679,7 +679,7 @@
                 <xsl:element name="{$cur-level-list-tag-name}" namespace="{$ns}">
                     <!-- List Attributes -->
                     <xsl:call-template name="insert-list-attributes">
-                        <xsl:with-param name="id" select="$first-num-id"/>
+                        <xsl:with-param name="list-id" select="$first-num-id"/>
                     </xsl:call-template>
                     <!-- List Items -->
                     <xsl:for-each select="$list-elements">
@@ -699,7 +699,7 @@
                 <xsl:element name="{$cur-level-list-tag-name}" namespace="{$ns}">
                     <!-- List Attributes -->
                     <xsl:call-template name="insert-list-attributes">
-                        <xsl:with-param name="id" select="$first-num-id"/>
+                        <xsl:with-param name="list-id" select="$first-num-id"/>
                     </xsl:call-template>
                     <!-- List Content -->
                     <xsl:call-template name="create-html-list">
@@ -733,7 +733,7 @@
                     <xsl:element name="{$lower-level-list-tag-name}" namespace="{$ns}">
                         <!-- List Attributes -->
                         <xsl:call-template name="insert-list-attributes">
-                            <xsl:with-param name="id" select="$first-lower-level-num-id"/>
+                            <xsl:with-param name="list-id" select="$first-lower-level-num-id"/>
                         </xsl:call-template>
                         <!-- List Content -->
                         <xsl:call-template name="create-html-list">
@@ -773,7 +773,7 @@
                     <xsl:element name="{$lower-level-list-tag-name}" namespace="{$ns}">
                         <!-- List Attributes -->
                         <xsl:call-template name="insert-list-attributes">
-                            <xsl:with-param name="id" select="$first-lower-level-num-id"/>
+                            <xsl:with-param name="list-id" select="$first-lower-level-num-id"/>
                         </xsl:call-template>
                         <!-- List Content -->
                         <xsl:call-template name="create-html-list">
@@ -815,10 +815,11 @@
     
     <!-- Attributes for List Element (ol, ul) -->
     <xsl:template name="insert-list-attributes">
-        <xsl:param name="id" select="''"/>
+        <xsl:param name="list-id" select="''"/>
+        <xsl:param name="list-item-level" select="''"/>
         <!-- ID -->
         <xsl:attribute name="{$list-id-attribute-name}">
-            <xsl:value-of select="$id"/>
+            <xsl:value-of select="$list-id"/>
         </xsl:attribute>
     </xsl:template>
     
@@ -845,9 +846,7 @@
                 </xsl:variable>
                 <xsl:element name="{$paragraph-tag-name}" namespace="{$ns}">
                     <!-- Attributes -->
-                    <xsl:call-template name="insert-paragraph-attributes">
-                        <xsl:with-param name="tag-name" select="$paragraph-tag-name"/>
-                    </xsl:call-template>
+                    <xsl:call-template name="insert-paragraph-attributes"/>
                     <!-- Structure text runs (e.g. complex fields) -->
                     <xsl:call-template name="structure-text-runs">
                         <xsl:with-param name="target-elements" select="*"/>
@@ -997,7 +996,6 @@
     
     <!-- Attribute for Headline and Paragraph -->
     <xsl:template name="insert-paragraph-attributes">
-        <xsl:param name="tag-name" select="'p'"/>
         <!-- ID -->
         <xsl:attribute name="{$paragraph-id-attribute-name}">
             <xsl:choose>

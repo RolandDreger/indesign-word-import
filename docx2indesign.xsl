@@ -186,7 +186,7 @@
                 <xsl:element name="{$cur-level-list-tag-name}" namespace="{$ns}">
                     <!-- List Attributes -->
                     <xsl:call-template name="insert-list-attributes">
-                        <xsl:with-param name="id" select="$first-num-id"/>
+                        <xsl:with-param name="list-id" select="$first-num-id"/>
                     </xsl:call-template>
                     <!-- List Items -->
                     <xsl:for-each select="$list-elements">
@@ -206,7 +206,7 @@
                 <xsl:element name="{$cur-level-list-tag-name}" namespace="{$ns}">
                     <!-- List Attributes -->
                     <xsl:call-template name="insert-list-attributes">
-                        <xsl:with-param name="id" select="$first-num-id"/>
+                        <xsl:with-param name="list-id" select="$first-num-id"/>
                     </xsl:call-template>
                     <!-- List Content -->
                     <xsl:call-template name="create-html-list">
@@ -240,7 +240,7 @@
                     <xsl:element name="{$lower-level-list-tag-name}" namespace="{$ns}">
                         <!-- List Attributes -->
                         <xsl:call-template name="insert-list-attributes">
-                            <xsl:with-param name="id" select="$first-lower-level-num-id"/>
+                            <xsl:with-param name="list-id" select="$first-lower-level-num-id"/>
                         </xsl:call-template>
                         <!-- List Content -->
                         <xsl:call-template name="create-html-list">
@@ -280,7 +280,7 @@
                     <xsl:element name="{$lower-level-list-tag-name}" namespace="{$ns}">
                         <!-- List Attributes -->
                         <xsl:call-template name="insert-list-attributes">
-                            <xsl:with-param name="id" select="$first-lower-level-num-id"/>
+                            <xsl:with-param name="list-id" select="$first-lower-level-num-id"/>
                         </xsl:call-template>
                         <!-- List Content -->
                         <xsl:call-template name="create-html-list">
@@ -1803,7 +1803,7 @@
     </xsl:template><!-- 
         Math Expression 
         Office Math Markup Language (OMML) to Mathematical Markup Language (MathML)
-    --><!-- Attributes for Mathematical Equation --><xsl:template name="insert-equation-attributes">
+    --><!-- Attributes for Math Expression --><xsl:template name="insert-equation-attributes">
         <!-- Style -->
         <xsl:attribute name="{$equation-style-attribute-name}">
             <xsl:value-of select="$equation-style-attribute-value"/>
