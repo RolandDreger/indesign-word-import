@@ -10,7 +10,7 @@
     <p:input port="source" sequence="true" >
         <rd:config>
             <!-- Path to Word-XML-Document (must be relative to XSLT stylesheet) -->
-            <rd:item name="word-xml-document" href="../tests/list/list.xml"/>
+            <rd:item name="word-xml-document" href="../tests/math_expressions/math_expressions.xml"/>
             <!-- Selected modes (space separated values) -->
             <rd:item name="modes" value="indesign html xhtml"/> 
             <!-- XSLT stylesheets -->

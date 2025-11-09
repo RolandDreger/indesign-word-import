@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml">
    <head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-      <title>Test Report for /Volumes/Grafikdesign/Ressourcen/Scripting/InDesign/ExtendScript/Scripts/Word-Import/code/src/docx2indesign.xsl (passed: 18 / pending: 2 / failed: 0 / total: 20)</title>
+      <title>Test Report for /Volumes/Grafikdesign/Ressourcen/Scripting/InDesign/ExtendScript/Scripts/Word-Import/code/src/docx2indesign.xsl (passed: 20 / pending: 2 / failed: 0 / total: 22)</title>
       <style type="text/css">/****************************************************************************/
 /*  File:       test-report.css                                             */
 /*  Author:     Jeni Tennison                                               */
@@ -402,6 +402,13 @@ a.img:active {
 	background: white;
 }
 
+.unknown {
+	font-style: italic;
+	font-weight: bold;
+	color: #999;
+	background: white;
+}
+
 .hit {
 }
 
@@ -592,7 +599,7 @@ span.scenario-totals {
       <h1>Test Report</h1>
       <p>Stylesheet: <a href="file:/Volumes/Grafikdesign/Ressourcen/Scripting/InDesign/ExtendScript/Scripts/Word-Import/code/src/docx2indesign.xsl">/Volumes/Grafikdesign/Ressourcen/Scripting/InDesign/ExtendScript/Scripts/Word-Import/code/src/docx2indesign.xsl</a></p>
       <p>XSpec: <a href="file:/Volumes/Grafikdesign/Ressourcen/Scripting/InDesign/ExtendScript/Scripts/Word-Import/code/tests/tests4indesign.xspec">/Volumes/Grafikdesign/Ressourcen/Scripting/InDesign/ExtendScript/Scripts/Word-Import/code/tests/tests4indesign.xspec</a></p>
-      <p>Tested: 4 Oktober 2024 at 16:27</p>
+      <p>Tested: 9 November 2025 at 22:40</p>
       <h2>Contents</h2>
       <table class="xspec">
          <colgroup>
@@ -605,24 +612,24 @@ span.scenario-totals {
          <thead>
             <tr>
                <th></th>
-               <th class="totals">passed: 18</th>
+               <th class="totals">passed: 20</th>
                <th class="totals">pending: 2</th>
                <th class="totals">failed: 0</th>
-               <th class="totals">total: 20</th>
+               <th class="totals">total: 22</th>
             </tr>
          </thead>
          <tbody>
             <tr class="successful">
                <th><a href="#top_scenario1">Unit tests for InDesign</a></th>
-               <th class="totals">18</th>
+               <th class="totals">20</th>
                <th class="totals">2</th>
                <th class="totals">0</th>
-               <th class="totals">20</th>
+               <th class="totals">22</th>
             </tr>
          </tbody>
       </table>
       <div id="top_scenario1">
-         <h2 class="successful">Unit tests for InDesign<span class="scenario-totals">passed: 18 / pending: 2 / failed: 0 / total: 20</span></h2>
+         <h2 class="successful">Unit tests for InDesign<span class="scenario-totals">passed: 20 / pending: 2 / failed: 0 / total: 22</span></h2>
          <table class="xspec" id="table_scenario1">
             <colgroup>
                <col style="width:75%" />
@@ -631,7 +638,7 @@ span.scenario-totals {
             <tbody>
                <tr class="successful">
                   <th>Unit tests for InDesign</th>
-                  <th>passed: 18 / pending: 2 / failed: 0 / total: 20</th>
+                  <th>passed: 20 / pending: 2 / failed: 0 / total: 22</th>
                </tr>
                <tr class="successful">
                   <th>Local Style Overrides</th>
@@ -731,6 +738,18 @@ span.scenario-totals {
                </tr>
                <tr class="successful">
                   <th>Table with faulty structure</th>
+                  <th>passed: 2 / pending: 0 / failed: 0 / total: 2</th>
+               </tr>
+               <tr class="successful">
+                  <td>XML structure must be equal</td>
+                  <td>Success</td>
+               </tr>
+               <tr class="successful">
+                  <td>Number of child elements must be greater than 0</td>
+                  <td>Success</td>
+               </tr>
+               <tr class="successful">
+                  <th>Math Expressions</th>
                   <th>passed: 2 / pending: 0 / failed: 0 / total: 2</th>
                </tr>
                <tr class="successful">

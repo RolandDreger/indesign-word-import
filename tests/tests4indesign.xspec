@@ -112,6 +112,16 @@
             <x:expect label="Number of child elements must be greater than 0" test="count(/document/*) gt 0" />
         </x:scenario>
         
+        <!-- Math Expressions -->
+        <x:scenario label="Math Expressions">
+            <!-- Parameter for Stylesheet -->
+            <x:param name="document-file-name" select="'../tests/math_expressions/math_expressions.xml'" />
+            <!-- Word-XML-Document to transform with docx2indesign.xsl -->
+            <x:context href="../tests/math_expressions/math_expressions.xml"/>
+            <!-- Expected results -->
+            <x:expect label="XML structure must be equal" href="math_expressions/indesign/math_expressions.xml" select="/" test="/" as="document-node()" />
+            <x:expect label="Number of child elements must be greater than 0" test="count(/document/*) gt 0" />
+        </x:scenario>
         
         
         <!-- +++++++++++++++++++++ -->
