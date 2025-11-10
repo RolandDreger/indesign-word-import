@@ -165,6 +165,9 @@ function __showImportDialog(_setupObj) {
 	var _crossReferenceCreatedRadiobutton;
 	var _crossReferenceMarkedRadiobutton;
 	var _crossReferenceIgnoredRadiobutton;
+	var _mathExpressionCreatedRadiobutton;
+	var _mathExpressionMarkedRadiobutton;
+	var _mathExpressionIgnoredRadiobutton;
 	var _bookmarkCreatedCheckbox;
 	var _bookmarkMarkerGroup;
 	var _bookmarkMarkerEdittext;
@@ -394,7 +397,7 @@ function __showImportDialog(_setupObj) {
 			with(_columnThree) {
 				orientation = "column";
 				alignChildren = ["fill","fill"];
-				spacing = GAP*4;
+				spacing = GAP * 2;
 				var _commentPanel = add("panel", undefined, localize(_global.commentsLabel));
 				with(_commentPanel) {
 					orientation = "row";
@@ -425,6 +428,16 @@ function __showImportDialog(_setupObj) {
 					_crossReferenceMarkedRadiobutton = add("radiobutton", undefined, localize(_global.markLabel));
 					_crossReferenceIgnoredRadiobutton = add("radiobutton", undefined, localize(_global.ignoreLabel));
 				} /* END _crossReferencePanel */
+				var _mathExpressionPanel = add("panel", undefined, localize(_global.mathExpressionsLabel));
+				with (_mathExpressionPanel) {
+					orientation = "row";
+					margins = [MARGIN * 2, MARGIN * 3, MARGIN * 2, MARGIN * 1];
+					alignChildren = ["left", "top"];
+					spacing = GAP * 2;
+					_mathExpressionCreatedRadiobutton = add("radiobutton", undefined, localize(_global.createLabel));
+					_mathExpressionMarkedRadiobutton = add("radiobutton", undefined, localize(_global.markLabel));
+					_mathExpressionIgnoredRadiobutton = add("radiobutton", undefined, localize(_global.ignoreLabel));
+				} /* END _mathExpressionPanel */
 				var _indexmarkPanel = add("panel", undefined, localize(_global.indexmarksLabel));
 				with(_indexmarkPanel) {
 					orientation = "row";
@@ -579,6 +592,9 @@ function __showImportDialog(_setupObj) {
 	_crossReferenceCreatedRadiobutton.value = _setupObj["crossReference"]["isCreated"];
 	_crossReferenceMarkedRadiobutton.value = _setupObj["crossReference"]["isMarked"];
 	_crossReferenceIgnoredRadiobutton.value = _setupObj["crossReference"]["isIgnored"];
+	_mathExpressionCreatedRadiobutton.value = _setupObj["mathExpression"]["isCreated"];
+	_mathExpressionMarkedRadiobutton.value = _setupObj["mathExpression"]["isMarked"];
+	_mathExpressionIgnoredRadiobutton.value = _setupObj["mathExpression"]["isIgnored"];
 	_bookmarkCreatedCheckbox.value = _setupObj["bookmark"]["isCreated"];
 	_bookmarkMarkerEdittext.text = _setupObj["bookmark"]["marker"];
 	_trackChangesMarkedRadiobutton.value = _setupObj["trackChanges"]["isMarked"];
@@ -634,6 +650,7 @@ function __showImportDialog(_setupObj) {
 	_setupObj["metadata"]["areIgnored"] = _metadataIgnoredRadiobutton.value;		
 	_setupObj["import"]["styleMode"] = (_extendedStyleModeRadiobutton.value && "extended") || (_minimizedStyleModeRadiobutton.value && "minimized");
 	_setupObj["import"]["tableMode"] = (_tableTableModeRadiobutton.value && "table") || (_tabbedlistTableModeRadiobutton.value && "tabbedlist");
+	_setupObj["import"]["mathMode"] = (_mathExpressionCreatedRadiobutton.value && "mml") || (_mathExpressionMarkedRadiobutton.value && "text" || (_mathExpressionIgnoredRadiobutton.value && "remove"));
 	_setupObj["pageBreak"]["isInserted"] = _pageBreakCheckbox.value;
 	_setupObj["columnBreak"]["isInserted"] = _columnBreakCheckbox.value;
 	_setupObj["forcedLineBreak"]["isInserted"] = _forcedLineBreakCheckbox.value;
@@ -649,6 +666,9 @@ function __showImportDialog(_setupObj) {
 	_setupObj["crossReference"]["isCreated"] = _crossReferenceCreatedRadiobutton.value;
 	_setupObj["crossReference"]["isMarked"] = _crossReferenceMarkedRadiobutton.value;
 	_setupObj["crossReference"]["isIgnored"] = _crossReferenceIgnoredRadiobutton.value;
+	_setupObj["mathExpression"]["isCreated"] = _mathExpressionCreatedRadiobutton.value;
+	_setupObj["mathExpression"]["isMarked"] = _mathExpressionMarkedRadiobutton.value;
+	_setupObj["mathExpression"]["isIgnored"] = _mathExpressionIgnoredRadiobutton.value;
 	_setupObj["bookmark"]["isCreated"] = _bookmarkCreatedCheckbox.value;
 	_setupObj["bookmark"]["marker"] = _bookmarkMarkerEdittext.text;
 	_setupObj["trackChanges"]["isMarked"] = _trackChangesMarkedRadiobutton.value;
