@@ -1,4 +1,4 @@
-﻿/* DESCRIPTION: Import Word Document (docx) */ 
+﻿/* DESCRIPTION: Import Word Document (docx) */
 
 /*
 	
@@ -6,7 +6,7 @@
 		+ Author: Roland Dreger 
 		+ Date: January 24, 2022
 		
-		+ Last modified: October 4, 2024
+		+ Last modified: November 11, 2025
 		
 		
 		+ Descriptions
