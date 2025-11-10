@@ -162,7 +162,31 @@ _global["setups"] = {
 		"color": [255, 155, 155],
 		"isRemoved": false,
 		"isMarked": false,
-		"isCreated": true
+		"isCreated": true,
+		"objectStyleProperties": {
+			"fillColor": "None",
+			"strokeColor": "None",
+			"strokeWeight": 0,
+			"strokeTint": -1,
+			"nonprinting": false,
+			"visible": true,
+			"contentType": ContentType.UNASSIGNED,
+			"enableAnchoredObjectOptions": true,
+			"anchoredObjectSettings": {
+				"anchorPoint": AnchorPoint.BOTTOM_RIGHT_ANCHOR,
+				"anchorSpaceAbove": 0,
+				"anchorXoffset": 0,
+				"anchorYoffset": -1.92474456893073,
+				"anchoredPosition": AnchorPosition.INLINE_POSITION,
+				"horizontalAlignment": HorizontalAlignment.LEFT_ALIGN,
+				"horizontalReferencePoint": AnchoredRelativeTo.TEXT_FRAME,
+				"lockPosition": false,
+				"pinPosition": true,
+				"spineRelative": false,
+				"verticalAlignment": VerticalAlignment.BOTTOM_ALIGN,
+				"verticalReferencePoint": VerticallyRelativeTo.LINE_BASELINE
+			}
+		}
 	},
 	"bookmark":{
 		"tag":"bookmark",
@@ -2512,161 +2536,12 @@ function __handleMathExpressions(_doc, _wordXMLElement, _setupObj) {
 	}
 
 	if (IS_MATH_EXPRESSION_CREATED) {
-		/* Bug: InDesign crashes when a MathMLObject is added at this point. See function insertMathMLObjects(). */
+		/* Bug: InDesign crashes when a MathMLObject is added at this point. See function __createMathExpressions(). */
 		return true;
 	}
 
 	return true;
 } /* END function __handleMathExpressions */
-
-
-/**
- * Create math expressions (MathML)
- * @param {Document} _doc 
- * @param {XMLElement} _wordXMLElement 
- * @param {Array} _mathExpressionXMLElementArray 
- * @param {Object} _setupObj 
- */
-function __createMathExpressions(_doc, _wordXMLElement, _mathExpressionXMLElementArray, _setupObj) {
-
-	if (!_doc || !(_doc instanceof Document) || !_doc.isValid) {
-		throw new Error("Document as parameter required.");
-	}
-	if (!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) {
-		throw new Error("XMLElement as parameter required.");
-	}
-	if (!_mathExpressionXMLElementArray || !(_mathExpressionXMLElementArray instanceof Array)) {
-		throw new Error("Array as parameter required.");
-	}
-	if (!_setupObj || !(_setupObj instanceof Object)) {
-		throw new Error("Object as parameter required.");
-	}
-
-	var _counter = 0;
-
-	for (var i = _mathExpressionXMLElementArray.length - 1; i >= 0; i -= 1) {
-
-		var _mathExpressionXMLElement = _mathExpressionXMLElementArray[i];
-		if (!_mathExpressionXMLElement || !_mathExpressionXMLElement.isValid) {
-			continue;
-		}
-
-		var _mathElement = _mathExpressionXMLElement.xmlElements.firstItem();
-		if (!_mathElement.isValid || _mathElement.markupTag.name !== "math") {
-			continue;
-		}
-
-		var _mathML;
-
-		try {
-			_mathML = getMathMLString(_mathElement);
-		} catch (_error) {
-			_global["log"].push(localize(_global.mathExpressionsLabel) + ": " + _error.message);
-			continue;
-		}
-
-		if (!_mathML) {
-			_global["log"].push(localize(_global.getMathExpressionErrorMessage));
-			continue;
-		}
-
-		try {
-			/* Remove math XML element */
-			_mathElement.remove();
-		} catch (_error) {
-			_global["log"].push(localize(_global.mathExpressionsLabel) + ": " + _error.message);
-			continue;
-		}
-
-		_counter += 1;
-	}
-
-	if (_global["isLogged"]) {
-		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.mathExpressionsLabel)));
-	}
-
-	return true;
-}
-
-
-/**
- * Recursively serialize MathML elements into a string.
- *
- * @param {XMLElement} xmlElement InDesign XMLElement to serialize
- * @return {String} Math XML markup
- */
-function getMathMLString(xmlElement) {
-
-	if (!xmlElement || !(xmlElement instanceof XMLElement) || !xmlElement.isValid) {
-		return "";
-	}
-
-	var tagName = xmlElement.markupTag.name;
-	var math = '<' + tagName;
-
-	/* Attributes */
-	for (var i = 0; i < xmlElement.xmlAttributes.length; i += 1) {
-		var xmlAttribute = xmlElement.xmlAttributes[i];
-		if (!xmlAttribute || !xmlAttribute.isValid) {
-			continue;
-		}
-		var xmlAttributeName = xmlAttribute.name;
-		var xmlAttributeValue = xmlAttribute.value;
-		math += ' ' + xmlAttributeName + '="' + escapeAttribute(xmlAttributeValue) + '"';
-	}
-
-	math += '>';
-
-	/* Text contents */
-	if (xmlElement.xmlElements.length === 0) {
-		var text = xmlElement.contents;
-		if (!!text) {
-			math += escapeText(String(text));
-		}
-	}
-
-	/* XML child elements */
-	for (var j = 0; j < xmlElement.xmlElements.length; j += 1) {
-		var childXMLElement = xmlElement.xmlElements[j];
-		if (!childXMLElement || !childXMLElement.isValid) {
-			continue;
-		}
-		math += getMathMLString(childXMLElement);
-	}
-
-	math += '</' + tagName + '>';
-
-	return math;
-}
-
-/**
- * Escape XML element text
- * @param {string} text 
- * @returns {string}
- */
-function escapeText(text) {
-	if (!text || typeof text !== "string") {
-		return "";
-	}
-	return text.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;');
-}
-
-/**
- * Escape XML attribute value
- * @param {string} value 
- * @returns  {string}
- */
-function escapeAttribute(value) {
-	if (!value || typeof value !== "string") {
-		return "";
-	}
-	return value.replace(/&/g, '&amp;')
-		.replace(/"/g, '&quot;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;');
-}
 
 
 /**
@@ -3874,6 +3749,218 @@ function __mountAfterPlaced(_doc, _unpackObj, _wordXMLElement, _wordStory, _setu
 		throw new Error("Object as parameter required.");
 	}
 
+	/* Create MathML objects */
+	__createMathExpressions(_doc, _wordXMLElement, _setupObj)
 
 	return {};
 } /* END function __mountAfterPlaced */
+
+
+/**
+ * Create math expressions (MathML)
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ */
+function __createMathExpressions(_doc, _wordXMLElement, _setupObj) {
+
+	if (!_doc || !(_doc instanceof Document) || !_doc.isValid) {
+		throw new Error("Document as parameter required.");
+	}
+	if (!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) {
+		throw new Error("XMLElement as parameter required.");
+	}
+	if (!_setupObj || !(_setupObj instanceof Object)) {
+		throw new Error("Object as parameter required.");
+	}
+
+	const IS_MATH_EXPRESSION_CREATED = _setupObj["mathExpression"]["isCreated"];
+	if (!IS_MATH_EXPRESSION_CREATED) {
+		return true;
+	}
+
+	const MATH_EXPRESSION_TAG_NAME = _setupObj["mathExpression"]["tag"];
+	var _mathExpressionXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + MATH_EXPRESSION_TAG_NAME);
+	if (_mathExpressionXMLElementArray.length === 0) {
+		return true;
+	}
+
+	const CHARACTER_STYLE_ATTRIBUTE_NAME = "aid:cstyle";
+	const OBJECT_STYLE_PROPERTIES = _setupObj["mathExpression"]["objectStyleProperties"];
+
+	var _counter = 0;
+
+	for (var i = _mathExpressionXMLElementArray.length - 1; i >= 0; i -= 1) {
+
+		var _mathExpressionXMLElement = _mathExpressionXMLElementArray[i];
+		if (!_mathExpressionXMLElement || !_mathExpressionXMLElement.isValid) {
+			continue;
+		}
+
+		var _mathElement = _mathExpressionXMLElement.xmlElements.firstItem();
+		if (!_mathElement.isValid || _mathElement.markupTag.name !== "math") {
+			continue;
+		}
+
+		var _mathML;
+
+		try {
+			_mathML = __getMathMLString(_mathElement);
+		} catch (_error) {
+			_global["log"].push(localize(_global.mathExpressionsLabel) + ": " + _error.message);
+			continue;
+		}
+
+		if (!_mathML) {
+			_global["log"].push(localize(_global.getMathExpressionErrorMessage));
+			continue;
+		}
+
+		/* Remove math XML element */
+		try {
+			_mathElement.remove();
+		} catch (_error) {
+			_global["log"].push(localize(_global.mathExpressionsLabel) + ": " + _error.message);
+			continue;
+		}
+
+		/* Add MathML object */
+		var _mathObject;
+
+		try {
+			_mathObject = _doc.mathObjects.add(_mathML);
+		} catch (_error) {
+			_global["log"].push(localize(_global.mathExpressionsLabel) + ": " + _error.message);
+			continue;
+		}
+
+		if (!_mathObject || !_mathObject.isValid) {
+			continue;
+		}
+
+		var _mathObjectRectangle = _mathObject.parent;
+		if (!_mathObjectRectangle || !_mathObjectRectangle.isValid || !_mathObjectRectangle.hasOwnProperty("anchoredObjectSettings")) {
+			continue;
+		}
+
+		var _targetIP = _mathExpressionXMLElement.insertionPoints.firstItem();
+		if (!_targetIP.isValid) {
+			continue;
+		}
+
+		/* MathML Object Style */
+		var _oStyle;
+		var _cStyleXMLAttribute = _mathExpressionXMLElement.xmlAttributes.itemByName(CHARACTER_STYLE_ATTRIBUTE_NAME);
+		if (_cStyleXMLAttribute.isValid) {
+			var _oStyleName = _cStyleXMLAttribute.value;
+			if (!!_oStyleName) {
+				_oStyle = _doc.objectStyles.itemByName(_oStyleName);
+				if (!_oStyle.isValid) {
+					_oStyle = _doc.objectStyles.add({ name: _oStyleName }); /* -> DOC */
+					_oStyle.properties = OBJECT_STYLE_PROPERTIES;
+				}
+			}
+		}
+		if (!_oStyle || !_oStyle.isValid) {
+			_oStyle = _doc.objectStyles.firstItem();
+		}
+
+		/* Anchore MathML object */
+		try {
+			_mathObjectRectangle.anchoredObjectSettings.insertAnchoredObject(_targetIP, AnchorPosition.INLINE_POSITION);
+			/* Apply object style */
+			_mathObjectRectangle.applyObjectStyle(_oStyle);
+		} catch (_error) {
+			_global["log"].push(localize(_global.mathExpressionsLabel) + ": " + _error.message);
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if (_global["isLogged"]) {
+		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.mathExpressionsLabel)));
+	}
+
+	return true;
+}
+
+
+/**
+ * Recursively serialize MathML elements into a string.
+ *
+ * @param {XMLElement} xmlElement InDesign XMLElement to serialize
+ * @return {String} Math XML markup
+ */
+function __getMathMLString(xmlElement) {
+
+	if (!xmlElement || !(xmlElement instanceof XMLElement) || !xmlElement.isValid) {
+		return "";
+	}
+
+	var tagName = xmlElement.markupTag.name;
+	var math = '<' + tagName;
+
+	/* Attributes */
+	for (var i = 0; i < xmlElement.xmlAttributes.length; i += 1) {
+		var xmlAttribute = xmlElement.xmlAttributes[i];
+		if (!xmlAttribute || !xmlAttribute.isValid) {
+			continue;
+		}
+		var xmlAttributeName = xmlAttribute.name;
+		var xmlAttributeValue = xmlAttribute.value;
+		math += ' ' + xmlAttributeName + '="' + escapeAttribute(xmlAttributeValue) + '"';
+	}
+
+	math += '>';
+
+	/* Text contents */
+	if (xmlElement.xmlElements.length === 0) {
+		var text = xmlElement.contents;
+		if (!!text) {
+			math += escapeText(String(text));
+		}
+	}
+
+	/* XML child elements */
+	for (var j = 0; j < xmlElement.xmlElements.length; j += 1) {
+		var childXMLElement = xmlElement.xmlElements[j];
+		if (!childXMLElement || !childXMLElement.isValid) {
+			continue;
+		}
+		math += __getMathMLString(childXMLElement);
+	}
+
+	math += '</' + tagName + '>';
+
+	return math;
+}
+
+/**
+ * Escape XML element text
+ * @param {string} text 
+ * @returns {string}
+ */
+function escapeText(text) {
+	if (!text || typeof text !== "string") {
+		return "";
+	}
+	return text.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
+}
+
+/**
+ * Escape XML attribute value
+ * @param {string} value 
+ * @returns  {string}
+ */
+function escapeAttribute(value) {
+	if (!value || typeof value !== "string") {
+		return "";
+	}
+	return value.replace(/&/g, '&amp;')
+		.replace(/"/g, '&quot;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
+}
