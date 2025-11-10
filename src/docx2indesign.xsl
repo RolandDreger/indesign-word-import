@@ -1126,6 +1126,14 @@
             </xsl:choose>
     </xsl:template>
     
+    <!-- Attributes for Math Expression -->
+    <xsl:template name="insert-equation-attributes">
+        <!-- Style -->
+        <xsl:attribute name="{concat('aid',':', $equation-style-attribute-name)}">
+            <xsl:value-of select="$equation-style-attribute-value"/>
+        </xsl:attribute>
+    </xsl:template>
+    
     
     <!-- Break -->
     <xsl:template match="w:br">

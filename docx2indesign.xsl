@@ -1803,12 +1803,7 @@
     </xsl:template><!-- 
         Math Expression 
         Office Math Markup Language (OMML) to Mathematical Markup Language (MathML)
-    --><!-- Attributes for Math Expression --><xsl:template name="insert-equation-attributes">
-        <!-- Style -->
-        <xsl:attribute name="{$equation-style-attribute-name}">
-            <xsl:value-of select="$equation-style-attribute-value"/>
-        </xsl:attribute>
-    </xsl:template><!--
+    --><!-- Attributes for Math Expression --><!--
         OMML to MML
         This part of stylesheet is derived from the TEI XSL stylesheet: 
         https://github.com/TEIC/Stylesheets/blob/dev/docx/from/omml2mml.xsl
@@ -4545,6 +4540,14 @@
                     </xsl:element>
                 </xsl:when>
             </xsl:choose>
+    </xsl:template>
+    
+    <!-- Attributes for Math Expression -->
+    <xsl:template name="insert-equation-attributes">
+        <!-- Style -->
+        <xsl:attribute name="{concat('aid',':', $equation-style-attribute-name)}">
+            <xsl:value-of select="$equation-style-attribute-value"/>
+        </xsl:attribute>
     </xsl:template>
     
     
