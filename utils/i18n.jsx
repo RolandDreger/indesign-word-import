@@ -383,11 +383,6 @@
 		de: "Hyperlink ohne Textinhalt. Index [%1] URI [%2]" 
 	};
 
-	_global.crossReferencesLabel = { 
-		en: "cross-references",
-		de: "Querverweise" 
-	};
-
 	_global.missingCrossReferenceURIMessage = { 
 		en: "Cross-reference element without URI. Attribute [%1]",
 		de: "Querverweis-Element ohne URI. Attribut [%1]" 
@@ -620,6 +615,16 @@
 		en: "Cross-references",
 		de: "Querverweise" 
 	};
+
+	 _global.mathExpressionsLabel = {
+		 en: "Math Expressions",
+		 de: "Mathematische Ausdr\u00FCcke"
+	 };
+
+	 _global.getMathExpressionErrorMessage = {
+		 en: "Failed to get MathML.",
+		 de: "Erstellung von MathML fehlgeschlagen."
+	 };
 
 	_global.bookmarksPanelLabel = { 
 		en: "Bookmarks",

@@ -70,8 +70,9 @@ _global["setups"] = {
 		"name":"docx2Indesign.xsl"
 	},
 	"import":{
-		"styleMode":"extended", /* Type: String. Value: 'extended' or 'minimized'. Description:  If minimized, all local overrides are ignored except the following: strong, i, em, u, superscript, subscript, small caps, caps, highlight. */
-		"tableMode":"table" /* Type: String. Value: 'table' or 'tabbedlist'. Description: If 'tabbedlist', import table structure as tab separated text. */
+		"styleMode": "extended", /* Type: String. Value: 'extended' or 'minimized'. Description:  If minimized, all local overrides are ignored except the following: strong, i, em, u, superscript, subscript, small caps, caps, highlight. */
+		"tableMode": "table", /* Type: String. Value: 'table' or 'tabbedlist'. Description: If 'tabbedlist', import table structure as tab separated text. */
+		"mathMode": "mml" /* Type: String. Value: 'mml' or 'text' or 'remove' */
 	},
 	"place":{},
 	"mount":{},
@@ -155,6 +156,13 @@ _global["setups"] = {
 		"isMarked":false, 
 		"isCreated":true,
 		"isIgnored":false
+	},
+	"mathExpression": {
+		"tag": "math-expression",
+		"color": [255, 155, 155],
+		"isRemoved": false,
+		"isMarked": false,
+		"isCreated": true
 	},
 	"bookmark":{
 		"tag":"bookmark",
@@ -263,7 +271,6 @@ _global["setups"] = {
 		"isMarked":false, 
 		"isCreated":true
 	}
-	
 };
 
 /* Check: Developer or User? */
@@ -606,6 +613,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 	const _xsltFileName = _setupObj["xslt"]["name"];
 	const _styleMode = _setupObj["import"]["styleMode"];
 	const _tableMode = _setupObj["import"]["tableMode"];
+	const _mathMode = _setupObj["import"]["mathMode"];
 
 	_global["progressbar"].init(0, 2, "", localize(_global.importProgressLabel));
 	_global["progressbar"].step();
@@ -615,6 +623,7 @@ function __importXML(_doc, _unpackObj, _setupObj) {
 	_transformParams.push(["app", "indesign"]);
 	_transformParams.push(["style-mode", _styleMode]);
 	_transformParams.push(["table-mode", _tableMode]);
+	_transformParams.push(["math-mode", _mathMode]);
 	_transformParams.push(["fallback-paragraph-style-name", _defaultPStyleName]);
 
 	var _xsltFile = __getXSLTFile(_xsltFileName);
@@ -837,16 +846,19 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 	/* 06 Cross-references */
 	__handleCrossReferences(_doc, _wordXMLElement, _setupObj);
 
-	/* 07Bookmarks */
+	/* 07 Math expressions */
+	__handleMathExpressions(_doc, _wordXMLElement, _setupObj);
+
+	/* 08 Bookmarks */
 	__handleBookmarks(_doc, _wordXMLElement, _setupObj);
 	
-	/* 08 Textboxes */
+	/* 09 Textboxes */
 	__handleTextboxes(_doc, _wordXMLElement, _setupObj);
 
-	/* 09 Images */
+	/* 10 Images */
 	__handleImages(_doc, _wordXMLElement, _unpackObj, _setupObj);
 
-	/* 10 Track Changes */
+	/* 11 Track Changes */
 	__handleTrackChanges(_doc, _wordXMLElement, _setupObj);
 
 	/* 
@@ -854,13 +866,12 @@ function __mountBeforePlaced(_doc, _unpackObj, _wordXMLElement, _setupObj) {
 		(After all XML manipulations, since XML elements must be removed from footnotes and endnotes)
 	*/
 
-	/* 11 Footnotes */ 
+	/* 12 Footnotes */
 	__handleFootnotes(_doc, _wordXMLElement, _setupObj);
 	
-	/* 12 Endnotes */
+	/* 13 Endnotes */
 	__handleEndnotes(_doc, _wordXMLElement, _setupObj);	
 
-	
 	return {};
 } /* END function __mountBeforePlaced */
 
@@ -2459,6 +2470,203 @@ function __createCrossReferenceFormat(_doc, _crossRefFormatId, _buildingBlockTyp
 
 	return _crossRefFormat;
 } /* END function __createCrossReferenceFormat */
+
+
+/**
+ * Handle math expressions (MathML)
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Object} _setupObj 
+ * @returns Boolean
+ */
+function __handleMathExpressions(_doc, _wordXMLElement, _setupObj) {
+
+	if (!_doc || !(_doc instanceof Document) || !_doc.isValid) {
+		throw new Error("Document as parameter required.");
+	}
+	if (!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) {
+		throw new Error("XMLElement as parameter required.");
+	}
+	if (!_setupObj || !(_setupObj instanceof Object)) {
+		throw new Error("Object as parameter required.");
+	}
+
+	const MATH_EXPRESSION_TAG_NAME = _setupObj["mathExpression"]["tag"];
+	const COLOR_ARRAY = _setupObj["mathExpression"]["color"];
+	const IS_MATH_EXPRESSION_MARKED = _setupObj["mathExpression"]["isMarked"];
+	const IS_MATH_EXPRESSION_CREATED = _setupObj["mathExpression"]["isCreated"];
+	const IS_MATH_EXPRESSION_IGNORED = _setupObj["mathExpression"]["isIgnored"];
+
+	if (IS_MATH_EXPRESSION_IGNORED) {
+		return true;
+	}
+
+	var _mathExpressionXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + MATH_EXPRESSION_TAG_NAME);
+	if (_mathExpressionXMLElementArray.length === 0) {
+		return true;
+	}
+
+	if (IS_MATH_EXPRESSION_MARKED) {
+		__markXMLElements(_doc, _mathExpressionXMLElementArray, localize(_global.mathExpressionsLabel), COLOR_ARRAY);
+		return true;
+	}
+
+	if (IS_MATH_EXPRESSION_CREATED) {
+		/* Bug: InDesign crashes when a MathMLObject is added at this point. See function insertMathMLObjects(). */
+		return true;
+	}
+
+	return true;
+} /* END function __handleMathExpressions */
+
+
+/**
+ * Create math expressions (MathML)
+ * @param {Document} _doc 
+ * @param {XMLElement} _wordXMLElement 
+ * @param {Array} _mathExpressionXMLElementArray 
+ * @param {Object} _setupObj 
+ */
+function __createMathExpressions(_doc, _wordXMLElement, _mathExpressionXMLElementArray, _setupObj) {
+
+	if (!_doc || !(_doc instanceof Document) || !_doc.isValid) {
+		throw new Error("Document as parameter required.");
+	}
+	if (!_wordXMLElement || !(_wordXMLElement instanceof XMLElement) || !_wordXMLElement.isValid) {
+		throw new Error("XMLElement as parameter required.");
+	}
+	if (!_mathExpressionXMLElementArray || !(_mathExpressionXMLElementArray instanceof Array)) {
+		throw new Error("Array as parameter required.");
+	}
+	if (!_setupObj || !(_setupObj instanceof Object)) {
+		throw new Error("Object as parameter required.");
+	}
+
+	var _counter = 0;
+
+	for (var i = _mathExpressionXMLElementArray.length - 1; i >= 0; i -= 1) {
+
+		var _mathExpressionXMLElement = _mathExpressionXMLElementArray[i];
+		if (!_mathExpressionXMLElement || !_mathExpressionXMLElement.isValid) {
+			continue;
+		}
+
+		var _mathElement = _mathExpressionXMLElement.xmlElements.firstItem();
+		if (!_mathElement.isValid || _mathElement.markupTag.name !== "math") {
+			continue;
+		}
+
+		var _mathML;
+
+		try {
+			_mathML = getMathMLString(_mathElement);
+		} catch (_error) {
+			_global["log"].push(localize(_global.mathExpressionsLabel) + ": " + _error.message);
+			continue;
+		}
+
+		if (!_mathML) {
+			_global["log"].push(localize(_global.getMathExpressionErrorMessage));
+			continue;
+		}
+
+		try {
+			/* Remove math XML element */
+			_mathElement.remove();
+		} catch (_error) {
+			_global["log"].push(localize(_global.mathExpressionsLabel) + ": " + _error.message);
+			continue;
+		}
+
+		_counter += 1;
+	}
+
+	if (_global["isLogged"]) {
+		_global["log"].push(localize(_global.createXMLElementsMessage, _counter, localize(_global.mathExpressionsLabel)));
+	}
+
+	return true;
+}
+
+
+/**
+ * Recursively serialize MathML elements into a string.
+ *
+ * @param {XMLElement} xmlElement InDesign XMLElement to serialize
+ * @return {String} Math XML markup
+ */
+function getMathMLString(xmlElement) {
+
+	if (!xmlElement || !(xmlElement instanceof XMLElement) || !xmlElement.isValid) {
+		return "";
+	}
+
+	var tagName = xmlElement.markupTag.name;
+	var math = '<' + tagName;
+
+	/* Attributes */
+	for (var i = 0; i < xmlElement.xmlAttributes.length; i += 1) {
+		var xmlAttribute = xmlElement.xmlAttributes[i];
+		if (!xmlAttribute || !xmlAttribute.isValid) {
+			continue;
+		}
+		var xmlAttributeName = xmlAttribute.name;
+		var xmlAttributeValue = xmlAttribute.value;
+		math += ' ' + xmlAttributeName + '="' + escapeAttribute(xmlAttributeValue) + '"';
+	}
+
+	math += '>';
+
+	/* Text contents */
+	if (xmlElement.xmlElements.length === 0) {
+		var text = xmlElement.contents;
+		if (!!text) {
+			math += escapeText(String(text));
+		}
+	}
+
+	/* XML child elements */
+	for (var j = 0; j < xmlElement.xmlElements.length; j += 1) {
+		var childXMLElement = xmlElement.xmlElements[j];
+		if (!childXMLElement || !childXMLElement.isValid) {
+			continue;
+		}
+		math += getMathMLString(childXMLElement);
+	}
+
+	math += '</' + tagName + '>';
+
+	return math;
+}
+
+/**
+ * Escape XML element text
+ * @param {string} text 
+ * @returns {string}
+ */
+function escapeText(text) {
+	if (!text || typeof text !== "string") {
+		return "";
+	}
+	return text.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
+}
+
+/**
+ * Escape XML attribute value
+ * @param {string} value 
+ * @returns  {string}
+ */
+function escapeAttribute(value) {
+	if (!value || typeof value !== "string") {
+		return "";
+	}
+	return value.replace(/&/g, '&amp;')
+		.replace(/"/g, '&quot;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
+}
 
 
 /**
