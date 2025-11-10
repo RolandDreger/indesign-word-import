@@ -3779,6 +3779,10 @@ function __createMathExpressions(_doc, _wordXMLElement, _setupObj) {
 		return true;
 	}
 
+	if (!_doc.hasOwnProperty("mathObjects")) {
+		return false;
+	}
+
 	const MATH_EXPRESSION_TAG_NAME = _setupObj["mathExpression"]["tag"];
 	var _mathExpressionXMLElementArray = _wordXMLElement.evaluateXPathExpression("//" + MATH_EXPRESSION_TAG_NAME);
 	if (_mathExpressionXMLElementArray.length === 0) {
